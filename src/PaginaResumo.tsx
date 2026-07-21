@@ -163,7 +163,7 @@ export default function PaginaResumo() {
   }).length;
 
   const diabetes = pacientesPrioritarios.filter((p) => p.classificacao?.toLowerCase().includes("diabetes")).length;
-  const anemiaFalciforme = 0;
+  const anemiaFalciforme = pacientesPrioritarios.filter((p) => p.classificacao?.toLowerCase().includes("anemia")).length;
 
   // ── Gráfico Pizza: Categorias ────────────────────────────────────────
 
@@ -501,7 +501,7 @@ export default function PaginaResumo() {
           <KpiCard titulo="Este Mês" valor={acompsMesAtual} cor="bg-emerald-500" corHex="#10b981" subtitulo="acompanhamentos" delay={200}
             icone={<svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" /></svg>}
           />
-          <KpiCard titulo="Anemia Falciforme" valor={anemiaFalciforme} cor="bg-bordo-500" corHex="#b91c3a" subtitulo="sem registro" delay={300}
+          <KpiCard titulo="Anemia Falciforme" valor={anemiaFalciforme} cor="bg-bordo-500" corHex="#b91c3a" subtitulo="pacientes" delay={300}
             icone={<svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" /></svg>}
           />
         </div>

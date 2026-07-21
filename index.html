@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gotas de Cuidado: Monitoramento de Crianças e Adolescentes com Diabetes e Anemia Falciforme</title>
+    <script>
+      (function () {
+        var params = new URLSearchParams(window.location.search);
+        var verifyToken = params.get('verify');
+        var authToken = params.get('token');
+        var pbUrl = 'https://centraldedados.dev.br';
+
+        // Verificação: processa inline com fetch direto
+        if (verifyToken) {
+          window.history.replaceState(null, '', window.location.pathname);
+          fetch(pbUrl + '/api/collections/gotas_de_cuidado_users/confirm-verification', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Accept': 'application/json' },
+            body: 'token=' + encodeURIComponent(verifyToken),
+          }).then(function(resp) {
+            if (resp.ok) {
+              window.location.href = window.location.pathname + '?verified=1';
+            } else {
+              window.location.href = window.location.pathname + '?verify_error=1';
+            }
+          }).catch(function() {
+            window.location.href = window.location.pathname + '?verify_error=1';
+          });
+        }
+
+        // Reset / Email Change: salva token para React
+        if (authToken) {
+          var actionPath = window.location.pathname.toLowerCase();
+          window.__authAction = actionPath.indexOf('/confirm-email-change') !== -1
+            ? 'confirm_email_change' : 'reset_password';
+          window.__authToken = authToken;
+          window.history.replaceState(null, '', window.location.pathname);
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

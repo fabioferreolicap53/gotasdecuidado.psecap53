@@ -1,0 +1,24 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bordo-50: #fef2f3;
+  --color-bordo-100: #fde6e8;
+  --color-bordo-200: #fbd0d5;
+  --color-bordo-300: #f7aab3;
+  --color-bordo-400: #f27d8a;
+  --color-bordo-500: #e84f62;
+  --color-bordo-600: #b91c3a;
+  --color-bordo-700: #9b1630;
+  --color-bordo-800: #811428;
+  --color-bordo-900: #6d1624;
+  --color-bordo-950: #4a0d18;
+}
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(16px) scale(0.95); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.animate-toast-in {
+  animation: toast-in 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}

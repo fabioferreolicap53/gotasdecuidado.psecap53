@@ -1,3 +1,13 @@
+# Dependencies
+node_modules
+
+# Build output
+dist-ssr
+
+# Env files
+*.env
+.env.local
+
 # Logs
 logs
 *.log
@@ -6,11 +16,6 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
-
-node_modules
-dist-ssr
-gotasdecuidado.psecap53
-*.local
 
 # Editor directories and files
 .vscode/*
@@ -22,5 +27,10 @@ gotasdecuidado.psecap53
 *.njsproj
 *.sln
 *.sw?
-*.env
+
+# Temporary/utility files
+*.ppm
+*.pdf
+*.py
+EXCLUSÃO*
 

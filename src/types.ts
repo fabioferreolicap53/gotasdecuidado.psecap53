@@ -14,8 +14,14 @@ export interface Paciente {
   data_de_nascimento: string; // data de nascimento (YYYY-MM-DD)
   equipe: string;
   microarea: string;
-  data_ultima_cons_oriclista: string; // data ultima consulta
+  data_ultima_cons_dentista: string; // data ultima consulta dentista
   classificacao: string;     // classificação do paciente
+  unidade_escolar: string;
+  estado_nutricional: string;
+  recebe_beneficio: string;  // recebe algum benefício?
+  situacao_vacinal: string;  // situação vacinal
+  observacoes: string;       // observações
+  unidade_especializada: string;
   collectionId?: string;
   collectionName?: string;
   created?: string;

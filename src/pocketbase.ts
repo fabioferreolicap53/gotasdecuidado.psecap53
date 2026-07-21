@@ -68,6 +68,7 @@ export async function buscarPacientes(opts?: {
     page: String(opts?.page ?? 1),
     perPage: String(opts?.perPage ?? 500),
     sort: "-created",
+    fields: "id,unidade,nome,sexo,raca,idade,data_de_nascimento,equipe,microarea,ult_consulta,classificacao,unidade_escolar,estado_nutricional,recebe_algum_beneficio,situacao_vacinal,observacoes,unidade_especializada,collectionId,collectionName,created,updated",
   });
 
   if (opts?.filter) {
@@ -91,7 +92,8 @@ export async function buscarPacientes(opts?: {
 }
 
 export async function buscarPacientePorId(id: string): Promise<Paciente> {
-  const url = `${baseUrl()}/${id}`;
+  const fields = "id,unidade,nome,sexo,raca,idade,data_de_nascimento,equipe,microarea,ult_consulta,classificacao,unidade_escolar,estado_nutricional,recebe_algum_beneficio,situacao_vacinal,observacoes,unidade_especializada,collectionId,collectionName,created,updated";
+  const url = `${baseUrl()}/${id}?fields=${encodeURIComponent(fields)}`;
   const res = await fetch(url, { headers: buildHeaders() });
 
   if (!res.ok) {

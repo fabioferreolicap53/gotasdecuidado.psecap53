@@ -241,7 +241,7 @@ export default function PaginaPacientes({ usuarioId, onNavigateAcompFiltered }: 
     const q = busca.toLowerCase();
     const matchBusca =
       busca === "" ||
-      p.paciente?.toLowerCase().includes(q) ||
+      p.nome?.toLowerCase().includes(q) ||
       p.equipe?.toLowerCase().includes(q) ||
       p.unidade?.toLowerCase().includes(q) ||
       p.microarea?.toLowerCase().includes(q);
@@ -531,10 +531,13 @@ export default function PaginaPacientes({ usuarioId, onNavigateAcompFiltered }: 
                         </td>
                         <td className="px-5 py-4 text-center align-top">
                           <div className="flex flex-col items-center gap-0.5">
-                            <span className="text-xs font-black text-slate-800 group-hover:text-slate-900 transition-colors duration-200 leading-tight">{p.paciente || "\u2014"}</span>
+                            <span className="text-xs font-black text-slate-800 group-hover:text-slate-900 transition-colors duration-200 leading-tight">{p.nome || "\u2014"}</span>
                             <span className="text-[9px] font-bold text-slate-400/80 leading-tight">Nasc {formatarData(p.data_de_nascimento)}</span>
                             {idadeNum !== null && (
                               <span className="text-[9px] font-bold text-slate-400/80 leading-tight">{idadeNum} {idadeNum === 1 ? "ano" : "anos"}</span>
+                            )}
+                            {(p.ult_consulta && p.ult_consulta !== "0000-00-00") && (
+                              <span className="text-[9px] font-bold text-blue-600/70 leading-tight">Últ. consulta {formatarData(p.ult_consulta)}</span>
                             )}
                             <div className="flex flex-wrap justify-center gap-1">
                               {renderCategorias(p)}
@@ -556,7 +559,7 @@ export default function PaginaPacientes({ usuarioId, onNavigateAcompFiltered }: 
                         <td className="px-5 py-4 text-center align-top">
                           <div className="flex flex-col items-center gap-0.5">
                             <span className="text-[9px] font-bold text-slate-400/80 leading-tight">{p.estado_nutricional || "\u2014"}</span>
-                            <span className="text-[9px] font-bold text-slate-400/80 leading-tight">{p.recebe_beneficio || "\u2014"}</span>
+                            <span className="text-[9px] font-bold text-slate-400/80 leading-tight">{p.recebe_algum_beneficio || "\u2014"}</span>
                             <span className="text-[9px] font-bold text-slate-400/80 leading-tight">{p.situacao_vacinal || "\u2014"}</span>
                           </div>
                         </td>
@@ -677,10 +680,13 @@ export default function PaginaPacientes({ usuarioId, onNavigateAcompFiltered }: 
                         </td>
                         <td className="px-5 py-4 text-center align-top">
                           <div className="flex flex-col items-center gap-0.5">
-                            <span className="text-xs font-black text-slate-800 group-hover:text-slate-900 transition-colors duration-200 leading-tight">{p.paciente || "\u2014"}</span>
+                            <span className="text-xs font-black text-slate-800 group-hover:text-slate-900 transition-colors duration-200 leading-tight">{p.nome || "\u2014"}</span>
                             <span className="text-[9px] font-bold text-slate-400/80 leading-tight">Nasc {formatarData(p.data_de_nascimento)}</span>
                             {idadeNum !== null && (
                               <span className="text-[9px] font-bold text-slate-400/80 leading-tight">{idadeNum} {idadeNum === 1 ? "ano" : "anos"}</span>
+                            )}
+                            {(p.ult_consulta && p.ult_consulta !== "0000-00-00") && (
+                              <span className="text-[9px] font-bold text-blue-600/70 leading-tight">Últ. consulta {formatarData(p.ult_consulta)}</span>
                             )}
                             <div className="flex flex-wrap justify-center gap-1">
                               {renderCategorias(p)}
@@ -702,7 +708,7 @@ export default function PaginaPacientes({ usuarioId, onNavigateAcompFiltered }: 
                         <td className="px-5 py-4 text-center align-top">
                           <div className="flex flex-col items-center gap-0.5">
                             <span className="text-[9px] font-bold text-slate-400/80 leading-tight">{p.estado_nutricional || "\u2014"}</span>
-                            <span className="text-[9px] font-bold text-slate-400/80 leading-tight">{p.recebe_beneficio || "\u2014"}</span>
+                            <span className="text-[9px] font-bold text-slate-400/80 leading-tight">{p.recebe_algum_beneficio || "\u2014"}</span>
                             <span className="text-[9px] font-bold text-slate-400/80 leading-tight">{p.situacao_vacinal || "\u2014"}</span>
                           </div>
                         </td>
@@ -807,7 +813,7 @@ export default function PaginaPacientes({ usuarioId, onNavigateAcompFiltered }: 
                         {/* Col 2: Paciente */}
                         <td className="px-2 py-2.5 text-center align-middle" style={{ width: '50%' }}>
                           <div className="flex flex-col items-center gap-0.5">
-                            <span className="text-[11px] font-black text-slate-800 group-hover:text-slate-900 transition-colors duration-200 leading-tight break-words">{p.paciente || "\u2014"}</span>
+                            <span className="text-[11px] font-black text-slate-800 group-hover:text-slate-900 transition-colors duration-200 leading-tight break-words">{p.nome || "\u2014"}</span>
                             <span className="text-[9px] font-bold text-slate-400/80 leading-tight">Nasc {formatarData(p.data_de_nascimento)}</span>
                             <div className="mt-0.5 flex flex-wrap items-center justify-center gap-0.5">
                               {idadeNum !== null && (
@@ -820,6 +826,9 @@ export default function PaginaPacientes({ usuarioId, onNavigateAcompFiltered }: 
                                 </span>
                               )}
                             </div>
+                            {(p.ult_consulta && p.ult_consulta !== "0000-00-00") && (
+                              <span className="text-[8px] font-bold text-blue-600/70 leading-tight">Últ. consulta {formatarData(p.ult_consulta)}</span>
+                            )}
                             <div className="mt-0.5 flex flex-wrap items-center justify-center gap-0.5">
                               {p.classificacao?.toLowerCase().includes("diabetes") && <span className="inline-flex items-center rounded-full bg-blue-50 px-1 py-px text-[6px] font-bold text-blue-700 border border-blue-100">DM</span>}
                               {p.classificacao?.toLowerCase().includes("anemia") && <span className="inline-flex items-center rounded-full bg-bordo-50 px-1 py-px text-[6px] font-bold text-bordo-700 border border-bordo-100">AF</span>}
@@ -839,7 +848,7 @@ export default function PaginaPacientes({ usuarioId, onNavigateAcompFiltered }: 
                           <div className="flex flex-col items-center gap-0.5">
                             <span className="text-[8px] font-bold text-slate-400/80 leading-tight">{p.unidade_escolar || "\u2014"}</span>
                             <span className="text-[8px] font-bold text-slate-400/80 leading-tight">{p.estado_nutricional || "\u2014"}</span>
-                            {p.recebe_beneficio && <span className="inline-flex items-center rounded-full bg-emerald-50 px-1 py-px text-[6px] font-bold text-emerald-700 border border-emerald-100">{p.recebe_beneficio}</span>}
+                            {p.recebe_algum_beneficio && <span className="inline-flex items-center rounded-full bg-emerald-50 px-1 py-px text-[6px] font-bold text-emerald-700 border border-emerald-100">{p.recebe_algum_beneficio}</span>}
                             <span className="text-[8px] font-bold text-slate-400/80 leading-tight">{p.unidade_especializada || "\u2014"}</span>
                           </div>
                         </td>
@@ -906,7 +915,7 @@ export default function PaginaPacientes({ usuarioId, onNavigateAcompFiltered }: 
             <div className="sticky top-0 z-10 flex items-center justify-between rounded-t-2xl bg-gradient-to-r from-slate-800 to-slate-700 px-6 py-4">
               <div className="min-w-0 flex-1">
                 <p className="text-[10px] font-bold uppercase tracking-widest text-bordo-400/60">Detalhes do Paciente</p>
-                <h2 className="truncate text-lg font-black text-white">{pacienteModal.paciente}</h2>
+                <h2 className="truncate text-lg font-black text-white">{pacienteModal.nome}</h2>
               </div>
               <button onClick={() => setPacienteModal(null)} className="ml-4 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-white/10 text-white/70 transition-colors hover:bg-white/20 hover:text-white">
                 <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
@@ -919,7 +928,7 @@ export default function PaginaPacientes({ usuarioId, onNavigateAcompFiltered }: 
               <div>
                 <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-slate-400">Identificação</p>
                 <div className="grid grid-cols-2 gap-x-6 gap-y-2">
-                  <InfoRow label="Nome" value={pacienteModal.paciente} />
+                  <InfoRow label="Nome" value={pacienteModal.nome} />
                 </div>
               </div>
 

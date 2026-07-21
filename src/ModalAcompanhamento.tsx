@@ -543,7 +543,7 @@ export default function ModalAcompanhamento({ paciente, usuarioId, onFechar, aco
               <div className="min-w-0">
                 <h2 className="truncate text-base sm:text-lg font-black text-white tracking-tight">{acompanhamentoEdit ? "Editar Acompanhamento" : "Registro de Acompanhamento"}</h2>
                 <p className="text-[10px] font-bold uppercase tracking-widest text-cyan-300/60 truncate">
-                  Paciente: {paciente.paciente}
+                  Paciente: {paciente.nome}
                 </p>
               </div>
             </div>

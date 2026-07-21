@@ -129,7 +129,7 @@ export default function PaginaAcompanhamentos({ selectedPacienteId }: { selected
     ? acompanhamentos.filter((a) => {
         const pac = pacMap[a.paciente_id];
         return (
-          (pac?.paciente?.toLowerCase() ?? "").includes(buscaLower)
+          (pac?.nome?.toLowerCase() ?? "").includes(buscaLower)
         );
       })
     : acompanhamentos;
@@ -446,7 +446,7 @@ export default function PaginaAcompanhamentos({ selectedPacienteId }: { selected
                           <td className="px-5 py-4 text-center align-middle">
                             <div className="flex flex-col items-center gap-0.5">
                               <span className="text-xs font-black text-slate-800 group-hover:text-slate-900 transition-colors duration-200 leading-tight">
-                                {pac?.paciente ?? "—"}
+                                {pac?.nome ?? "—"}
                               </span>
                               {pac?.data_de_nascimento && (
                                 <span className="text-[9px] font-bold text-slate-400/80 leading-tight">
@@ -638,7 +638,7 @@ function DetalhesAcompanhamento({
           <div className="min-w-0">
             <h2 className="truncate text-base sm:text-lg font-black text-white tracking-tight">Detalhes do Registro</h2>
             <p className="text-[10px] font-bold uppercase tracking-widest text-cyan-300/60 truncate">
-              {paciente?.paciente ?? "Paciente removido"}
+              {paciente?.nome ?? "Paciente removido"}
             </p>
           </div>
           <button onClick={onFechar} className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-xl bg-white/10 text-white/70 backdrop-blur-md transition-all duration-200 hover:bg-white/20 hover:text-white ring-1 ring-white/10">

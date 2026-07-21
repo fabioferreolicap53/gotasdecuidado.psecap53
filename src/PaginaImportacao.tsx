@@ -37,18 +37,18 @@ function authHeaders(): Record<string, string> {
 
 const FIELD_ALIASES: Record<string, string[]> = {
   unidade: ["UNIDADE", "UNIDADE DE SAUDE", "UBS", "ESTABELECIMENTO"],
-  paciente: ["NOME", "PACIENTE", "NOME PACIENTE", "NOME DO PACIENTE", "NOME COMPLETO"],
+  nome: ["NOME", "PACIENTE", "NOME PACIENTE", "NOME DO PACIENTE", "NOME COMPLETO"],
   sexo: ["SEXO", "GENERO", "GÊNERO"],
   raca: ["RACA", "RAÇA", "COR", "ETNIA"],
   idade: ["IDADE", "IDADE ATUAL"],
   data_de_nascimento: ["DATA_DE_NASCIMENTO", "DATA NASCIMENTO", "DATA DE NASCIMENTO", "NASCIMENTO", "DT_NASCIMENTO"],
   equipe: ["EQUIPE", "EQ", "EQUIPE DE SAUDE"],
   microarea: ["MICROAREA", "MICRO AREA", "MICRO"],
-  data_ultima_cons_dentista: ["ULT_CONSULTA", "DATA_ULTIMA_CONS_ORICLISTA", "DATA ULTIMA CONS ORICLISTA", "DATA ULTIMA CONSULTA", "DATA ULTIMA CONS", "DATA_ULTIMA_CONS_DENTISTA", "DATA ULTIMA CONS DENTISTA"],
+  ult_consulta: ["ULT_CONSULTA", "DATA_ULTIMA_CONS_ORICLISTA", "DATA ULTIMA CONS ORICLISTA", "DATA ULTIMA CONSULTA", "DATA ULTIMA CONS", "DATA_ULTIMA_CONS_DENTISTA", "DATA ULTIMA CONS DENTISTA"],
   classificacao: ["CLASSIFICACAO", "CLASSIFICAÇÃO", "TIPO", "CATEGORIA"],
   unidade_escolar: ["UNIDADE_ESCOLAR", "UNIDADE ESCOLAR", "ESCOLA", "ESCOLA DO PACIENTE"],
   estado_nutricional: ["ESTADO_NUTRICIONAL", "ESTADO NUTRICIONAL", "NUTRICIONAL", "ESTADO NUTRI"],
-  recebe_beneficio: ["RECEBE_ALGUM_BENEFICIO", "RECEBE ALGUM BENEFICIO", "BENEFICIO", "BENEFÍCIO", "RECEBE BENEFICIO"],
+  recebe_algum_beneficio: ["RECEBE_ALGUM_BENEFICIO", "RECEBE_ALGUM_BENEFICIO", "RECEBE ALGUM BENEFICIO", "BENEFICIO", "BENEFÍCIO", "RECEBE BENEFICIO"],
   situacao_vacinal: ["SITUACAO_VACINAL", "SITUAÇÃO VACINAL", "SITUACAO VACINAL", "VACINAL", "VACINA"],
   observacoes: ["OBSERVACOES", "OBSERVAÇÕES", "OBSERVACOES", "OBS", "OBS GERAIS"],
   unidade_especializada: ["UNIDADE_ESPECIALIZADA", "UNIDADE ESPECIALIZADA", "ESPECIALIZADA", "ESPECIALISTA"],
@@ -180,8 +180,8 @@ export default function PaginaImportacao() {
       }
 
       // Validar campos obrigatorios
-      if (!mappedFields.includes("paciente")) {
-        setUploadStatus({ stage: "error", message: `CSV sem coluna "paciente". Colunas encontradas: ${headers.join(", ")}`, current: 0, total: 0 });
+      if (!mappedFields.includes("nome")) {
+        setUploadStatus({ stage: "error", message: `CSV sem coluna "nome". Colunas encontradas: ${headers.join(", ")}`, current: 0, total: 0 });
         setImportControl("idle");
         return;
       }
@@ -197,8 +197,8 @@ export default function PaginaImportacao() {
           // Texto puro
           rec[field] = val;
         }
-        // Só incluir se tiver paciente
-        if (rec.paciente) records.push(rec);
+        // Só incluir se tiver nome
+        if (rec.nome) records.push(rec);
       }
 
       if (records.length === 0) {
@@ -237,7 +237,7 @@ export default function PaginaImportacao() {
           batch.map((rec) =>
             fetch(pbApiBase(), {
               method: "POST",
-              headers: authHeaders(),
+              headers: { ...authHeaders(), "Content-Type": "application/json" },
               body: JSON.stringify(rec),
             }).then((res) => {
               if (!res.ok) throw new Error(`HTTP ${res.status}`);

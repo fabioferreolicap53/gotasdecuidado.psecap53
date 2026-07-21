@@ -7,18 +7,18 @@
 export interface Paciente {
   id: string;
   unidade: string;
-  paciente: string;          // nome do paciente
+  nome: string;              // nome do paciente
   sexo: string;              // M / F
   raca: string;              // cor/raça
   idade: number;             // idade atual
   data_de_nascimento: string; // data de nascimento (YYYY-MM-DD)
   equipe: string;
   microarea: string;
-  data_ultima_cons_dentista: string; // data ultima consulta dentista
+  ult_consulta: string;      // data ultima consulta
   classificacao: string;     // classificação do paciente
   unidade_escolar: string;
   estado_nutricional: string;
-  recebe_beneficio: string;  // recebe algum benefício?
+  recebe_algum_beneficio: string; // recebe algum benefício?
   situacao_vacinal: string;  // situação vacinal
   observacoes: string;       // observações
   unidade_especializada: string;

@@ -445,7 +445,30 @@ export default function PaginaFavoritos({ usuarioId, onNavigateAcompFiltered }: 
                             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21"/></svg>
                           </div>
                           <span className="text-[11px] font-black uppercase tracking-widest text-white/90">Unidade</span>
-
+                        </div>
+                      </th>
+                      <th className="px-6 py-1 text-center align-middle h-[76px]">
+                        <div className="flex flex-col items-center gap-1.5">
+                          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/10 text-cyan-300 ring-1 ring-white/10">
+                            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.904a48.62 48.62 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.636 50.636 0 0 0-2.658-.813A59.906 59.906 0 0 1 12 3.493a59.903 59.903 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0 1 12 13.489a50.702 50.702 0 0 1 7.74-3.342M6.75 15a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 0v-3.675A55.378 55.378 0 0 1 12 8.443m-7.007 11.55A5.981 5.981 0 0 0 6.75 15.75v-1.5" /></svg>
+                          </div>
+                          <span className="text-[11px] font-black uppercase tracking-widest text-white/90">Escola</span>
+                        </div>
+                      </th>
+                      <th className="px-6 py-1 text-center align-middle h-[76px]">
+                        <div className="flex flex-col items-center gap-1.5">
+                          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/10 text-cyan-300 ring-1 ring-white/10">
+                            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" /></svg>
+                          </div>
+                          <span className="text-[11px] font-black uppercase tracking-widest text-white/90">Saúde</span>
+                        </div>
+                      </th>
+                      <th className="px-6 py-1 text-center align-middle h-[76px]">
+                        <div className="flex flex-col items-center gap-1.5">
+                          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/10 text-cyan-300 ring-1 ring-white/10">
+                            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15a2.25 2.25 0 0 1 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25ZM6.75 12h.008v.008H6.75V12Zm0 3h.008v.008H6.75V15Zm0 3h.008v.008H6.75V18Z" /></svg>
+                          </div>
+                          <span className="text-[11px] font-black uppercase tracking-widest text-white/90">Extras</span>
                         </div>
                       </th>
                     </tr>
@@ -499,6 +522,24 @@ export default function PaginaFavoritos({ usuarioId, onNavigateAcompFiltered }: 
                             <span className="text-xs font-black text-slate-800 group-hover:text-slate-900 transition-colors duration-200 leading-tight">{p.unidade || "\u2014"}</span>
                             <span className="text-[9px] font-bold text-slate-400/80 leading-tight">{p.equipe || "\u2014"}</span>
                             <span className="text-[9px] font-bold text-slate-400/80 leading-tight">Micro: {p.microarea || "\u2014"}</span>
+                          </div>
+                        </td>
+                        <td className="px-5 py-4 text-center align-top">
+                          <div className="flex flex-col items-center gap-0.5">
+                            <span className="text-[9px] font-bold text-slate-400/80 leading-tight">{p.unidade_escolar || "\u2014"}</span>
+                          </div>
+                        </td>
+                        <td className="px-5 py-4 text-center align-top">
+                          <div className="flex flex-col items-center gap-0.5">
+                            <span className="text-[9px] font-bold text-slate-400/80 leading-tight">{p.estado_nutricional || "\u2014"}</span>
+                            <span className="text-[9px] font-bold text-slate-400/80 leading-tight">{p.recebe_beneficio || "\u2014"}</span>
+                            <span className="text-[9px] font-bold text-slate-400/80 leading-tight">{p.situacao_vacinal || "\u2014"}</span>
+                          </div>
+                        </td>
+                        <td className="px-5 py-4 text-center align-top">
+                          <div className="flex flex-col items-center gap-0.5">
+                            <span className="text-[9px] font-bold text-slate-400/80 leading-tight">{(p.observacoes || "\u2014").length > 30 ? (p.observacoes || "\u2014").slice(0, 30) + "..." : (p.observacoes || "\u2014")}</span>
+                            <span className="text-[9px] font-bold text-slate-400/80 leading-tight">{p.unidade_especializada || "\u2014"}</span>
                           </div>
                         </td>
                       </tr>
@@ -556,6 +597,30 @@ export default function PaginaFavoritos({ usuarioId, onNavigateAcompFiltered }: 
 
                         </div>
                       </th>
+                      <th className="px-6 py-1 text-center align-middle h-[76px]">
+                        <div className="flex flex-col items-center gap-1.5">
+                          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/10 text-cyan-300 ring-1 ring-white/10">
+                            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.904a48.62 48.62 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.636 50.636 0 0 0-2.658-.813A59.906 59.906 0 0 1 12 3.493a59.903 59.903 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0 1 12 13.489a50.702 50.702 0 0 1 7.74-3.342M6.75 15a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 0v-3.675A55.378 55.378 0 0 1 12 8.443m-7.007 11.55A5.981 5.981 0 0 0 6.75 15.75v-1.5" /></svg>
+                          </div>
+                          <span className="text-[11px] font-black uppercase tracking-widest text-white/90">Escola</span>
+                        </div>
+                      </th>
+                      <th className="px-6 py-1 text-center align-middle h-[76px]">
+                        <div className="flex flex-col items-center gap-1.5">
+                          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/10 text-cyan-300 ring-1 ring-white/10">
+                            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" /></svg>
+                          </div>
+                          <span className="text-[11px] font-black uppercase tracking-widest text-white/90">Saúde</span>
+                        </div>
+                      </th>
+                      <th className="px-6 py-1 text-center align-middle h-[76px]">
+                        <div className="flex flex-col items-center gap-1.5">
+                          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/10 text-cyan-300 ring-1 ring-white/10">
+                            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15a2.25 2.25 0 0 1 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25ZM6.75 12h.008v.008H6.75V12Zm0 3h.008v.008H6.75V15Zm0 3h.008v.008H6.75V18Z" /></svg>
+                          </div>
+                          <span className="text-[11px] font-black uppercase tracking-widest text-white/90">Extras</span>
+                        </div>
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
@@ -609,6 +674,24 @@ export default function PaginaFavoritos({ usuarioId, onNavigateAcompFiltered }: 
                             <span className="text-[9px] font-bold text-slate-400/80 leading-tight">Micro: {p.microarea || "\u2014"}</span>
                           </div>
                         </td>
+                        <td className="px-5 py-4 text-center align-top">
+                          <div className="flex flex-col items-center gap-0.5">
+                            <span className="text-[9px] font-bold text-slate-400/80 leading-tight">{p.unidade_escolar || "\u2014"}</span>
+                          </div>
+                        </td>
+                        <td className="px-5 py-4 text-center align-top">
+                          <div className="flex flex-col items-center gap-0.5">
+                            <span className="text-[9px] font-bold text-slate-400/80 leading-tight">{p.estado_nutricional || "\u2014"}</span>
+                            <span className="text-[9px] font-bold text-slate-400/80 leading-tight">{p.recebe_beneficio || "\u2014"}</span>
+                            <span className="text-[9px] font-bold text-slate-400/80 leading-tight">{p.situacao_vacinal || "\u2014"}</span>
+                          </div>
+                        </td>
+                        <td className="px-5 py-4 text-center align-top">
+                          <div className="flex flex-col items-center gap-0.5">
+                            <span className="text-[9px] font-bold text-slate-400/80 leading-tight">{(p.observacoes || "\u2014").length > 30 ? (p.observacoes || "\u2014").slice(0, 30) + "..." : (p.observacoes || "\u2014")}</span>
+                            <span className="text-[9px] font-bold text-slate-400/80 leading-tight">{p.unidade_especializada || "\u2014"}</span>
+                          </div>
+                        </td>
                       </tr>
                       );
                     })}
@@ -654,6 +737,12 @@ export default function PaginaFavoritos({ usuarioId, onNavigateAcompFiltered }: 
                         <div className="flex flex-col items-center gap-0.5">
                           <svg className="h-3 w-3 text-cyan-300" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21"/></svg>
                           <span className="text-[8px] font-black uppercase tracking-wider text-white/90">Unidade</span>
+                        </div>
+                      </th>
+                      <th className="px-2 py-2.5 text-center" style={{ width: '20%' }}>
+                        <div className="flex flex-col items-center gap-0.5">
+                          <svg className="h-3 w-3 text-cyan-300" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15a2.25 2.25 0 0 1 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25ZM6.75 12h.008v.008H6.75V12Zm0 3h.008v.008H6.75V15Zm0 3h.008v.008H6.75V18Z" /></svg>
+                          <span className="text-[8px] font-black uppercase tracking-wider text-white/90">Info</span>
                         </div>
                       </th>
                     </tr>
@@ -719,6 +808,15 @@ export default function PaginaFavoritos({ usuarioId, onNavigateAcompFiltered }: 
                             <span className="text-[10px] font-black text-slate-800 group-hover:text-slate-900 transition-colors duration-200 leading-tight">{p.unidade || "\u2014"}</span>
                             <span className="text-[8px] font-bold text-slate-400/80 leading-tight">{p.equipe || "\u2014"}</span>
                             <span className="text-[7px] font-bold text-slate-400/80 leading-tight">Micro: {p.microarea || "\u2014"}</span>
+                          </div>
+                        </td>
+                        {/* Col 4: Info */}
+                        <td className="px-2 py-2.5 text-center align-middle" style={{ width: '20%' }}>
+                          <div className="flex flex-col items-center gap-0.5">
+                            <span className="text-[7px] font-bold text-slate-500 leading-tight">{p.unidade_escolar || ""}</span>
+                            <span className="text-[7px] font-bold text-slate-500 leading-tight">{p.estado_nutricional || ""}</span>
+                            {p.recebe_beneficio && <span className="inline-flex items-center rounded-full bg-green-50 px-1 py-px text-[6px] font-bold text-green-700 border border-green-100">{p.recebe_beneficio}</span>}
+                            <span className="text-[7px] font-bold text-slate-500 leading-tight">{p.unidade_especializada || ""}</span>
                           </div>
                         </td>
                       </tr>

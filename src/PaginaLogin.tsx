@@ -19,10 +19,9 @@ function requestResetUrl(): string {
 
 interface LoginProps {
   onLogin: (token: string, record: { id: string; email: string; name: string; role: string }) => void;
-  onEsqueciSenha?: () => void;
 }
 
-export default function PaginaLogin({ onLogin, onEsqueciSenha }: LoginProps) {
+export default function PaginaLogin({ onLogin }: LoginProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -30,7 +29,7 @@ export default function PaginaLogin({ onLogin, onEsqueciSenha }: LoginProps) {
   const [loading, setLoading] = useState(false);
   const [esqueciLoading, setEsqueciLoading] = useState(false);
   const [esqueciMensagem, setEsqueciMensagem] = useState("");
-  const [mostrarEsqueci, setMostrarEsqueci] = useState(false);
+
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();

@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback } from "react";
 import PaginaResumo from "./PaginaResumo";
 import PaginaPacientes from "./PaginaPacientes";
 import PaginaFavoritos from "./PaginaFavoritos";

@@ -24,7 +24,7 @@ interface PaginaRedefinicaoProps {
   onVoltar?: () => void;
 }
 
-export default function PaginaRedefinicao({ token, action = "reset_password", onVoltar }: PaginaRedefinicaoProps) {
+export default function PaginaRedefinicao({ token, action: _action = "reset_password", onVoltar }: PaginaRedefinicaoProps) {
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
   const [status, setStatus] = useState<"form" | "loading" | "success" | "error">("form");

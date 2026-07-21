@@ -4,9 +4,44 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Painel Sorriso 5.3</title>
-    <script type="module" crossorigin src="/assets/index-B-18pvYo.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-DeLp_DCT.css">
+    <title>Gotas de Cuidado: Monitoramento de Crianças e Adolescentes com Diabetes e Anemia Falciforme</title>
+    <script>
+      (function () {
+        var params = new URLSearchParams(window.location.search);
+        var verifyToken = params.get('verify');
+        var authToken = params.get('token');
+        var pbUrl = 'https://centraldedados.dev.br';
+
+        // Verificação: processa inline com fetch direto
+        if (verifyToken) {
+          window.history.replaceState(null, '', window.location.pathname);
+          fetch(pbUrl + '/api/collections/gotas_de_cuidado_users/confirm-verification', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Accept': 'application/json' },
+            body: 'token=' + encodeURIComponent(verifyToken),
+          }).then(function(resp) {
+            if (resp.ok) {
+              window.location.href = window.location.pathname + '?verified=1';
+            } else {
+              window.location.href = window.location.pathname + '?verify_error=1';
+            }
+          }).catch(function() {
+            window.location.href = window.location.pathname + '?verify_error=1';
+          });
+        }
+
+        // Reset / Email Change: salva token para React
+        if (authToken) {
+          var actionPath = window.location.pathname.toLowerCase();
+          window.__authAction = actionPath.indexOf('/confirm-email-change') !== -1
+            ? 'confirm_email_change' : 'reset_password';
+          window.__authToken = authToken;
+          window.history.replaceState(null, '', window.location.pathname);
+        }
+      })();
+    </script>
+    <script type="module" crossorigin src="/assets/index-gt47KmU0.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-DJRhxnik.css">
   </head>
   <body>
     <div id="root"></div>

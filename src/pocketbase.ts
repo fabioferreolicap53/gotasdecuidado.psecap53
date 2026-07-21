@@ -209,14 +209,37 @@ export async function atualizarAcompanhamento(
   return (await res.json()) as Acompanhamento;
 }
 
-export async function buscarTodosAcompanhamentos(): Promise<Acompanhamento[]> {
-  const url = `${acompanhamentosBaseUrl()}?perPage=500&sort=-created`;
-  const res = await fetch(url, { headers: buildHeaders() });
-  if (!res.ok) {
-    throw new Error(`PocketBase erro ${res.status}: ${res.statusText}`);
+export async function buscarTodosPacientes(): Promise<Paciente[]> {
+  const all: Paciente[] = [];
+  let page = 1;
+  const perPage = 500;
+  // eslint-disable-next-line no-constant-condition
+  while (true) {
+    const result = await buscarPacientes({ page, perPage });
+    all.push(...result.items);
+    if (page >= result.totalPages) break;
+    page++;
   }
-  const data = await res.json();
-  return data.items as Acompanhamento[];
+  return all;
+}
+
+export async function buscarTodosAcompanhamentos(): Promise<Acompanhamento[]> {
+  const all: Acompanhamento[] = [];
+  let page = 1;
+  const perPage = 500;
+  // eslint-disable-next-line no-constant-condition
+  while (true) {
+    const url = `${acompanhamentosBaseUrl()}?page=${page}&perPage=${perPage}&sort=-created`;
+    const res = await fetch(url, { headers: buildHeaders() });
+    if (!res.ok) {
+      throw new Error(`PocketBase erro ${res.status}: ${res.statusText}`);
+    }
+    const data = await res.json();
+    all.push(...(data.items as Acompanhamento[]));
+    if (page >= data.totalPages) break;
+    page++;
+  }
+  return all;
 }
 
 export async function excluirAcompanhamento(id: string): Promise<void> {

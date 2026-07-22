@@ -25,9 +25,9 @@
           window.__authToken = authToken;
         }
 
-        // Verificação: fetch via Pages Function /api/verify (mesmo domínio, sem CORS)
+        // Verificação: 1ª tenta Pages Function, 2ª no-cors fetch direto
         function doVerify() {
-          console.log('[Verify] Token capturado, enviando via /api/verify...');
+          console.log('[Verify] Token capturado...');
 
           // Mostra loading
           var loading = document.createElement('div');
@@ -35,23 +35,34 @@
           loading.innerHTML = '<div style="text-align:center"><div style="width:32px;height:32px;border:3px solid #e2e8f0;border-top-color:#9f1239;border-radius:50%;animation:spin .6s linear infinite;margin:0 auto 16px"></div><style>@keyframes spin{to{transform:rotate(360deg)}}</style><p style="color:#64748b;font-size:14px">Confirmando email...</p></div>';
           document.body.appendChild(loading);
 
+          // Tentativa 1: Pages Function (mesmo domínio, resposta legível)
           fetch('/api/verify', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ token: verifyToken }),
           }).then(function(resp) {
-            console.log('[Verify] Status:', resp.status);
+            if (!resp.ok) throw new Error('not ok');
             return resp.json();
           }).then(function(data) {
-            console.log('[Verify] Resposta PocketBase:', data);
-            if (data.verified) {
-              window.location.href = window.location.pathname + '?verified=1';
-            } else {
+            console.log('[Verify] Pages Function OK:', data);
+            window.location.href = window.location.pathname + '?verified=1';
+          }).catch(function() {
+            // Tentativa 2: fetch no-cors direto ao PocketBase (bypass CORS)
+            console.log('[Verify] Pages Function indisponível, usando no-cors...');
+            fetch(pbUrl + '/api/collections/gotas_de_cuidado_users/confirm-verification', {
+              method: 'POST',
+              mode: 'no-cors',
+              headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+              body: 'token=' + encodeURIComponent(verifyToken),
+            }).then(function() {
+              console.log('[Verify] no-cors enviado com sucesso');
+              setTimeout(function() {
+                window.location.href = window.location.pathname + '?verified=1';
+              }, 1500);
+            }).catch(function(err) {
+              console.error('[Verify] Todas as tentativas falharam:', err);
               window.location.href = window.location.pathname + '?verify_error=1';
-            }
-          }).catch(function(err) {
-            console.error('[Verify] Erro:', err);
-            window.location.href = window.location.pathname + '?verify_error=1';
+            });
           });
         }
 

@@ -25,9 +25,9 @@
           window.__authToken = authToken;
         }
 
-        // Verificação: espera o body existir para manipular DOM
+        // Verificação: fetch via Pages Function /api/verify (mesmo domínio, sem CORS)
         function doVerify() {
-          console.log('[Verify] Token capturado, enviando via form...');
+          console.log('[Verify] Token capturado, enviando via /api/verify...');
 
           // Mostra loading
           var loading = document.createElement('div');
@@ -35,32 +35,24 @@
           loading.innerHTML = '<div style="text-align:center"><div style="width:32px;height:32px;border:3px solid #e2e8f0;border-top-color:#9f1239;border-radius:50%;animation:spin .6s linear infinite;margin:0 auto 16px"></div><style>@keyframes spin{to{transform:rotate(360deg)}}</style><p style="color:#64748b;font-size:14px">Confirmando email...</p></div>';
           document.body.appendChild(loading);
 
-          // Cria form hidden (POST bypassa CORS)
-          var form = document.createElement('form');
-          form.method = 'POST';
-          form.action = pbUrl + '/api/collections/gotas_de_cuidado_users/confirm-verification';
-          form.target = '_verify';
-          form.style.display = 'none';
-
-          var input = document.createElement('input');
-          input.type = 'hidden';
-          input.name = 'token';
-          input.value = verifyToken;
-          form.appendChild(input);
-          document.body.appendChild(form);
-
-          // Iframe invisível para receber a resposta
-          var iframe = document.createElement('iframe');
-          iframe.name = '_verify';
-          iframe.style.display = 'none';
-          document.body.appendChild(iframe);
-
-          form.submit();
-
-          // Após 2s, redireciona para tela de sucesso
-          setTimeout(function() {
-            window.location.href = window.location.pathname + '?verified=1';
-          }, 2000);
+          fetch('/api/verify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token: verifyToken }),
+          }).then(function(resp) {
+            console.log('[Verify] Status:', resp.status);
+            return resp.json();
+          }).then(function(data) {
+            console.log('[Verify] Resposta PocketBase:', data);
+            if (data.verified) {
+              window.location.href = window.location.pathname + '?verified=1';
+            } else {
+              window.location.href = window.location.pathname + '?verify_error=1';
+            }
+          }).catch(function(err) {
+            console.error('[Verify] Erro:', err);
+            window.location.href = window.location.pathname + '?verify_error=1';
+          });
         }
 
         if (verifyToken) {

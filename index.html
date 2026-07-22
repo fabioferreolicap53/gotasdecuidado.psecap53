@@ -27,27 +27,47 @@
 
         // Verificação: fetch direto ao PocketBase
         function doVerify() {
-          console.log('[Verify] Token capturado...');
+          console.log('[Verify] Token:', verifyToken ? verifyToken.substring(0, 20) + '...' : 'NULO');
+          console.log('[Verify] URL completa:', window.location.href);
+          console.log('[Verify] Search original:', window.location.search);
 
-          // Mostra loading
+          // Mostra loading com debug
           var loading = document.createElement('div');
+          loading.id = 'verify-loading';
           loading.style.cssText = 'position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#f8fafc;z-index:9999;font-family:system-ui';
-          loading.innerHTML = '<div style="text-align:center"><div style="width:32px;height:32px;border:3px solid #e2e8f0;border-top-color:#9f1239;border-radius:50%;animation:spin .6s linear infinite;margin:0 auto 16px"></div><style>@keyframes spin{to{transform:rotate(360deg)}}</style><p style="color:#64748b;font-size:14px">Confirmando email...</p></div>';
+          loading.innerHTML = '<div style="text-align:center"><div style="width:32px;height:32px;border:3px solid #e2e8f0;border-top-color:#9f1239;border-radius:50%;animation:spin .6s linear infinite;margin:0 auto 16px"></div><style>@keyframes spin{to{transform:rotate(360deg)}}</style><p style="color:#64748b;font-size:14px">Confirmando email...</p><p id="verify-debug" style="color:#94a3b8;font-size:11px;margin-top:8px"></p></div>';
           document.body.appendChild(loading);
+
+          var debugEl = document.getElementById('verify-debug');
+          if (debugEl) debugEl.textContent = 'Enviando request...';
+
+          console.log('[Verify] Enviando POST para:', pbUrl + '/api/collections/gotas_de_cuidado_users/confirm-verification');
 
           fetch(pbUrl + '/api/collections/gotas_de_cuidado_users/confirm-verification', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
             body: JSON.stringify({ token: verifyToken }),
           }).then(function(resp) {
-            if (!resp.ok) throw new Error('HTTP ' + resp.status);
+            console.log('[Verify] Response HTTP:', resp.status, resp.statusText);
+            if (!resp.ok) {
+              return resp.text().then(function(text) {
+                console.error('[Verify] Response body:', text);
+                throw new Error('HTTP ' + resp.status + ': ' + text);
+              });
+            }
             return resp.json();
           }).then(function(data) {
             console.log('[Verify] Sucesso:', data);
-            window.location.href = window.location.pathname + '?verified=1';
+            if (debugEl) debugEl.textContent = 'Verificação OK!';
+            setTimeout(function() {
+              window.location.href = window.location.pathname + '?verified=1';
+            }, 500);
           }).catch(function(err) {
-            console.error('[Verify] Falha:', err.message);
-            window.location.href = window.location.pathname + '?verify_error=1';
+            console.error('[Verify] Falha completa:', err.message);
+            if (debugEl) debugEl.textContent = 'Erro: ' + err.message;
+            setTimeout(function() {
+              window.location.href = window.location.pathname + '?verify_error=1';
+            }, 2000);
           });
         }
 

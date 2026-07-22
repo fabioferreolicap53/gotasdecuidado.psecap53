@@ -117,7 +117,7 @@ function KpiCard({ titulo, valor, icone, cor, corHex, subtitulo, delay = 0 }: { 
 
 // ── Pagina Resumo ───────────────────────────────────────────────────────
 
-export default function PaginaResumo() {
+export default function PaginaResumo({ usuarioUnidade }: { usuarioUnidade: string }) {
   const [pacientes, setPacientes] = useState<Paciente[]>([]);
   const [acomps, setAcomps] = useState<Acompanhamento[]>([]);
   const [carregando, setCarregando] = useState(true);
@@ -131,8 +131,11 @@ export default function PaginaResumo() {
           buscarTodosAcompanhamentos(),
         ]);
         if (!cancel) {
-          setPacientes(pacs);
-          setAcomps(ac);
+          const filtrados = usuarioUnidade ? pacs.filter((p) => p.unidade === usuarioUnidade) : pacs;
+          const idsPacs = new Set(filtrados.map((p) => p.id));
+          const acompsFiltrados = usuarioUnidade ? ac.filter((a) => idsPacs.has(a.paciente_id)) : ac;
+          setPacientes(filtrados);
+          setAcomps(acompsFiltrados);
         }
       } catch { /* ignore */ }
       finally { if (!cancel) setCarregando(false); }
@@ -164,6 +167,56 @@ export default function PaginaResumo() {
 
   const diabetes = pacientesPrioritarios.filter((p) => p.classificacao?.toLowerCase().includes("diabetes")).length;
   const anemiaFalciforme = pacientesPrioritarios.filter((p) => p.classificacao?.toLowerCase().includes("anemia")).length;
+
+  // ── Sexo ──────────────────────────────────────────────────────────────
+  const sexoMap = pacientesPrioritarios.reduce<Record<string, number>>((acc, p) => {
+    const s = p.sexo || "N\u00e3o informado";
+    acc[s] = (acc[s] || 0) + 1;
+    return acc;
+  }, {});
+
+  // ── Raça ──────────────────────────────────────────────────────────────
+  const racaMap = pacientesPrioritarios.reduce<Record<string, number>>((acc, p) => {
+    const r = p.raca || "N\u00e3o informado";
+    acc[r] = (acc[r] || 0) + 1;
+    return acc;
+  }, {});
+  const topRacas = Object.entries(racaMap).sort((a, b) => b[1] - a[1]);
+  const maxRaca = topRacas[0]?.[1] || 1;
+
+  // ── Estado Nutricional ────────────────────────────────────────────────
+  const nutMap = pacientesPrioritarios.reduce<Record<string, number>>((acc, p) => {
+    const n = p.estado_nutricional || "N\u00e3o informado";
+    acc[n] = (acc[n] || 0) + 1;
+    return acc;
+  }, {});
+  const topNut = Object.entries(nutMap).sort((a, b) => b[1] - a[1]);
+  const maxNut = topNut[0]?.[1] || 1;
+
+  // ── Situação Vacinal ─────────────────────────────────────────────────
+  const vacMap = pacientesPrioritarios.reduce<Record<string, number>>((acc, p) => {
+    const v = p.situacao_vacinal || "N\u00e3o informado";
+    acc[v] = (acc[v] || 0) + 1;
+    return acc;
+  }, {});
+  const topVac = Object.entries(vacMap).sort((a, b) => b[1] - a[1]);
+
+  // ── Benefício ──────────────────────────────────────────────────────────
+  const benefMap = pacientesPrioritarios.reduce<Record<string, number>>((acc, p) => {
+    const b = p.recebe_algum_beneficio || "N\u00e3o informado";
+    acc[b] = (acc[b] || 0) + 1;
+    return acc;
+  }, {});
+  const topBenef = Object.entries(benefMap).sort((a, b) => b[1] - a[1]);
+
+  // ── Top Escolas ────────────────────────────────────────────────────────
+  const escolasMap = pacientesPrioritarios.reduce<Record<string, number>>((acc, p) => {
+    const e = p.unidade_escolar || "Sem escola";
+    acc[e] = (acc[e] || 0) + 1;
+    return acc;
+  }, {});
+  const topEscolas = Object.entries(escolasMap).sort((a, b) => b[1] - a[1]).slice(0, 8);
+  const maxEscola = topEscolas[0]?.[1] || 1;
 
   // ── Gráfico Pizza: Categorias ────────────────────────────────────────
 
@@ -547,7 +600,7 @@ export default function PaginaResumo() {
                   </span>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-sm font-bold text-slate-700 truncate group-hover/row:text-slate-900 transition-colors">{nome}</span>
+                      <span className="text-sm font-bold text-slate-700 truncate uppercase group-hover/row:text-slate-900 transition-colors">{nome}</span>
                       <span className="text-[11px] font-black text-slate-900 ml-2 tabular-nums">{count}</span>
                     </div>
                     <div className="h-2 w-full overflow-hidden rounded-full bg-slate-100">
@@ -569,7 +622,7 @@ export default function PaginaResumo() {
                   </span>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-sm font-bold text-slate-700 truncate group-hover/row:text-slate-900 transition-colors">{nome}</span>
+                      <span className="text-sm font-bold text-slate-700 truncate uppercase group-hover/row:text-slate-900 transition-colors">{nome}</span>
                       <span className="text-[11px] font-black text-slate-900 ml-2 tabular-nums">{count}</span>
                     </div>
                     <div className="h-2 w-full overflow-hidden rounded-full bg-slate-100">
@@ -639,7 +692,7 @@ export default function PaginaResumo() {
                   </span>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-sm font-bold text-slate-700 truncate group-hover/row:text-slate-900 transition-colors">{nome}</span>
+                      <span className="text-sm font-bold text-slate-700 truncate uppercase group-hover/row:text-slate-900 transition-colors">{nome}</span>
                       <span className="text-[11px] font-black text-slate-900 ml-2 tabular-nums">{count}</span>
                     </div>
                     <div className="h-2 w-full overflow-hidden rounded-full bg-slate-100">
@@ -648,6 +701,206 @@ export default function PaginaResumo() {
                   </div>
                 </div>
               ))}
+            </div>
+          </ChartCard>
+        </div>
+
+        {/* ── Divider: Perfil dos Pacientes ────────────────────────── */}
+        <div className="mt-8 mb-5 flex items-center gap-3">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-md shadow-blue-500/20">
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" /></svg>
+          </div>
+          <div>
+            <h2 className="text-sm font-black uppercase tracking-widest text-slate-700">Perfil dos Pacientes</h2>
+            <p className="text-[10px] font-semibold text-slate-400 tracking-wider">Sexo, ra&ccedil;a, estado nutricional e vacina&ccedil;&atilde;o</p>
+          </div>
+          <div className="flex-1 h-px bg-gradient-to-r from-slate-200 to-transparent" />
+        </div>
+
+        {/* ── Sexo + Raça ───────────────────────────────────────────── */}
+        <div className="mt-6 grid grid-cols-1 gap-5 lg:grid-cols-2">
+
+          {/* Sexo */}
+          <ChartCard titulo="Sexo" subtitulo="Distribui&ccedil;&atilde;o por sexo" icone={
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" /></svg>
+          }>
+            <div className="flex items-center justify-center gap-8 py-4">
+              {(["M", "F"] as const).map((s) => {
+                const v = sexoMap[s] || 0;
+                const total = Object.values(sexoMap).reduce((a, b) => a + b, 0) || 1;
+                const pct = Math.round((v / total) * 100);
+                return (
+                  <div key={s} className="flex flex-col items-center gap-3">
+                    <div className={`flex h-24 w-24 items-center justify-center rounded-full ring-4 ring-white shadow-xl ${s === "M" ? "bg-gradient-to-br from-blue-400 to-blue-600" : "bg-gradient-to-br from-pink-400 to-rose-500"}`}>
+                      <span className="text-4xl font-black text-white">{pct}%</span>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-sm font-black text-slate-800 uppercase">{s === "M" ? "Masculino" : "Feminino"}</p>
+                      <p className="text-[11px] font-bold text-slate-400 tabular-nums">{v} pacientes</p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </ChartCard>
+
+          {/* Raça */}
+          <ChartCard titulo="Ra&ccedil;a" subtitulo="Distribui&ccedil;&atilde;o racial" icone={
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+          }>
+            <div className="space-y-2.5">
+              {topRacas.map(([nome, count], i) => {
+                const total = Object.values(racaMap).reduce((a, b) => a + b, 0) || 1;
+                const pct = Math.round((count / total) * 100);
+                const cores = ["#3b82f6","#8b5cf6","#06b6d4","#f59e0b","#10b981","#f43f5e","#64748b"];
+                return (
+                  <div key={nome} className="group/row flex items-center gap-3 rounded-xl px-3 py-1.5 transition-all duration-200 hover:bg-slate-50">
+                    <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg text-[10px] font-black text-white" style={{ backgroundColor: cores[i % cores.length] }}>
+                      {pct}%
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-xs font-bold text-slate-700 truncate uppercase group-hover/row:text-slate-900 transition-colors">{nome}</span>
+                        <span className="text-[10px] font-black text-slate-900 ml-2 tabular-nums">{count}</span>
+                      </div>
+                      <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
+                        <div className="h-full rounded-full transition-all duration-1000" style={{ width: `${(count / maxRaca) * 100}%`, backgroundColor: cores[i % cores.length] }} />
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </ChartCard>
+        </div>
+
+        {/* ── Estado Nutricional + Situação Vacinal ────────────────── */}
+        <div className="mt-6 grid grid-cols-1 gap-5 lg:grid-cols-2">
+
+          {/* Estado Nutricional */}
+          <ChartCard titulo="Estado Nutricional" subtitulo="Classifica&ccedil;&atilde;o nutricional" icone={
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" /></svg>
+          }>
+            <div className="space-y-2.5">
+              {topNut.map(([nome, count], i) => {
+                const pct = Math.round((count / maxNut) * 100);
+                const corNut = ["#10b981","#34d399","#fbbf24","#f59e0b","#f97316","#ef4444","#64748b"];
+                return (
+                  <div key={nome} className="group/row flex items-center gap-3 rounded-xl px-3 py-1.5 transition-all duration-200 hover:bg-slate-50">
+                    <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg text-[10px] font-black text-white tabular-nums" style={{ backgroundColor: corNut[i % corNut.length] }}>{count}</span>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center justify-between mb-0.5">
+                        <span className="text-[11px] font-bold text-slate-700 truncate uppercase group-hover/row:text-slate-900 transition-colors">{nome}</span>
+                        <span className="text-[9px] font-bold text-slate-400 ml-2 tabular-nums">{pct}%</span>
+                      </div>
+                      <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
+                        <div className="h-full rounded-full transition-all duration-1000" style={{ width: `${pct}%`, backgroundColor: corNut[i % corNut.length] }} />
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+              {topNut.length === 0 && <p className="text-sm text-slate-400 text-center py-4">Nenhum dado nutricional registrado.</p>}
+            </div>
+          </ChartCard>
+
+          {/* Situação Vacinal */}
+          <ChartCard titulo="Situa&ccedil;&atilde;o Vacinal" subtitulo="Status de vacina&ccedil;&atilde;o" icone={
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z" /></svg>
+          }>
+            <div className="space-y-2.5">
+              {topVac.map(([nome, count], i) => {
+                const total = Object.values(vacMap).reduce((a, b) => a + b, 0) || 1;
+                const pct = Math.round((count / total) * 100);
+                const corVac = ["#22c55e","#ef4444","#3b82f6","#f59e0b","#a855f7","#64748b"];
+                return (
+                  <div key={nome} className="group/row flex items-center gap-3 rounded-xl px-3 py-1.5 transition-all duration-200 hover:bg-slate-50">
+                    <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-[10px] font-black text-white" style={{ backgroundColor: corVac[i % corVac.length] }}>
+                      {i + 1}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center justify-between mb-0.5">
+                        <span className="text-[11px] font-bold text-slate-700 truncate uppercase group-hover/row:text-slate-900 transition-colors">{nome}</span>
+                        <span className="text-[10px] font-black text-slate-900 ml-2 tabular-nums">{count}</span>
+                      </div>
+                      <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
+                        <div className="h-full rounded-full transition-all duration-1000" style={{ width: `${pct}%`, backgroundColor: corVac[i % corVac.length] }} />
+                      </div>
+                    </div>
+                    <span className="text-[9px] font-bold text-slate-400 tabular-nums">{pct}%</span>
+                  </div>
+                );
+              })}
+              {topVac.length === 0 && <p className="text-sm text-slate-400 text-center py-4">Nenhum dado vacinal registrado.</p>}
+            </div>
+          </ChartCard>
+        </div>
+
+        {/* ── Divider: Benefícios e Escolas ──────────────────────────── */}
+        <div className="mt-8 mb-5 flex items-center gap-3">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-md shadow-amber-500/20">
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 0 0-2.455 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z" /></svg>
+          </div>
+          <div>
+            <h2 className="text-sm font-black uppercase tracking-widest text-slate-700">Benef&iacute;cios e Escolas</h2>
+            <p className="text-[10px] font-semibold text-slate-400 tracking-wider">Programas sociais e unidades de ensino</p>
+          </div>
+          <div className="flex-1 h-px bg-gradient-to-r from-slate-200 to-transparent" />
+        </div>
+
+        {/* ── Benefícios + Top Escolas ──────────────────────────────── */}
+        <div className="mt-6 grid grid-cols-1 gap-5 lg:grid-cols-2">
+
+          {/* Benefícios */}
+          <ChartCard titulo="Benef&iacute;cios Sociais" subtitulo="Programas que os pacientes recebem" icone={
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+          }>
+            <div className="space-y-2.5">
+              {topBenef.map(([nome, count], i) => {
+                const total = Object.values(benefMap).reduce((a, b) => a + b, 0) || 1;
+                const pct = Math.round((count / total) * 100);
+                const corBen = ["#22d3ee","#a78bfa","#34d399","#fbbf24","#fb7185","#f97316","#64748b","#94a3b8"];
+                return (
+                  <div key={nome} className="group/row flex items-center gap-3 rounded-xl px-3 py-1.5 transition-all duration-200 hover:bg-slate-50">
+                    <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg text-[10px] font-black text-white tabular-nums" style={{ backgroundColor: corBen[i % corBen.length] }}>{count}</span>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center justify-between mb-0.5">
+                        <span className="text-[11px] font-bold text-slate-700 truncate uppercase group-hover/row:text-slate-900 transition-colors">{nome}</span>
+                        <span className="text-[9px] font-bold text-slate-400 ml-2 tabular-nums">{pct}%</span>
+                      </div>
+                      <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
+                        <div className="h-full rounded-full transition-all duration-1000" style={{ width: `${pct}%`, backgroundColor: corBen[i % corBen.length] }} />
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+              {topBenef.length === 0 && <p className="text-sm text-slate-400 text-center py-4">Nenhum benef&iacute;cio registrado.</p>}
+            </div>
+          </ChartCard>
+
+          {/* Top Escolas */}
+          <ChartCard titulo="Top Escolas" subtitulo="Unidades de ensino com mais pacientes" icone={
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.904a48.62 48.62 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.636 50.636 0 0 0-2.658-.813A59.906 59.906 0 0 1 12 3.493a59.903 59.903 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0 1 12 13.489a50.702 50.702 0 0 1 7.74-3.342M6.75 15a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 0v-3.675A55.378 55.378 0 0 1 12 8.443m-7.007 11.55A5.981 5.981 0 0 0 6.75 15.75v-1.5" /></svg>
+          }>
+            <div className="space-y-2.5">
+              {topEscolas.map(([nome, count], i) => (
+                <div key={nome} className="group/row flex items-center gap-3 rounded-xl px-3 py-1.5 transition-all duration-200 hover:bg-slate-50">
+                  <span className={`flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg text-[10px] font-black ${i === 0 ? "bg-gradient-to-br from-amber-100 to-amber-200 text-amber-700 ring-1 ring-amber-300/50" : i === 1 ? "bg-gradient-to-br from-slate-100 to-slate-200 text-slate-600 ring-1 ring-slate-300/50" : i === 2 ? "bg-gradient-to-br from-orange-50 to-orange-100 text-orange-600 ring-1 ring-orange-200/50" : "bg-slate-100 text-slate-500"}`}>
+                    {i + 1}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-[11px] font-bold text-slate-700 truncate uppercase group-hover/row:text-slate-900 transition-colors">{nome}</span>
+                      <span className="text-[10px] font-black text-slate-900 ml-2 tabular-nums">{count}</span>
+                    </div>
+                    <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
+                      <div className="h-full rounded-full bg-gradient-to-r from-amber-400 to-orange-500 transition-all duration-1000 ease-out shadow-sm shadow-amber-200/50" style={{ width: `${(count / maxEscola) * 100}%` }} />
+                    </div>
+                  </div>
+                </div>
+              ))}
+              {topEscolas.length === 0 && <p className="text-sm text-slate-400 text-center py-4">Nenhuma escola registrada.</p>}
             </div>
           </ChartCard>
         </div>

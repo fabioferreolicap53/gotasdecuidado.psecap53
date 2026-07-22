@@ -36,8 +36,8 @@ const SITUAÇÕES_POS_BUSCA = [
 
 const ENTRAVES_OPTIONS = [
   "HORÁRIOS INCOMPATÍVEIS COM A ROTINA DE TRABALHO",
-  "VERGONHA OU CONSTRANGIMENTO DURANTE O EXAME",
-  "IDEIA EQUIVOCADA SOBRE A NECESSIDADE DE FAZER EXAME",
+  "VERGONHA OU CONSTRANGIMENTO DURANTE A CONSULTA",
+  "IDEIA EQUIVOCADA SOBRE A NECESSIDADE DA CONSULTA",
   "FAZ ACOMPANHAMENTO PELA REDE PRIVADA",
   "DIFICULDADE DE LOCOMOÇÃO (EX:ACAMADA)",
   "DISTÂNCIA DA UNIDADE",
@@ -529,142 +529,182 @@ export default function ModalAcompanhamento({ paciente, usuarioId, onFechar, aco
 
   return (
     <div className="fixed inset-0 z-[99999] flex items-start justify-center overflow-y-auto p-2 sm:p-4" onClick={onFechar}>
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-md" />
 
-      <div className="relative mt-4 sm:mt-8 mb-8 w-full max-w-3xl rounded-2xl bg-white shadow-2xl shadow-slate-900/10 ring-1 ring-black/5" onClick={(e) => e.stopPropagation()}>
+      <div className="relative mt-4 sm:mt-8 mb-8 w-full max-w-3xl rounded-2xl bg-white shadow-2xl shadow-slate-900/10" onClick={(e) => e.stopPropagation()}>
 
-        {/* ═══ Header ══════════════════════════════════════════════════ */}
-        <div className="sticky top-0 z-10 flex items-center justify-between bg-gradient-to-r from-slate-900 via-slate-800 to-cyan-900 px-5 py-4 sm:px-6">
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-3 mb-1">
-              <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-white/10 text-white/80 backdrop-blur-sm">
-                {Icone.prontuario}
-              </div>
-              <div className="min-w-0">
-                <h2 className="truncate text-base sm:text-lg font-black text-white tracking-tight">{acompanhamentoEdit ? "Editar Acompanhamento" : "Registro de Acompanhamento"}</h2>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-cyan-300/60 truncate">
-                  Paciente: {paciente.nome}
-                </p>
-              </div>
-            </div>
+        {/* ═══ HEADER PREMIUM ════════════════════════════════════════ */}
+        <div className="relative flex items-center gap-4 bg-gradient-to-r from-slate-900 via-slate-800 to-cyan-900 px-5 py-5 sm:px-6">
+          <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 text-xl font-black text-white shadow-lg shadow-cyan-500/30 ring-2 ring-white/20">
+            {paciente.nome?.charAt(0)?.toUpperCase() || "?"}
           </div>
-          <button onClick={onFechar} className="ml-4 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-white/10 text-white/70 transition-all duration-200 hover:bg-white/20 hover:text-white hover:scale-105">
-            {Icone.x}
-          </button>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2 text-xs font-semibold text-cyan-200/70 mb-0.5">
+              <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15a2.25 2.25 0 0 1 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25Z" /></svg>
+              {acompanhamentoEdit ? "EDITAR REGISTRO" : "NOVO ACOMPANHAMENTO"}
+            </div>
+            <h2 className="truncate text-lg font-black text-white leading-tight">{paciente.nome}</h2>
+          </div>
+          <div className="flex items-center gap-1.5">
+            {!modoForm && (
+              <button onClick={() => setModoForm(true)} className="flex items-center gap-1.5 rounded-lg bg-white/10 px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-white/90 backdrop-blur-sm ring-1 ring-white/10 transition-all hover:bg-white/20 hover:text-white">
+                <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+                Novo
+              </button>
+            )}
+            <button onClick={onFechar} className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-white/5 text-white/50 ring-1 ring-white/10 transition-all hover:bg-white/15 hover:text-white">
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+          </div>
         </div>
 
         {/* ── Toast ──────────────────────────────────────────────────── */}
         {toast && (
-          <div className="mx-5 mt-3 flex items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-500 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-emerald-200/50 backdrop-blur-sm">
-            {Icone.check}
+          <div className="mx-5 mt-3 flex items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 px-4 py-2.5 text-xs font-bold text-white shadow-lg shadow-emerald-500/20">
+            <svg className="h-4 w-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>
             {toast}
           </div>
         )}
 
         {/* ── Erro ───────────────────────────────────────────────────── */}
         {erro && (
-          <div className="mx-5 mt-3 flex items-center gap-2 rounded-xl bg-gradient-to-r from-red-600 to-red-500 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-red-200/50">
-            {Icone.alerta}
+          <div className="mx-5 mt-3 flex items-center gap-2 rounded-xl bg-gradient-to-r from-rose-500 to-rose-600 px-4 py-2.5 text-xs font-bold text-white shadow-lg shadow-rose-500/20">
+            <svg className="h-4 w-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z"/></svg>
             {erro}
           </div>
         )}
 
-        {/* ═══ Corpo ═════════════════════════════════════════════════ */}
+        {/* ═══ CORPO ═════════════════════════════════════════════════ */}
         <div className="p-5 sm:p-6">
           {carregando ? (
-            <div className="flex flex-col items-center justify-center py-16 gap-3">
-              <div className="h-10 w-10 animate-spin rounded-full border-[3px] border-slate-100 border-t-cyan-500" />
-              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Carregando registros...</p>
+            <div className="flex flex-col items-center justify-center py-20 gap-4">
+              <div className="h-12 w-12 animate-spin rounded-full border-[3px] border-slate-100 border-t-cyan-500" />
+              <p className="text-xs font-black uppercase tracking-widest text-slate-400">Carregando registros...</p>
             </div>
           ) : modoForm ? (
             /* ═══ FORMULÁRIO ════════════════════════════════════════ */
-            <div className="space-y-5">
-              {/* Linha 1: Data + Tipo Busca */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="mb-1.5 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest text-slate-500">
-                    {Icone.calendario}
-                    Data da Busca
-                  </label>
-                  <InputData valor={dataBusca} onChange={setDataBusca} />
+            <div className="space-y-4">
+
+              {/* ▸ Busca Ativa */}
+              <div className="rounded-xl border-l-4 border-cyan-500 bg-gradient-to-r from-cyan-50/80 to-white p-4">
+                <div className="mb-3 flex items-center gap-2">
+                  <div className="flex h-6 w-6 items-center justify-center rounded-md bg-cyan-500/10">
+                    <svg className="h-3.5 w-3.5 text-cyan-600" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/></svg>
+                  </div>
+                  <p className="text-[11px] font-extrabold uppercase tracking-widest text-cyan-700">Busca Ativa</p>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="mb-1 flex items-center gap-1 text-[9px] font-bold uppercase tracking-widest text-slate-400">
+                      <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5"/></svg>
+                      Data da Busca
+                    </label>
+                    <InputData valor={dataBusca} onChange={setDataBusca} />
+                  </div>
+                  <SelectField
+                    label="Tipo de Busca"
+                    valor={tipoBusca}
+                    onChange={setTipoBusca}
+                    opcoes={TIPOS_BUSCA}
+                    placeholder="Selecione o tipo"
+                    obrigatorio
+                    icone={undefined}
+                  />
+                </div>
+              </div>
+
+              {/* ▸ Contato e Entraves */}
+              <div className="rounded-xl border-l-4 border-violet-500 bg-gradient-to-r from-violet-50/80 to-white p-4">
+                <div className="mb-3 flex items-center gap-2">
+                  <div className="flex h-6 w-6 items-center justify-center rounded-md bg-violet-500/10">
+                    <svg className="h-3.5 w-3.5 text-violet-600" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 0 0 2.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 0 1-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 0 0-1.091-.852H4.5A2.25 2.25 0 0 0 2.25 4.5v2.25Z"/></svg>
+                  </div>
+                  <p className="text-[11px] font-extrabold uppercase tracking-widest text-violet-700">Contato e Entraves</p>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <SelectField
+                    label="Tipo de Contato"
+                    valor={tipoContato}
+                    onChange={setTipoContato}
+                    opcoes={TIPOS_CONTATO}
+                    placeholder="Selecione"
+                    obrigatorio
+                    icone={undefined}
+                  />
+                  <SelectField
+                    label="Entrave(s) Informado Por"
+                    valor={entraveInformadoPor}
+                    onChange={setEntraveInformadoPor}
+                    opcoes={ENTRAVES_INFORMADO_POR}
+                    placeholder="Selecione"
+                    icone={undefined}
+                  />
+                </div>
+              </div>
+
+              {/* ▸ Desfecho */}
+              <div className="rounded-xl border-l-4 border-emerald-500 bg-gradient-to-r from-emerald-50/80 to-white p-4">
+                <div className="mb-3 flex items-center gap-2">
+                  <div className="flex h-6 w-6 items-center justify-center rounded-md bg-emerald-500/10">
+                    <svg className="h-3.5 w-3.5 text-emerald-600" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
+                  </div>
+                  <p className="text-[11px] font-extrabold uppercase tracking-widest text-emerald-700">Desfecho</p>
                 </div>
                 <SelectField
-                  label="Tipo de Busca"
-                  valor={tipoBusca}
-                  onChange={setTipoBusca}
-                  opcoes={TIPOS_BUSCA}
-                  placeholder="Selecione"
+                  label="Situa&ccedil;&atilde;o P&oacute;s Busca Ativa"
+                  valor={situacaoPosBusca}
+                  onChange={setSituacaoPosBusca}
+                  opcoes={SITUAÇÕES_POS_BUSCA}
+                  placeholder="Selecione o desfecho"
                   obrigatorio
-                  icone={Icone.busca}
+                  icone={undefined}
                 />
               </div>
 
-              {/* Linha 2: Tipo Contato + Entrave Por */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <SelectField
-                  label="Tipo de Contato"
-                  valor={tipoContato}
-                  onChange={setTipoContato}
-                  opcoes={TIPOS_CONTATO}
-                  placeholder="Selecione uma modalidade"
-                  obrigatorio
-                  icone={Icone.telefone}
-                />
-                <SelectField
-                  label="Entrave(s) Informado Por"
-                  valor={entraveInformadoPor}
-                  onChange={setEntraveInformadoPor}
-                  opcoes={ENTRAVES_INFORMADO_POR}
-                  placeholder="Selecione"
-                  icone={Icone.info}
+              {/* ▸ Entraves Identificados */}
+              <div className="rounded-xl border-l-4 border-amber-500 bg-gradient-to-r from-amber-50/80 to-white p-4">
+                <div className="mb-3 flex items-center gap-2">
+                  <div className="flex h-6 w-6 items-center justify-center rounded-md bg-amber-500/10">
+                    <svg className="h-3.5 w-3.5 text-amber-600" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z"/></svg>
+                  </div>
+                  <p className="text-[11px] font-extrabold uppercase tracking-widest text-amber-700">Entraves Identificados</p>
+                </div>
+                <MultiSelect
+                  label=""
+                  valores={entravesIdentificados}
+                  onChange={setEntravesIdentificados}
+                  opcoes={ENTRAVES_OPTIONS}
                 />
               </div>
 
-              {/* Linha 3: Situação Pós Busca */}
-              <SelectField
-                label="Situação Pós Busca Ativa"
-                valor={situacaoPosBusca}
-                onChange={setSituacaoPosBusca}
-                opcoes={SITUAÇÕES_POS_BUSCA}
-                placeholder="Selecione o desfecho da busca"
-                obrigatorio
-                icone={Icone.relogio}
-              />
-
-              {/* Linha 4: Entraves */}
-              <MultiSelect
-                label="Entraves Identificados"
-                valores={entravesIdentificados}
-                onChange={setEntravesIdentificados}
-                opcoes={ENTRAVES_OPTIONS}
-              />
-
-              {/* Linha 5: Observações */}
-              <div>
-                <label className="mb-1.5 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest text-slate-500">
-                  {Icone.chat}
-                  Observações Detalhadas
-                </label>
+              {/* ▸ Observações */}
+              <div className="rounded-xl border-l-4 border-blue-500 bg-gradient-to-r from-blue-50/80 to-white p-4">
+                <div className="mb-3 flex items-center gap-2">
+                  <div className="flex h-6 w-6 items-center justify-center rounded-md bg-blue-500/10">
+                    <svg className="h-3.5 w-3.5 text-blue-600" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 0 1 .865-.501 48.172 48.172 0 0 0 3.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0 0 12 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018Z"/></svg>
+                  </div>
+                  <p className="text-[11px] font-extrabold uppercase tracking-widest text-blue-700">Observa&ccedil;&otilde;es</p>
+                </div>
                 <textarea
                   value={observacoes}
                   onChange={(e) => setObservacoes(e.target.value)}
-                  rows={4}
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50/80 px-3 py-2.5 text-sm font-medium text-slate-700 outline-none transition-all duration-200 placeholder-slate-400/70 focus:border-cyan-400/60 focus:bg-white focus:ring-2 focus:ring-cyan-400/15"
-                  placeholder="Descreva aqui detalhes relevantes do atendimento, informações adicionais repassadas pelo paciente ou qualquer outro ponto importante..."
+                  rows={3}
+                  className="w-full rounded-lg border border-blue-300 bg-white px-3 py-2 text-sm font-bold text-slate-800 outline-none transition-all focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 placeholder-slate-400/70 resize-none"
+                  placeholder="Descreva aqui detalhes relevantes do atendimento..."
                 />
               </div>
 
               {/* Botões */}
-              <div className="flex items-center justify-end gap-3 border-t border-slate-100 pt-5">
-                <button onClick={() => { limparForm(); onFechar(); }} className="text-sm font-bold text-slate-500 transition-colors hover:text-slate-700 px-5 py-2.5">
-                  Descartar
+              <div className="flex items-center justify-end gap-3 pt-2">
+                <button onClick={() => { limparForm(); onFechar(); }} className="text-xs font-bold text-slate-400 transition-colors hover:text-slate-600 px-5 py-2.5">
+                  Cancelar
                 </button>
                 <button onClick={handleSalvar} disabled={salvando}
-                  className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-slate-900 via-slate-800 to-cyan-900 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-slate-300/50 transition-all duration-200 hover:from-slate-800 hover:to-cyan-800 hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0">
+                  className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-emerald-500 to-emerald-600 px-6 py-2.5 text-xs font-black uppercase tracking-wider text-white shadow-lg shadow-emerald-500/20 transition-all hover:from-emerald-400 hover:to-emerald-500 hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0">
                   {salvando ? (
                     <><div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" /> {acompanhamentoEdit ? "Atualizando..." : "Salvando..."}</>
                   ) : (
-                    <>{Icone.check} {acompanhamentoEdit ? "Atualizar Registro" : "Salvar Registro"}</>
+                    <><svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg> {acompanhamentoEdit ? "Atualizar" : "Salvar"}</>
                   )}
                 </button>
               </div>
@@ -672,85 +712,97 @@ export default function ModalAcompanhamento({ paciente, usuarioId, onFechar, aco
           ) : (
             /* ═══ HISTÓRICO ══════════════════════════════════════════ */
             <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
+              <div className="flex items-center justify-between rounded-xl bg-slate-50/80 px-4 py-2.5 border border-slate-100">
+                <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15a2.25 2.25 0 0 1 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25Z"/></svg>
                   {acompanhamentos.length} registro{acompanhamentos.length !== 1 ? "s" : ""}
-                </p>
-                <button onClick={() => setModoForm(true)} className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-slate-900 via-slate-800 to-cyan-900 px-4 py-2 text-[11px] font-bold text-white shadow-md transition-all duration-200 hover:from-slate-800 hover:to-cyan-800 hover:shadow-lg hover:-translate-y-0.5">
-                  {Icone.mais}
-                  Novo Registro
+                </div>
+                <button onClick={() => setModoForm(true)} className="inline-flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-cyan-500 to-cyan-600 px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-white shadow-sm transition-all hover:from-cyan-400 hover:to-cyan-500 hover:shadow-md">
+                  <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+                  Novo
                 </button>
               </div>
 
               {acompanhamentos.length === 0 ? (
-                <div className="rounded-2xl border-2 border-dashed border-slate-200 py-14 text-center">
-                  <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-slate-100 to-slate-50 text-slate-300">
-                    {Icone.prontuario}
+                <div className="rounded-2xl border-2 border-dashed border-slate-200 py-16 text-center">
+                  <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-slate-100 to-slate-50 text-slate-300">
+                    <svg className="h-7 w-7" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15a2.25 2.25 0 0 1 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25Z"/></svg>
                   </div>
                   <p className="text-sm font-bold text-slate-400">Nenhum registro de acompanhamento</p>
                   <p className="mt-1 text-xs text-slate-400/70">Registre o primeiro acompanhamento deste paciente</p>
-                  <button onClick={() => setModoForm(true)} className="mt-4 inline-flex items-center gap-1.5 rounded-xl bg-cyan-50 px-4 py-2 text-xs font-bold text-cyan-600 transition-colors hover:bg-cyan-100">
-                    {Icone.mais}
+                  <button onClick={() => setModoForm(true)} className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-cyan-50 to-blue-50 px-4 py-2 text-xs font-bold text-cyan-600 border border-cyan-200/60 transition-colors hover:bg-cyan-100">
+                    <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
                     Registrar Agora
                   </button>
                 </div>
               ) : (
-                <div className="space-y-3">
-                  {acompanhamentos.map((a) => (
-                    <div key={a.id} className="group relative rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm transition-all duration-200 hover:shadow-md hover:border-slate-300/80">
+                <div className="space-y-2.5">
+                  {acompanhamentos.map((a, idx) => (
+                    <div key={a.id} className="group rounded-xl border-l-4 border-cyan-400 bg-white p-4 shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-0.5" style={{ borderLeftColor: idx % 2 === 0 ? "#06b6d4" : "#8b5cf6" }}>
                       <div className="flex items-start justify-between gap-3">
-                        <div className="min-w-0 flex-1">
-                          <div className="flex flex-wrap items-center gap-2 mb-2">
-                            <span className="inline-flex items-center gap-1.5 text-xs font-black text-slate-800">
-                              {Icone.calendario}
+                        <div className="min-w-0 flex-1 space-y-2">
+                          {/* Header do item */}
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span className="inline-flex items-center gap-1 rounded-lg bg-slate-100 px-2 py-1 text-[10px] font-black text-slate-700 tabular-nums">
+                              <svg className="h-3 w-3 text-slate-400" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5"/></svg>
                               {formatarData(a.data_da_busca)}
                             </span>
-                            <span className="inline-flex items-center rounded-full bg-gradient-to-r from-cyan-50 to-blue-50 px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-cyan-700 border border-cyan-200/60">
-                              {a.tipo_busca?.length > 40 ? a.tipo_busca.slice(0, 40) + "..." : a.tipo_busca}
+                            <span className="inline-flex items-center rounded-full bg-gradient-to-r from-cyan-50 to-blue-50 px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-cyan-700 ring-1 ring-cyan-200/60">
+                              {a.tipo_busca?.length > 45 ? a.tipo_busca.slice(0, 45) + "..." : a.tipo_busca}
                             </span>
                           </div>
 
-                          <div className="space-y-1.5 text-sm">
+                          {/* Detalhes em grid */}
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1 text-[11px]">
                             {a.tipo_contato && (
-                              <p className="text-slate-600">
-                                <span className="text-[9px] font-bold uppercase text-slate-400">Contato: </span>
-                                <span className="font-semibold">{a.tipo_contato}</span>
-                              </p>
-                            )}
-                            {a.situacao_pos_busca && (
-                              <p className="text-slate-600">
-                                <span className="text-[9px] font-bold uppercase text-slate-400">Situação: </span>
-                                <span className="font-semibold">{a.situacao_pos_busca}</span>
-                              </p>
-                            )}
-                            {a.entrave_informado_por && (
-                              <p className="text-slate-600">
-                                <span className="text-[9px] font-bold uppercase text-slate-400">Entrave informado por: </span>
-                                <span className="font-semibold">{a.entrave_informado_por}</span>
-                              </p>
-                            )}
-                            {a.entraves_identificados && (
-                              <div className="mt-1.5 flex flex-wrap gap-1.5">
-                                {a.entraves_identificados.split(";").map((e) => e.trim()).filter(Boolean).map((e) => (
-                                  <span key={e} className="inline-flex items-center rounded-lg bg-amber-50 px-2 py-0.5 text-[8px] font-bold uppercase tracking-wider text-amber-700 border border-amber-200/60">
-                                    {e}
-                                  </span>
-                                ))}
+                              <div className="flex items-center gap-1.5">
+                                <span className="text-[9px] font-bold uppercase tracking-wider text-slate-400 flex-shrink-0">Contato:</span>
+                                <span className="font-bold text-slate-700 truncate">{a.tipo_contato}</span>
                               </div>
                             )}
-                            {a.observacoes && (
-                              <p className="mt-1 text-slate-600">
-                                <span className="text-[9px] font-bold uppercase text-slate-400">Obs: </span>
-                                {a.observacoes}
-                              </p>
+                            {a.situacao_pos_busca && (
+                              <div className="flex items-center gap-1.5">
+                                <span className="text-[9px] font-bold uppercase tracking-wider text-slate-400 flex-shrink-0">Situa&ccedil;&atilde;o:</span>
+                                <span className="font-bold text-slate-700 truncate">{a.situacao_pos_busca}</span>
+                              </div>
+                            )}
+                            {a.entrave_informado_por && (
+                              <div className="flex items-center gap-1.5">
+                                <span className="text-[9px] font-bold uppercase tracking-wider text-slate-400 flex-shrink-0">Entrave por:</span>
+                                <span className="font-bold text-slate-700 truncate">{a.entrave_informado_por}</span>
+                              </div>
                             )}
                           </div>
+
+                          {/* Entraves badges */}
+                          {a.entraves_identificados && (
+                            <div className="flex flex-wrap gap-1.5">
+                              {a.entraves_identificados.split(";").map((e) => e.trim()).filter(Boolean).map((e) => (
+                                <span key={e} className="inline-flex items-center rounded-md bg-amber-50 px-2 py-0.5 text-[8px] font-bold uppercase tracking-wider text-amber-700 ring-1 ring-amber-200/60">
+                                  {e.length > 35 ? e.slice(0, 35) + "..." : e}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+
+                          {/* Observações */}
+                          {a.observacoes && (
+                            <div className="flex items-start gap-1.5 rounded-lg bg-slate-50 px-3 py-2 border border-slate-100">
+                              <svg className="h-3 w-3 mt-0.5 flex-shrink-0 text-slate-400" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 0 1 .865-.501 48.172 48.172 0 0 0 3.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0 0 12 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018Z"/></svg>
+                              <p className="text-[10px] font-semibold text-slate-500 leading-relaxed">{a.observacoes}</p>
+                            </div>
+                          )}
                         </div>
-                        <button onClick={() => handleExcluir(a.id)}
-                          className="flex-shrink-0 rounded-lg p-1.5 text-slate-300 opacity-0 transition-all duration-200 hover:bg-red-50 hover:text-red-500 group-hover:opacity-100"
-                          title="Excluir">
-                          {Icone.lixo}
-                        </button>
+
+                        {/* Ações */}
+                        <div className="flex flex-shrink-0 items-start gap-1">
+                          <button onClick={() => { /* editar */ }} className="rounded-lg p-1.5 text-slate-300 opacity-0 transition-all duration-200 hover:bg-cyan-50 hover:text-cyan-500 group-hover:opacity-100" title="Editar">
+                            <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10"/></svg>
+                          </button>
+                          <button onClick={() => handleExcluir(a.id)} className="rounded-lg p-1.5 text-slate-300 opacity-0 transition-all duration-200 hover:bg-red-50 hover:text-red-500 group-hover:opacity-100" title="Excluir">
+                            <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"/></svg>
+                          </button>
+                        </div>
                       </div>
                     </div>
                   ))}

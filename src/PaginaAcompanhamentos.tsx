@@ -41,7 +41,7 @@ function renderGrupos(p: Paciente) {
   );
 }
 
-export default function PaginaAcompanhamentos({ selectedPacienteId }: { selectedPacienteId?: string | null }) {
+export default function PaginaAcompanhamentos({ selectedPacienteId, usuarioId }: { selectedPacienteId?: string | null; usuarioId: string }) {
   const [acompanhamentos, setAcompanhamentos] = useState<Acompanhamento[]>([]);
   const [pacMap, setPacMap] = useState<Record<string, Paciente>>({});
   const [carregando, setCarregando] = useState(true);
@@ -52,9 +52,27 @@ export default function PaginaAcompanhamentos({ selectedPacienteId }: { selected
   const [filtroUnidade, setFiltroUnidade] = useState<string>("todas");
   const [filtroEquipe, setFiltroEquipe] = useState<string>("todas");
   const [filtroMicroarea, setFiltroMicroarea] = useState<string>("todas");
+
+  // Novos filtros avançados do modal de acompanhamento
+  const [filtroTipoBusca, setFiltroTipoBusca] = useState<string>("todas");
+  const [filtroTipoContato, setFiltroTipoContato] = useState<string>("todas");
+  const [filtroSituacaoPosBusca, setFiltroSituacaoPosBusca] = useState<string>("todas");
+  const [filtroEntraveInformadoPor, setFiltroEntraveInformadoPor] = useState<string>("todas");
+  const [filtroEntrave, setFiltroEntrave] = useState<string>("todas");
+  const [filtroEscola, setFiltroEscola] = useState<string>("todas");
+
   const unidades = [...new Set(Object.values(pacMap).map(p => p.unidade).filter(Boolean))].sort();
   const equipes = [...new Set(Object.values(pacMap).map(p => p.equipe).filter(Boolean))].sort();
   const microareas = [...new Set(Object.values(pacMap).map(p => p.microarea).filter(Boolean))].sort();
+  const tiposBuscaDisponiveis = [...new Set(acompanhamentos.map(a => a.tipo_busca).filter(Boolean))].sort();
+  const tiposContatoDisponiveis = [...new Set(acompanhamentos.map(a => a.tipo_contato).filter(Boolean))].sort();
+  const situacoesDisponiveis = [...new Set(acompanhamentos.map(a => a.situacao_pos_busca).filter(Boolean))].sort();
+  const entravesInformadoPorDisponiveis = [...new Set(acompanhamentos.map(a => a.entrave_informado_por).filter(Boolean))].sort();
+  const entravesDisponiveis = [...new Set(acompanhamentos.flatMap(a => (a.entraves_identificados ?? "").split(";").map(e => e.trim()).filter(Boolean)))].sort();
+  const escolasDisponiveis = [...new Set(Object.values(pacMap).map(p => p.unidade_escolar).filter(Boolean))].sort();
+  const [selecionarPacienteAberto, setSelecionarPacienteAberto] = useState(false);
+  const [buscaPacienteNovo, setBuscaPacienteNovo] = useState("");
+  const [novoAcompPaciente, setNovoAcompPaciente] = useState<Paciente | null>(null);
   const [excluindo, setExcluindo] = useState<string | null>(null);
   const [toast, setToast] = useState<{ tipo: "ok" | "erro"; msg: string } | null>(null);
 
@@ -163,6 +181,28 @@ export default function PaginaAcompanhamentos({ selectedPacienteId }: { selected
         return pac?.microarea === filtroMicroarea;
       });
     }
+    if (filtroEscola !== "todas") {
+      resultado = resultado.filter((a) => {
+        const pac = pacMap[a.paciente_id];
+        return pac?.unidade_escolar === filtroEscola;
+      });
+    }
+    // Filtros dos campos do acompanhamento
+    if (filtroTipoBusca !== "todas") {
+      resultado = resultado.filter((a) => a.tipo_busca === filtroTipoBusca);
+    }
+    if (filtroTipoContato !== "todas") {
+      resultado = resultado.filter((a) => a.tipo_contato === filtroTipoContato);
+    }
+    if (filtroSituacaoPosBusca !== "todas") {
+      resultado = resultado.filter((a) => a.situacao_pos_busca === filtroSituacaoPosBusca);
+    }
+    if (filtroEntraveInformadoPor !== "todas") {
+      resultado = resultado.filter((a) => a.entrave_informado_por === filtroEntraveInformadoPor);
+    }
+    if (filtroEntrave !== "todas") {
+      resultado = resultado.filter((a) => (a.entraves_identificados ?? "").includes(filtroEntrave));
+    }
     return resultado;
   })();
 
@@ -210,6 +250,9 @@ export default function PaginaAcompanhamentos({ selectedPacienteId }: { selected
               </span>
             </div>
             <div className="h-4 w-px bg-white/10" />
+            <button onClick={() => setSelecionarPacienteAberto(true)} className="flex h-7 w-7 items-center justify-center rounded-lg text-emerald-300/70 transition-all duration-200 hover:bg-emerald-500/20 hover:text-emerald-300" title="Novo registro">
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
+            </button>
             <button onClick={() => { setMostrarBusca(!mostrarBusca); setMostrarAvancada(false); }} className={`flex h-7 w-7 items-center justify-center rounded-lg transition-all duration-200 ${mostrarBusca ? 'bg-white/10 text-white/70' : 'text-white/40 hover:bg-white/10 hover:text-white/70'}`} title="Busca rápida">
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" /></svg>
             </button>
@@ -252,56 +295,106 @@ export default function PaginaAcompanhamentos({ selectedPacienteId }: { selected
                 <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
               </button>
             </div>
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {/* Linha 1: Dados do paciente */}
+            <div className="mb-2 flex items-center gap-2">
+              <div className="h-px flex-1 bg-white/5" />
+              <span className="text-[8px] font-bold uppercase tracking-[0.2em] text-white/25">Dados do Paciente</span>
+              <div className="h-px flex-1 bg-white/5" />
+            </div>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5 mb-3">
               <div>
                 <label className="mb-1 block text-[9px] font-bold uppercase tracking-widest text-white/40">Unidade</label>
-                <select
-                  value={filtroUnidade}
-                  onChange={(e) => setFiltroUnidade(e.target.value)}
-                  className="w-full rounded-lg bg-white/[0.07] border border-white/10 px-3 py-2 text-xs font-medium text-white outline-none transition-all focus:border-cyan-400/40 focus:ring-1 focus:ring-cyan-400/20 [&>option]:bg-slate-800 [&>option]:text-white"
-                >
+                <select value={filtroUnidade} onChange={(e) => setFiltroUnidade(e.target.value)}
+                  className="w-full rounded-lg bg-white/[0.07] border border-white/10 px-3 py-2 text-xs font-medium text-white outline-none transition-all focus:border-cyan-400/40 focus:ring-1 focus:ring-cyan-400/20 [&>option]:bg-slate-800 [&>option]:text-white">
                   <option value="todas">Todas</option>
                   {unidades.map(u => <option key={u} value={u}>{u}</option>)}
                 </select>
               </div>
               <div>
                 <label className="mb-1 block text-[9px] font-bold uppercase tracking-widest text-white/40">Equipe</label>
-                <select
-                  value={filtroEquipe}
-                  onChange={(e) => setFiltroEquipe(e.target.value)}
-                  className="w-full rounded-lg bg-white/[0.07] border border-white/10 px-3 py-2 text-xs font-medium text-white outline-none transition-all focus:border-cyan-400/40 focus:ring-1 focus:ring-cyan-400/20 [&>option]:bg-slate-800 [&>option]:text-white"
-                >
+                <select value={filtroEquipe} onChange={(e) => setFiltroEquipe(e.target.value)}
+                  className="w-full rounded-lg bg-white/[0.07] border border-white/10 px-3 py-2 text-xs font-medium text-white outline-none transition-all focus:border-cyan-400/40 focus:ring-1 focus:ring-cyan-400/20 [&>option]:bg-slate-800 [&>option]:text-white">
                   <option value="todas">Todas</option>
                   {equipes.map(e => <option key={e} value={e}>{e}</option>)}
                 </select>
               </div>
               <div>
                 <label className="mb-1 block text-[9px] font-bold uppercase tracking-widest text-white/40">Microárea</label>
-                <select
-                  value={filtroMicroarea}
-                  onChange={(e) => setFiltroMicroarea(e.target.value)}
-                  className="w-full rounded-lg bg-white/[0.07] border border-white/10 px-3 py-2 text-xs font-medium text-white outline-none transition-all focus:border-cyan-400/40 focus:ring-1 focus:ring-cyan-400/20 [&>option]:bg-slate-800 [&>option]:text-white"
-                >
+                <select value={filtroMicroarea} onChange={(e) => setFiltroMicroarea(e.target.value)}
+                  className="w-full rounded-lg bg-white/[0.07] border border-white/10 px-3 py-2 text-xs font-medium text-white outline-none transition-all focus:border-cyan-400/40 focus:ring-1 focus:ring-cyan-400/20 [&>option]:bg-slate-800 [&>option]:text-white">
                   <option value="todas">Todas</option>
                   {microareas.map(m => <option key={m} value={m}>{m}</option>)}
                 </select>
               </div>
               <div>
                 <label className="mb-1 block text-[9px] font-bold uppercase tracking-widest text-white/40">Grupo</label>
-                <select
-                  value={filtro}
-                  onChange={(e) => setFiltro(e.target.value)}
-                  className="w-full rounded-lg bg-white/[0.07] border border-white/10 px-3 py-2 text-xs font-medium text-white outline-none transition-all focus:border-cyan-400/40 focus:ring-1 focus:ring-cyan-400/20 [&>option]:bg-slate-800 [&>option]:text-white"
-                >
+                <select value={filtro} onChange={(e) => setFiltro(e.target.value)}
+                  className="w-full rounded-lg bg-white/[0.07] border border-white/10 px-3 py-2 text-xs font-medium text-white outline-none transition-all focus:border-cyan-400/40 focus:ring-1 focus:ring-cyan-400/20 [&>option]:bg-slate-800 [&>option]:text-white">
                   <option value="todos">Todos</option>
                   <option value="diabetes">Diabetes</option>
                   <option value="anemia_falciforme">Anemia Falciforme</option>
                 </select>
               </div>
+              <div>
+                <label className="mb-1 block text-[9px] font-bold uppercase tracking-widest text-white/40">Escola</label>
+                <select value={filtroEscola} onChange={(e) => setFiltroEscola(e.target.value)}
+                  className="w-full rounded-lg bg-white/[0.07] border border-white/10 px-3 py-2 text-xs font-medium text-white outline-none transition-all focus:border-cyan-400/40 focus:ring-1 focus:ring-cyan-400/20 [&>option]:bg-slate-800 [&>option]:text-white">
+                  <option value="todas">Todas</option>
+                  {escolasDisponiveis.map(e => <option key={e} value={e}>{e.length > 50 ? e.slice(0, 50) + "..." : e}</option>)}
+                </select>
+              </div>
+            </div>
+            {/* Linha 2: Dados do acompanhamento */}
+            <div className="mb-2 flex items-center gap-2">
+              <div className="h-px flex-1 bg-white/5" />
+              <span className="text-[8px] font-bold uppercase tracking-[0.2em] text-white/25">Dados do Acompanhamento</span>
+              <div className="h-px flex-1 bg-white/5" />
+            </div>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+              <div>
+                <label className="mb-1 block text-[9px] font-bold uppercase tracking-widest text-white/40">Tipo de Busca</label>
+                <select value={filtroTipoBusca} onChange={(e) => setFiltroTipoBusca(e.target.value)}
+                  className="w-full rounded-lg bg-white/[0.07] border border-white/10 px-3 py-2 text-xs font-medium text-white outline-none transition-all focus:border-cyan-400/40 focus:ring-1 focus:ring-cyan-400/20 [&>option]:bg-slate-800 [&>option]:text-white">
+                  <option value="todas">Todas</option>
+                  {tiposBuscaDisponiveis.map(t => <option key={t} value={t}>{t.length > 40 ? t.slice(0, 40) + "..." : t}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="mb-1 block text-[9px] font-bold uppercase tracking-widest text-white/40">Tipo de Contato</label>
+                <select value={filtroTipoContato} onChange={(e) => setFiltroTipoContato(e.target.value)}
+                  className="w-full rounded-lg bg-white/[0.07] border border-white/10 px-3 py-2 text-xs font-medium text-white outline-none transition-all focus:border-cyan-400/40 focus:ring-1 focus:ring-cyan-400/20 [&>option]:bg-slate-800 [&>option]:text-white">
+                  <option value="todas">Todos</option>
+                  {tiposContatoDisponiveis.map(t => <option key={t} value={t}>{t.length > 40 ? t.slice(0, 40) + "..." : t}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="mb-1 block text-[9px] font-bold uppercase tracking-widest text-white/40">Situação Pós Busca</label>
+                <select value={filtroSituacaoPosBusca} onChange={(e) => setFiltroSituacaoPosBusca(e.target.value)}
+                  className="w-full rounded-lg bg-white/[0.07] border border-white/10 px-3 py-2 text-xs font-medium text-white outline-none transition-all focus:border-cyan-400/40 focus:ring-1 focus:ring-cyan-400/20 [&>option]:bg-slate-800 [&>option]:text-white">
+                  <option value="todas">Todas</option>
+                  {situacoesDisponiveis.map(s => <option key={s} value={s}>{s.length > 40 ? s.slice(0, 40) + "..." : s}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="mb-1 block text-[9px] font-bold uppercase tracking-widest text-white/40">Entrave Informado Por</label>
+                <select value={filtroEntraveInformadoPor} onChange={(e) => setFiltroEntraveInformadoPor(e.target.value)}
+                  className="w-full rounded-lg bg-white/[0.07] border border-white/10 px-3 py-2 text-xs font-medium text-white outline-none transition-all focus:border-cyan-400/40 focus:ring-1 focus:ring-cyan-400/20 [&>option]:bg-slate-800 [&>option]:text-white">
+                  <option value="todas">Todos</option>
+                  {entravesInformadoPorDisponiveis.map(e => <option key={e} value={e}>{e}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="mb-1 block text-[9px] font-bold uppercase tracking-widest text-white/40">Entrave Identificado</label>
+                <select value={filtroEntrave} onChange={(e) => setFiltroEntrave(e.target.value)}
+                  className="w-full rounded-lg bg-white/[0.07] border border-white/10 px-3 py-2 text-xs font-medium text-white outline-none transition-all focus:border-cyan-400/40 focus:ring-1 focus:ring-cyan-400/20 [&>option]:bg-slate-800 [&>option]:text-white">
+                  <option value="todas">Todos</option>
+                  {entravesDisponiveis.map(e => <option key={e} value={e}>{e.length > 40 ? e.slice(0, 40) + "..." : e}</option>)}
+                </select>
+              </div>
             </div>
             <div className="mt-3 flex justify-end">
               <button
-                onClick={() => { setFiltroUnidade("todas"); setFiltroEquipe("todas"); setFiltroMicroarea("todas"); setFiltro("todos"); }}
+                onClick={() => { setFiltroUnidade("todas"); setFiltroEquipe("todas"); setFiltroMicroarea("todas"); setFiltro("todos"); setFiltroTipoBusca("todas"); setFiltroTipoContato("todas"); setFiltroSituacaoPosBusca("todas"); setFiltroEntraveInformadoPor("todas"); setFiltroEntrave("todas"); setFiltroEscola("todas"); }}
                 className="rounded-lg bg-white/[0.07] border border-white/10 px-4 py-2 text-[10px] font-bold uppercase tracking-wider text-white/50 transition-all hover:bg-white/10 hover:text-white/70"
               >
                 Limpar Filtros
@@ -563,6 +656,69 @@ export default function PaginaAcompanhamentos({ selectedPacienteId }: { selected
               </div>
             </div>
       </div>
+
+      {/* Modal de seleção de paciente para novo registro */}
+      {selecionarPacienteAberto && createPortal(
+        <div className="fixed inset-0 z-[99999] flex items-start justify-center overflow-y-auto p-2 sm:p-4" onClick={() => setSelecionarPacienteAberto(false)}>
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+          <div className="relative mt-4 sm:mt-8 mb-8 w-full max-w-lg rounded-2xl bg-white shadow-2xl shadow-slate-900/10 ring-1 ring-black/5" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between bg-gradient-to-r from-slate-900 via-slate-800 to-emerald-900 px-5 py-4 sm:px-6 rounded-t-2xl">
+              <h2 className="text-base font-black text-white tracking-tight">Selecionar Paciente</h2>
+              <button onClick={() => setSelecionarPacienteAberto(false)} className="flex h-8 w-8 items-center justify-center rounded-xl bg-white/10 text-white/70 backdrop-blur-md transition-all duration-200 hover:bg-white/20 ring-1 ring-white/10">
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12"/></svg>
+              </button>
+            </div>
+            <div className="p-4">
+              <div className="relative mb-3">
+                <svg className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" /></svg>
+                <input
+                  type="text" placeholder="Buscar paciente..." value={buscaPacienteNovo}
+                  onChange={(e) => setBuscaPacienteNovo(e.target.value)} autoFocus
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50/80 py-2.5 pl-10 pr-4 text-sm font-semibold text-slate-700 outline-none transition-all focus:border-emerald-400/60 focus:bg-white focus:ring-2 focus:ring-emerald-400/15"
+                />
+              </div>
+              <div className="max-h-80 overflow-y-auto space-y-1">
+                {Object.values(pacMap)
+                  .filter(p => !buscaPacienteNovo || p.nome?.toLowerCase().includes(buscaPacienteNovo.toLowerCase()))
+                  .sort((a, b) => (a.nome ?? "").localeCompare(b.nome ?? ""))
+                  .map(p => (
+                    <button
+                      key={p.id}
+                      onClick={() => { setNovoAcompPaciente(p); setSelecionarPacienteAberto(false); setBuscaPacienteNovo(""); }}
+                      className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-all duration-150 hover:bg-emerald-50 hover:text-emerald-700 text-slate-600"
+                    >
+                      <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 text-sm font-black text-white shadow-sm">
+                        {p.nome?.charAt(0)?.toUpperCase() || "?"}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-bold truncate">{p.nome}</p>
+                        {p.unidade && <p className="text-[10px] font-semibold text-slate-400 truncate">{p.unidade}</p>}
+                      </div>
+                    </button>
+                  ))}
+                {Object.values(pacMap).length === 0 && (
+                  <p className="text-center text-sm font-bold text-slate-400 py-8">Nenhum paciente disponível</p>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* Modal de novo registro */}
+      {novoAcompPaciente && createPortal(
+        <ModalAcompanhamento
+          paciente={novoAcompPaciente}
+          usuarioId={usuarioId}
+          onFechar={() => { setNovoAcompPaciente(null); }}
+          onEditSalvo={() => {
+            setNovoAcompPaciente(null);
+            buscarTodosAcompanhamentos().then((items) => setAcompanhamentos(items)).catch(() => {});
+          }}
+        />,
+        document.body
+      )}
 
       {/* Modal de edição */}
       {editandoAcomp && pacMap[editandoAcomp.paciente_id] && createPortal(

@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import PaginaResumo from "./PaginaResumo";
 import PaginaPacientes from "./PaginaPacientes";
 import PaginaFavoritos from "./PaginaFavoritos";
@@ -16,6 +16,7 @@ interface AuthUser {
   email: string;
   name: string;
   role: string;
+  unidade: string;
 }
 
 // ── Header Premium ───────────────────────────────────────────────────────
@@ -282,6 +283,9 @@ export default function GotasDeCuidado() {
     return "nenhum";
   });
 
+  // Rolar para o topo ao navegar entre páginas
+  useEffect(() => { window.scrollTo(0, 0); }, [pagina]);
+
   const handleNavigate = useCallback((p: Pagina) => {
     setSelectedPacienteId(null);
     setPagina(p);
@@ -372,10 +376,10 @@ export default function GotasDeCuidado() {
       <Header pagina={pagina} onNavigate={handleNavigate} onLogout={handleLogout} user={user} />
 
       <main>
-        {pagina === "resumo" && <PaginaResumo />}
-        {pagina === "pacientes" && <PaginaPacientes usuarioId={user.id} onNavigateAcompFiltered={handleNavigateAcompFiltered} />}
-        {pagina === "favoritos" && <PaginaFavoritos usuarioId={user.id} onNavigateAcompFiltered={handleNavigateAcompFiltered} />}
-        {pagina === "acompanhamentos" && <PaginaAcompanhamentos selectedPacienteId={selectedPacienteId} />}
+        {pagina === "resumo" && <PaginaResumo usuarioUnidade={user.unidade} />}
+        {pagina === "pacientes" && <PaginaPacientes usuarioId={user.id} usuarioUnidade={user.unidade} usuarioRole={user.role} onNavigateAcompFiltered={handleNavigateAcompFiltered} />}
+        {pagina === "favoritos" && <PaginaFavoritos usuarioId={user.id} usuarioUnidade={user.unidade} usuarioRole={user.role} onNavigateAcompFiltered={handleNavigateAcompFiltered} />}
+        {pagina === "acompanhamentos" && <PaginaAcompanhamentos selectedPacienteId={selectedPacienteId} usuarioId={user.id} />}
         {pagina === "configuracoes" && <PaginaConfiguracoes />}
       </main>
 

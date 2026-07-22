@@ -5,7 +5,7 @@ import { useState } from "react";
  * Valida contra collection gotas_de_cuidado_users.
  */
 
-const PB_URL = import.meta.env.VITE_POCKETBASE_URL as string;
+const PB_URL = ((import.meta.env.VITE_POCKETBASE_URL as string) || "").trim() || "https://centraldedados.dev.br";
 const PB_USERS_COLLECTION = "gotas_de_cuidado_users";
 
 function baseUrl(): string {
@@ -124,8 +124,11 @@ export default function PaginaLogin({ onLogin }: LoginProps) {
         role: record.role ?? "user",
         unidade: record.unidade ?? "",
       });
-    } catch {
-      setError("Erro ao conectar ao servidor");
+    } catch (err: any) {
+      console.error("[Login] fetch error:", err);
+      setError(err?.message === "Failed to fetch"
+        ? "Servidor indisponível. Verifique sua conexão."
+        : `Erro: ${err?.message || "desconhecido"}`);
     } finally {
       setLoading(false);
     }
@@ -152,7 +155,9 @@ export default function PaginaLogin({ onLogin }: LoginProps) {
 
     setLoading(true);
     try {
-      const resp = await fetch(recordsUrl(), {
+      const url = recordsUrl();
+      console.log("[Cadastro] POST", url);
+      const resp = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -181,8 +186,11 @@ export default function PaginaLogin({ onLogin }: LoginProps) {
 
       setSucesso("Conta criada com sucesso! Verifique seu email para confirmar o acesso.");
       setTimeout(() => trocarModo("login"), 3000);
-    } catch {
-      setError("Erro ao conectar ao servidor");
+    } catch (err: any) {
+      console.error("[Cadastro] fetch error:", err);
+      setError(err?.message === "Failed to fetch"
+        ? "Servidor indisponível. Verifique sua conexão."
+        : `Erro: ${err?.message || "desconhecido"}`);
     } finally {
       setLoading(false);
     }
@@ -208,7 +216,7 @@ export default function PaginaLogin({ onLogin }: LoginProps) {
         setEsqueciMensagem("Erro ao enviar email. Tente novamente.");
       }
     } catch {
-      setEsqueciMensagem("Erro de conexão");
+       setEsqueciMensagem("Erro de conexão");
     } finally {
       setEsqueciLoading(false);
     }

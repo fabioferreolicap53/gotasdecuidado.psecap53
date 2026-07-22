@@ -325,20 +325,33 @@ export default function GotasDeCuidado() {
   if (verificacaoStatus === "sucesso") {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4">
-        <div className="w-full max-w-md rounded-3xl border border-slate-100 bg-white p-8 text-center shadow-2xl">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-50">
-            <svg className="h-8 w-8 text-emerald-500" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-            </svg>
+        <div className="pointer-events-none fixed inset-0 overflow-hidden">
+          <div className="absolute -right-40 -top-40 h-[500px] w-[500px] rounded-full bg-emerald-500/5 blur-[120px]" />
+          <div className="absolute -bottom-40 -left-40 h-[400px] w-[400px] rounded-full bg-emerald-500/5 blur-[100px]" />
+        </div>
+        <div className="relative w-full max-w-md">
+          <div className="absolute -inset-1 rounded-[3rem] bg-gradient-to-b from-emerald-500/10 to-transparent blur-xl" />
+          <div className="relative rounded-[3rem] bg-white border border-slate-200 shadow-2xl shadow-slate-200/60 p-8 sm:p-12 text-center">
+            <div className="mb-6 flex flex-col items-center">
+              <div className="relative mb-5 flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br from-emerald-500 to-emerald-600 shadow-xl shadow-emerald-500/20">
+                <svg className="h-10 w-10 text-white" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                </svg>
+              </div>
+              <div className="flex items-baseline gap-1.5">
+                <span className="text-2xl font-black tracking-tight text-slate-900">GOTAS DE</span>
+                <span className="text-2xl font-black tracking-tight text-bordo-600">CUIDADO</span>
+              </div>
+            </div>
+            <h2 className="text-xl font-black text-slate-900">Email confirmado!</h2>
+            <p className="mt-2 text-sm font-medium text-slate-500">Sua conta foi ativada com sucesso.<br/>Agora pode acessar o sistema.</p>
+            <button
+              onClick={() => setVerificacaoStatus("nenhum")}
+              className="mt-8 w-full rounded-2xl bg-bordo-600 py-4 text-xs font-black uppercase tracking-widest text-white shadow-xl shadow-bordo-500/20 transition-all hover:bg-bordo-700 hover:shadow-bordo-500/30 active:scale-[0.98]"
+            >
+              Acessar o Sistema
+            </button>
           </div>
-          <h2 className="text-xl font-black text-slate-900">Email confirmado!</h2>
-          <p className="mt-2 text-sm text-slate-500">Agora pode acessar o sistema.</p>
-          <button
-            onClick={() => setVerificacaoStatus("nenhum")}
-            className="mt-6 rounded-2xl bg-bordo-600 px-8 py-3 text-xs font-black uppercase tracking-widest text-white transition-all hover:bg-bordo-700"
-          >
-            Acessar o Sistema
-          </button>
         </div>
       </div>
     );
@@ -347,20 +360,33 @@ export default function GotasDeCuidado() {
   if (verificacaoStatus === "erro") {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4">
-        <div className="w-full max-w-md rounded-3xl border border-slate-100 bg-white p-8 text-center shadow-2xl">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-rose-50">
-            <svg className="h-8 w-8 text-rose-500" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
-            </svg>
+        <div className="pointer-events-none fixed inset-0 overflow-hidden">
+          <div className="absolute -right-40 -top-40 h-[500px] w-[500px] rounded-full bg-rose-500/5 blur-[120px]" />
+          <div className="absolute -bottom-40 -left-40 h-[400px] w-[400px] rounded-full bg-rose-500/5 blur-[100px]" />
+        </div>
+        <div className="relative w-full max-w-md">
+          <div className="absolute -inset-1 rounded-[3rem] bg-gradient-to-b from-rose-500/10 to-transparent blur-xl" />
+          <div className="relative rounded-[3rem] bg-white border border-slate-200 shadow-2xl shadow-slate-200/60 p-8 sm:p-12 text-center">
+            <div className="mb-6 flex flex-col items-center">
+              <div className="relative mb-5 flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br from-rose-500 to-rose-600 shadow-xl shadow-rose-500/20">
+                <svg className="h-10 w-10 text-white" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+                </svg>
+              </div>
+              <div className="flex items-baseline gap-1.5">
+                <span className="text-2xl font-black tracking-tight text-slate-900">GOTAS DE</span>
+                <span className="text-2xl font-black tracking-tight text-bordo-600">CUIDADO</span>
+              </div>
+            </div>
+            <h2 className="text-xl font-black text-slate-900">Erro na verificação</h2>
+            <p className="mt-2 text-sm font-medium text-slate-500">Link inválido ou expirado.<br/>Solicite um novo email de verificação.</p>
+            <button
+              onClick={() => setVerificacaoStatus("nenhum")}
+              className="mt-8 w-full rounded-2xl bg-bordo-600 py-4 text-xs font-black uppercase tracking-widest text-white shadow-xl shadow-bordo-500/20 transition-all hover:bg-bordo-700 hover:shadow-bordo-500/30 active:scale-[0.98]"
+            >
+              Voltar ao Login
+            </button>
           </div>
-          <h2 className="text-xl font-black text-slate-900">Erro na verificação</h2>
-          <p className="mt-2 text-sm text-slate-500">Link inválido ou expirado. Solicite um novo email de verificação.</p>
-          <button
-            onClick={() => setVerificacaoStatus("nenhum")}
-            className="mt-6 rounded-2xl bg-bordo-600 px-8 py-3 text-xs font-black uppercase tracking-widest text-white transition-all hover:bg-bordo-700"
-          >
-            Voltar ao Login
-          </button>
         </div>
       </div>
     );

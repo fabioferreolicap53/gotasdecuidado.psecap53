@@ -9,7 +9,7 @@ import Papa from "papaparse";
  * Lotes de 500 via fetch REST direto ao PocketBase API.
  */
 
-const PB_URL = import.meta.env.VITE_POCKETBASE_URL as string;
+const PB_URL = (import.meta.env.VITE_POCKETBASE_URL as string) || "https://centraldedados.dev.br";
 const PB_COLLECTION = import.meta.env.VITE_POCKETBASE_COLLECTION as string;
 
 function pbApiBase(): string {

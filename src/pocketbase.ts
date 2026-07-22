@@ -11,8 +11,8 @@
 
 import type { Paciente, Acompanhamento } from "./types";
 
-const PB_URL = import.meta.env.VITE_POCKETBASE_URL as string;
-const PB_COLLECTION = import.meta.env.VITE_POCKETBASE_COLLECTION as string;
+const PB_URL = ((import.meta.env.VITE_POCKETBASE_URL as string) || "").trim() || "https://centraldedados.dev.br";
+const PB_COLLECTION = (import.meta.env.VITE_POCKETBASE_COLLECTION as string) || "gotas_de_cuidado_pacientes";
 const PB_FAVORITOS_COLLECTION = "gotas_de_cuidado_favoritos";
 const PB_ACOMPANHAMENTOS_COLLECTION = "gotas_de_cuidado_acompanhamentos";
 const PB_TOKEN_STATIC = import.meta.env.VITE_POCKETBASE_TOKEN as string | undefined;

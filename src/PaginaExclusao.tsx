@@ -8,7 +8,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
  * Segurança: validação de senha via fetch REST (NÃO authWithPassword do SDK).
  */
 
-const PB_URL = import.meta.env.VITE_POCKETBASE_URL as string;
+const PB_URL = (import.meta.env.VITE_POCKETBASE_URL as string) || "https://centraldedados.dev.br";
 const PB_COLLECTION = import.meta.env.VITE_POCKETBASE_COLLECTION as string;
 const PB_USERS_COLLECTION = "gotas_de_cuidado_users";
 

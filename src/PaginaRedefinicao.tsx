@@ -7,7 +7,7 @@ import { useState } from "react";
  * Recebe token do index.html via props (window.__authToken).
  */
 
-const PB_URL = import.meta.env.VITE_POCKETBASE_URL as string;
+const PB_URL = (import.meta.env.VITE_POCKETBASE_URL as string) || "https://centraldedados.dev.br";
 const PB_USERS_COLLECTION = "gotas_de_cuidado_users";
 
 function resetUrl(): string {

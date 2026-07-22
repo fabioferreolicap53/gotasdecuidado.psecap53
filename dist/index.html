@@ -10,6 +10,7 @@
         var params = new URLSearchParams(window.location.search);
         var verifyToken = params.get('verify');
         var authToken = params.get('token');
+        var pbUrl = 'https://centraldedados.dev.br';
 
         // Limpa a URL imediatamente
         if (verifyToken || authToken) {
@@ -24,21 +25,20 @@
           window.__authToken = authToken;
         }
 
+        // Verificação: fetch direto ao PocketBase
         function doVerify() {
-          console.log('[Verify] Iniciando verificação...');
+          console.log('[Verify] Token capturado...');
 
           // Mostra loading
           var loading = document.createElement('div');
-          loading.id = 'verify-loading';
           loading.style.cssText = 'position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#f8fafc;z-index:9999;font-family:system-ui';
           loading.innerHTML = '<div style="text-align:center"><div style="width:32px;height:32px;border:3px solid #e2e8f0;border-top-color:#9f1239;border-radius:50%;animation:spin .6s linear infinite;margin:0 auto 16px"></div><style>@keyframes spin{to{transform:rotate(360deg)}}</style><p style="color:#64748b;font-size:14px">Confirmando email...</p></div>';
           document.body.appendChild(loading);
 
-          // Pages Function no mesmo domínio — bypass CORS
-          fetch('/api/verify', {
+          fetch(pbUrl + '/api/collections/gotas_de_cuidado_users/confirm-verification', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ token: verifyToken }),
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Accept': 'application/json' },
+            body: 'token=' + encodeURIComponent(verifyToken),
           }).then(function(resp) {
             if (!resp.ok) throw new Error('HTTP ' + resp.status);
             return resp.json();
@@ -60,8 +60,8 @@
         }
       })();
     </script>
-    <script type="module" crossorigin src="/assets/index-DVux2gjI.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-vWafGr85.css">
+    <script type="module" crossorigin src="/assets/index-CprIOOdr.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-75iFl3k1.css">
   </head>
   <body>
     <div id="root"></div>

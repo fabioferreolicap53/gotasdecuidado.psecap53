@@ -37,8 +37,8 @@
 
           fetch(pbUrl + '/api/collections/gotas_de_cuidado_users/confirm-verification', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ token: verifyToken }),
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Accept': 'application/json' },
+            body: 'token=' + encodeURIComponent(verifyToken),
           }).then(function(resp) {
             if (!resp.ok) throw new Error('HTTP ' + resp.status);
             return resp.json();

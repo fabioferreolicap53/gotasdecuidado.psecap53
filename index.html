@@ -15,17 +15,23 @@
         // Verificação: processa inline com fetch direto
         if (verifyToken) {
           window.history.replaceState(null, '', window.location.pathname);
+          console.log('[Verify] Token capturado, enviando confirmação...');
           fetch(pbUrl + '/api/collections/gotas_de_cuidado_users/confirm-verification', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Accept': 'application/json' },
-            body: 'token=' + encodeURIComponent(verifyToken),
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            body: JSON.stringify({ token: verifyToken }),
           }).then(function(resp) {
-            if (resp.ok) {
-              window.location.href = window.location.pathname + '?verified=1';
-            } else {
-              window.location.href = window.location.pathname + '?verify_error=1';
-            }
-          }).catch(function() {
+            console.log('[Verify] Status:', resp.status, 'OK:', resp.ok);
+            return resp.text().then(function(text) {
+              console.log('[Verify] Body:', text);
+              if (resp.ok) {
+                window.location.href = window.location.pathname + '?verified=1';
+              } else {
+                window.location.href = window.location.pathname + '?verify_error=1';
+              }
+            });
+          }).catch(function(err) {
+            console.error('[Verify] fetch falhou (possivelmente CORS):', err);
             window.location.href = window.location.pathname + '?verify_error=1';
           });
         }

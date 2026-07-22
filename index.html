@@ -10,7 +10,6 @@
         var params = new URLSearchParams(window.location.search);
         var verifyToken = params.get('verify');
         var authToken = params.get('token');
-        var pbUrl = 'https://centraldedados.dev.br';
 
         // Limpa a URL imediatamente
         if (verifyToken || authToken) {
@@ -25,44 +24,30 @@
           window.__authToken = authToken;
         }
 
-        // Verificação: 1ª tenta Pages Function, 2ª no-cors fetch direto
         function doVerify() {
-          console.log('[Verify] Token capturado...');
+          console.log('[Verify] Iniciando verificação...');
 
           // Mostra loading
           var loading = document.createElement('div');
+          loading.id = 'verify-loading';
           loading.style.cssText = 'position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#f8fafc;z-index:9999;font-family:system-ui';
           loading.innerHTML = '<div style="text-align:center"><div style="width:32px;height:32px;border:3px solid #e2e8f0;border-top-color:#9f1239;border-radius:50%;animation:spin .6s linear infinite;margin:0 auto 16px"></div><style>@keyframes spin{to{transform:rotate(360deg)}}</style><p style="color:#64748b;font-size:14px">Confirmando email...</p></div>';
           document.body.appendChild(loading);
 
-          // Tentativa 1: Pages Function (mesmo domínio, resposta legível)
+          // Pages Function no mesmo domínio — bypass CORS
           fetch('/api/verify', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ token: verifyToken }),
           }).then(function(resp) {
-            if (!resp.ok) throw new Error('not ok');
+            if (!resp.ok) throw new Error('HTTP ' + resp.status);
             return resp.json();
           }).then(function(data) {
-            console.log('[Verify] Pages Function OK:', data);
+            console.log('[Verify] Sucesso:', data);
             window.location.href = window.location.pathname + '?verified=1';
-          }).catch(function() {
-            // Tentativa 2: fetch no-cors direto ao PocketBase (bypass CORS)
-            console.log('[Verify] Pages Function indisponível, usando no-cors...');
-            fetch(pbUrl + '/api/collections/gotas_de_cuidado_users/confirm-verification', {
-              method: 'POST',
-              mode: 'no-cors',
-              headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-              body: 'token=' + encodeURIComponent(verifyToken),
-            }).then(function() {
-              console.log('[Verify] no-cors enviado com sucesso');
-              setTimeout(function() {
-                window.location.href = window.location.pathname + '?verified=1';
-              }, 1500);
-            }).catch(function(err) {
-              console.error('[Verify] Todas as tentativas falharam:', err);
-              window.location.href = window.location.pathname + '?verify_error=1';
-            });
+          }).catch(function(err) {
+            console.error('[Verify] Falha:', err.message);
+            window.location.href = window.location.pathname + '?verify_error=1';
           });
         }
 

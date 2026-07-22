@@ -10,24 +10,10 @@
         var params = new URLSearchParams(window.location.search);
         var verifyToken = params.get('verify');
         var authToken = params.get('token');
-        var pbUrl = 'https://centraldedados.dev.br';
 
-        // Verificação: processa inline com fetch direto
-        if (verifyToken) {
+        // Limpa a URL imediatamente
+        if (verifyToken || authToken) {
           window.history.replaceState(null, '', window.location.pathname);
-          fetch(pbUrl + '/api/collections/gotas_de_cuidado_users/confirm-verification', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Accept': 'application/json' },
-            body: 'token=' + encodeURIComponent(verifyToken),
-          }).then(function(resp) {
-            if (resp.ok) {
-              window.location.href = window.location.pathname + '?verified=1';
-            } else {
-              window.location.href = window.location.pathname + '?verify_error=1';
-            }
-          }).catch(function() {
-            window.location.href = window.location.pathname + '?verify_error=1';
-          });
         }
 
         // Reset / Email Change: salva token para React
@@ -36,12 +22,46 @@
           window.__authAction = actionPath.indexOf('/confirm-email-change') !== -1
             ? 'confirm_email_change' : 'reset_password';
           window.__authToken = authToken;
-          window.history.replaceState(null, '', window.location.pathname);
+        }
+
+        function doVerify() {
+          console.log('[Verify] Iniciando verificação...');
+
+          // Mostra loading
+          var loading = document.createElement('div');
+          loading.id = 'verify-loading';
+          loading.style.cssText = 'position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#f8fafc;z-index:9999;font-family:system-ui';
+          loading.innerHTML = '<div style="text-align:center"><div style="width:32px;height:32px;border:3px solid #e2e8f0;border-top-color:#9f1239;border-radius:50%;animation:spin .6s linear infinite;margin:0 auto 16px"></div><style>@keyframes spin{to{transform:rotate(360deg)}}</style><p style="color:#64748b;font-size:14px">Confirmando email...</p></div>';
+          document.body.appendChild(loading);
+
+          // Pages Function no mesmo domínio — bypass CORS
+          fetch('/api/verify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token: verifyToken }),
+          }).then(function(resp) {
+            if (!resp.ok) throw new Error('HTTP ' + resp.status);
+            return resp.json();
+          }).then(function(data) {
+            console.log('[Verify] Sucesso:', data);
+            window.location.href = window.location.pathname + '?verified=1';
+          }).catch(function(err) {
+            console.error('[Verify] Falha:', err.message);
+            window.location.href = window.location.pathname + '?verify_error=1';
+          });
+        }
+
+        if (verifyToken) {
+          if (document.body) {
+            doVerify();
+          } else {
+            document.addEventListener('DOMContentLoaded', doVerify);
+          }
         }
       })();
     </script>
-    <script type="module" crossorigin src="/assets/index-CTnC9QUz.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-BjN3alWy.css">
+    <script type="module" crossorigin src="/assets/index-DVux2gjI.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-vWafGr85.css">
   </head>
   <body>
     <div id="root"></div>

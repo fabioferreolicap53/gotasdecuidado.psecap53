@@ -170,7 +170,13 @@ export default function PaginaLogin({ onLogin }: LoginProps) {
       const data = await resp.json();
 
       if (!resp.ok) {
-        const msg = data?.message || data?.data?.email?.message || "Erro ao criar conta";
+        console.error("[Cadastro] PocketBase 400:", JSON.stringify(data, null, 2));
+        let msg = data?.message || "Erro ao criar conta";
+        if (data?.data) {
+          const campos = Object.keys(data.data);
+          const detalhes = campos.map(c => `${c}: ${data.data[c]?.message || JSON.stringify(data.data[c])}`).join("; ");
+          if (detalhes) msg = detalhes;
+        }
         setError(msg.includes("already") ? "Este email já está cadastrado" : msg);
         return;
       }

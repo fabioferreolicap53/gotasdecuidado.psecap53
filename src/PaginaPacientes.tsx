@@ -86,6 +86,36 @@ function renderCategorias(p: Paciente) {
   );
 }
 
+// ── Mapeamento Unidade → Equipes ────────────────────────────────────────
+
+const UNIDADE_EQUIPES: Record<string, string[]> = {
+  "SMS CF VALERIA GOMES ESTEVES AP 53": ["BARREIRA","PIAI","PEDRO LEITAO","BALNEARIO GLOBO","EUCALIPAL"],
+  "SMS CF LOURENCO DE MELLO AP 53": ["BAIRRO FARIAS","ALZIRA MARTINHO","ALZIRA GENI"],
+  "SMS CF DEOLINDO COUTO AP 53": ["DR. CONTINENTINO","JAQUEIRA","PEDRINHAS","BONS AMIGOS","MARQUES DE ERVAL"],
+  "SMS CF EDSON ABDALLA SAAD AP 53": ["PRACA DO MAIA","MARCOLINA","ESPERANCA","PALESTINA","VETERANO","CENTRO CULTURAL"],
+  "SMS CF HELANDE DE MELLO GONCALVES AP 53": ["SAO PAULO","VIEIRAS","JULIA MIGUEL"],
+  "SMS CF ILZO MOTTA DE MELLO AP 53": ["TRES PONTES","MARIA APARECIDA","ROBERTO MORENA"],
+  "SMS CF JAMIL HADDAD AP 53": ["ANDORINHAS","AUSTIN","COLINA","IPEG","AGAI"],
+  "SMS CF JOSE ANTONIO CIRAUDO AP 53": ["SAO BENEDITO","SAO DOMINGOS SAVIO","AREIA BRANCA","COQUEIRAL (C)","VITOR DUMAS","AURORA","MANOEL JULIO"],
+  "SMS CF LENICE MARIA MONTEIRO COELHO AP 53": ["LOTE 14","BOA ESPERANCA","SAQUASSU","PARQUE DAS PEDRAS"],
+  "SMS CF SERGIO AROUCA AP 53": ["JARDIM ITA","IMPERIO","CAMPEIRO MOR","GENERAL OLIMPIO","BODEGAO","BOA VISTA"],
+  "SMS CMS EMYDIO CABRAL AP 53": ["1º DE ABRIL","GOUVEIA","DR. HELIO RIBEIRO","MONTE SINAI","MONTE DAS OLIVEIRA"],
+  "SMS CMS SAVIO ANTUNES ANTARES AP 53": ["CAMPO DOS BANDEIRANTES","SEMPRE VIDA","PONTE AMARELA"],
+  "SMS CF SAMUEL PENHA VALLE AP 53": ["ALTA","TORRE","VAGAO"],
+  "SMS CMS DECIO AMARAL FILHO AP 53": ["MAESTRO OLIMPIO","VALE DOS PALMARES","URUCANIA","BARRO VERMELHO","BAMBUZAL","53 EAP 01"],
+  "SMS CMS CYRO DE MELLO MANGUARIBA AP 53": ["JOAO DE BARRO","PARAISO","NOVA INDIA"],
+  "SMS CMS ADELINO SIMOES NOVA SEPETIBA AP 53": ["RUBI","SAFIRA","ESMERALDA","TOPAZIO","DIAMANTE"],
+  "SMS CF WALDEMAR BERARDINELLI AP 53": ["TRES PODERES","AMAZONAS","AREAL","TRIUNFO","IPIRANGA","MIRANTE","COQUEIRAL (W)","ILHA DO TATU"],
+  "SMS CMS CATTAPRETA AP 53": ["ALVORADA","CONJUNTO 61","CHATUBA"],
+  "SMS CF ERNANI DE PAIVA FERREIRA BRAGA AP 53": ["SERAFIM VIEGAS","GUANDU I E LIBERDADE","MIECIMO","PADRE GUILHERME DECAMINADA","HORTO FLORESTAL","VILLAGE ATLANTA","GUANDU E GUANDU VELHO","JOAO XXIII"],
+  "SMS CMS CESARIO DE MELLO AP 53": ["FELIPE CARDOSO","CURRAL FALSO","BLASO","VERIDIANA","MARQUES","CARVALHAU","TASSO"],
+  "SMS CF JOAO BATISTA CHAGAS AP 53": ["AGUAS DA PRATA","DO FUTURO","NOVA ESPERANCA","VENDA DE VARANDA","OLINDINA"],
+  "SMS CMS ALOYSIO AMANCIO DA SILVA AP 53": ["MORRO DO AR"],
+  "SMS CMS FLORIPES GALDINO PEREIRA AP 53": ["SAGRADO CORACAO","NOVO HORIZONTE"],
+  "SMS CF ALICE DE JESUS REGO AP 53": ["JESUITAS","BAIXADINHA","MERCADANTE","NOVO CONDOMINIO"],
+  "SMS CMS MARIA APARECIDA DE ALMEIDA AP 53": ["CESARINHO"],
+};
+
 // ── Componente ──────────────────────────────────────────────────────────
 
 function AcompCountBadge({
@@ -1230,7 +1260,11 @@ export default function PaginaPacientes({ usuarioId, usuarioUnidade, usuarioRole
                   <div>
                     <p className="mb-0.5 text-[9px] font-bold uppercase tracking-widest text-slate-400">Unidade</p>
                     {editando && usuarioRole === "admin" ? (
-                      <input type="text" value={formData.unidade || ""} onChange={(e) => setFormData({ ...formData, unidade: e.target.value })} className="w-full rounded-lg border border-blue-300 bg-white px-3 py-1.5 text-sm font-bold text-slate-800 outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500" />
+                      <input type="text" value={formData.unidade || ""} onChange={(e) => {
+                        const novaUnidade = e.target.value;
+                        const equipesNova = UNIDADE_EQUIPES[novaUnidade] || [];
+                        setFormData({ ...formData, unidade: novaUnidade, equipe: equipesNova.includes(formData.equipe || "") ? formData.equipe : "" });
+                      }} className="w-full rounded-lg border border-blue-300 bg-white px-3 py-1.5 text-sm font-bold text-slate-800 outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500" />
                     ) : (
                       <p className="text-sm font-bold text-slate-800 break-words">{pacienteModal.unidade || "\u2014"}</p>
                     )}
@@ -1238,7 +1272,12 @@ export default function PaginaPacientes({ usuarioId, usuarioUnidade, usuarioRole
                   <div>
                     <p className="mb-0.5 text-[9px] font-bold uppercase tracking-widest text-slate-400">Equipe</p>
                     {editando ? (
-                      <input type="text" value={formData.equipe || ""} onChange={(e) => setFormData({ ...formData, equipe: e.target.value })} className="w-full rounded-lg border border-blue-300 bg-white px-3 py-1.5 text-sm font-bold text-slate-800 outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500" />
+                      <select value={formData.equipe || ""} onChange={(e) => setFormData({ ...formData, equipe: e.target.value })} className="w-full rounded-lg border border-blue-300 bg-white px-3 py-1.5 text-sm font-bold text-slate-800 outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500">
+                        <option value="">Selecione</option>
+                        {(UNIDADE_EQUIPES[formData.unidade || ""] || []).map(eq => (
+                          <option key={eq} value={eq}>{eq}</option>
+                        ))}
+                      </select>
                     ) : (
                       <p className="text-sm font-bold text-slate-800">{pacienteModal.equipe || "\u2014"}</p>
                     )}
@@ -1246,7 +1285,10 @@ export default function PaginaPacientes({ usuarioId, usuarioUnidade, usuarioRole
                   <div>
                     <p className="mb-0.5 text-[9px] font-bold uppercase tracking-widest text-slate-400">Micro&Aacute;rea</p>
                     {editando ? (
-                      <input type="text" value={formData.microarea || ""} onChange={(e) => setFormData({ ...formData, microarea: e.target.value })} className="w-full rounded-lg border border-blue-300 bg-white px-3 py-1.5 text-sm font-bold text-slate-800 outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500" />
+                      <select value={formData.microarea || ""} onChange={(e) => setFormData({ ...formData, microarea: e.target.value })} className="w-full rounded-lg border border-blue-300 bg-white px-3 py-1.5 text-sm font-bold text-slate-800 outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500">
+                        <option value="">Selecione</option>
+                        {[1,2,3,4,5,6,7].map(n => <option key={n} value={String(n)}>{n}</option>)}
+                      </select>
                     ) : (
                       <p className="text-sm font-bold text-slate-800">{pacienteModal.microarea || "\u2014"}</p>
                     )}

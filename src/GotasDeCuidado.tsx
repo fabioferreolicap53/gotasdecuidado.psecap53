@@ -60,28 +60,26 @@ function Header({ pagina, onNavigate, onLogout, user }: HeaderProps) {
     <header className="sticky top-0 z-50 border-b border-white/[0.08] bg-gradient-to-r from-slate-800 to-slate-700 shadow-lg shadow-slate-800/20">
       <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-bordo-600/20 to-transparent" />
 
-      <div className="mx-auto flex max-w-[1380px] items-center justify-between gap-1 sm:gap-2 lg:gap-3 px-3 sm:px-5 lg:px-6 py-2 sm:py-2.5 lg:py-3">
-        {/* Logo + Hambúrguer */}
-        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-          {/* Botão Hambúrguer — mobile/tablet */}
-          <button
-            onClick={() => setSidebarOpen(true)}
-            className="flex h-9 w-9 sm:h-10 sm:w-10 flex-shrink-0 items-center justify-center rounded-xl bg-white/10 text-white/70 ring-1 ring-white/10 transition-all duration-200 hover:bg-white/20 hover:text-white md:hidden"
-          >
-            <svg className="h-4 w-4 sm:h-5 sm:w-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-            </svg>
-          </button>
+      <div className="mx-auto flex max-w-[1380px] items-center gap-1 sm:gap-2 lg:gap-3 px-3 sm:px-5 lg:px-6 py-2 sm:py-2.5 lg:py-3">
+        {/* Botão Hambúrguer — mobile/tablet */}
+        <button
+          onClick={() => setSidebarOpen(true)}
+          className="flex h-9 w-9 sm:h-10 sm:w-10 flex-shrink-0 items-center justify-center rounded-xl bg-white/10 text-white/70 ring-1 ring-white/10 transition-all duration-200 hover:bg-white/20 hover:text-white md:hidden"
+        >
+          <svg className="h-4 w-4 sm:h-5 sm:w-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+          </svg>
+        </button>
 
-          {/* Logo texto — mobile compacto (< sm) */}
-          <div className="sm:hidden">
-            <div className="flex items-baseline gap-1">
-              <span className="text-sm font-bold tracking-wide text-white/90">GDC</span>
-            </div>
-          </div>
+        {/* Logo texto — mobile (< sm) — centralizado */}
+        <div className="sm:hidden flex-1 text-center min-w-0">
+          <p className="text-[10px] font-bold tracking-[0.15em] text-white/90 uppercase leading-tight">Gotas de Cuidado</p>
+          <p className="text-[8px] font-medium tracking-wider text-white/40 leading-tight mt-0.5 truncate mx-auto">{user.role === "admin" ? "Coordenação" : user.unidade || ""}</p>
+        </div>
 
-          {/* Logo texto — completo (sm+) */}
-          <div className="hidden sm:block min-w-0">
+        {/* Logo texto — completo (sm+) */}
+        <div className="hidden sm:flex sm:items-center sm:gap-3 sm:min-w-0">
+          <div className="min-w-0">
             <div className="flex items-baseline gap-1.5 flex-nowrap">
               <span className="text-[13px] sm:text-[15px] font-bold tracking-wide text-white/90 whitespace-nowrap">GOTAS DE</span>
               <span className="bg-gradient-to-r from-bordo-400 to-blue-500 bg-clip-text text-[13px] sm:text-[15px] font-bold tracking-wide text-transparent whitespace-nowrap">CUIDADO</span>
@@ -125,14 +123,6 @@ function Header({ pagina, onNavigate, onLogout, user }: HeaderProps) {
               <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
             </svg>
           </button>
-
-          {/* User info */}
-          <div className="flex items-center gap-2.5 rounded-xl bg-white/10 py-1.5 px-3 ring-1 ring-white/10 transition-all hover:bg-white/20">
-            <div className="hidden lg:block">
-              <p className="text-[11px] sm:text-xs font-semibold text-white/90 whitespace-nowrap">{user.name || user.email}</p>
-              <p className="text-[9px] sm:text-[10px] text-white/50 font-medium whitespace-nowrap">{user.role === "admin" ? "Coordenação" : user.unidade || "Usuário"}</p>
-            </div>
-          </div>
 
           {/* Logout */}
           <button

@@ -116,14 +116,14 @@ export default function PaginaConfiguracoes({ usuarioRole }: ConfigProps) {
   return (
     <>
       {/* Hero — dark premium */}
-      <div className="relative overflow-hidden rounded-b-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-bordo-950 px-5 py-5 sm:px-6 shadow-xl shadow-slate-900/30">
+      <div className="relative overflow-hidden rounded-b-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-bordo-950 px-5 py-4 sm:px-6 sm:py-5 shadow-xl shadow-slate-900/30">
         <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)', backgroundSize: '16px 16px' }} />
         <div className="absolute -right-10 -top-10 h-36 w-36 rounded-full bg-bordo-500/10 blur-3xl" />
         <div className="absolute -bottom-8 -left-8 h-24 w-24 rounded-full bg-bordo-600/15 blur-2xl" />
         <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-bordo-500/40 to-transparent" />
 
-        <div className="relative mx-auto flex max-w-[1380px] flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
-          <div className="flex items-center gap-2.5">
+        <div className="relative mx-auto flex max-w-[1380px] flex-col items-center text-center gap-2 sm:flex-row sm:items-center sm:justify-between sm:text-left">
+          <div className="flex items-center gap-2 sm:gap-2.5">
             <div className="h-6 w-0.5 rounded-full bg-gradient-to-b from-cyan-400 to-cyan-600" />
             <h1 className="text-xl font-black tracking-tight text-white sm:text-2xl">
               CONFIGURAÇÕES <span className="text-bordo-400 font-bold">do Sistema</span>

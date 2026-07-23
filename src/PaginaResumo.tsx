@@ -81,35 +81,39 @@ function ChartCard({ titulo, subtitulo, children, icone, className = "" }: { tit
 function KpiCard({ titulo, valor, icone, cor, corHex, subtitulo, delay = 0 }: { titulo: string; valor: string | number; icone: React.ReactNode; cor: string; corHex: string; subtitulo?: string; delay?: number }) {
   return (
     <div
-      className="group relative overflow-hidden rounded-2xl border border-slate-200/60 bg-white shadow-[0_4px_12px_rgba(0,0,0,0.05),inset_0_1px_0_rgba(255,255,255,0.8),0_0_0_1px_rgba(226,232,240,0.6)] transition-all duration-500 hover:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25),0_8px_24px_-6px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,0.9)] hover:-translate-y-1.5 animate-[fadeInUp_0.6s_ease-out_both]"
+      className="group relative overflow-hidden rounded-2xl border border-slate-200/60 bg-white shadow-[0_2px_8px_rgba(0,0,0,0.04)] transition-all duration-500 hover:shadow-[0_20px_40px_-12px_rgba(0,0,0,0.2)] hover:-translate-y-1 animate-[fadeInUp_0.5s_ease-out_both] min-w-0"
       style={{ animationDelay: `${delay}ms` }}
     >
       {/* Top accent bar */}
-      <div className={`absolute inset-x-0 top-0 h-1 ${cor} transition-all duration-300 group-hover:h-1.5`} />
+      <div className={`absolute inset-x-0 top-0 h-[3px] ${cor} transition-all duration-300 group-hover:h-1`} />
+
       {/* Hover glow */}
-      <div className="absolute -right-8 -top-8 h-24 w-24 rounded-full opacity-0 blur-2xl transition-opacity duration-700 group-hover:opacity-30" style={{ backgroundColor: corHex }} />
-      <div className="absolute -left-4 -bottom-4 h-16 w-16 rounded-full opacity-0 blur-xl transition-opacity duration-700 group-hover:opacity-20" style={{ backgroundColor: corHex }} />
+      <div className="absolute -right-6 -top-6 h-20 w-20 rounded-full opacity-0 blur-2xl transition-opacity duration-700 group-hover:opacity-25" style={{ backgroundColor: corHex }} />
+
       {/* Content */}
-      <div className="relative px-6 pt-6 pb-5">
-        <div className="flex items-start justify-between">
+      <div className="relative p-4 sm:p-5">
+        <div className="flex items-start justify-between gap-3">
           <div className="min-w-0 flex-1">
-            <p className="text-[11px] font-bold uppercase tracking-widest text-slate-400 group-hover:text-slate-500 transition-colors">{titulo}</p>
-            <p className="mt-2.5 text-[2.25rem] font-black tracking-tight text-slate-900 tabular-nums leading-none">{valor}</p>
-            {subtitulo && <p className="mt-1.5 text-[10px] font-semibold text-slate-400">{subtitulo}</p>}
+            <p className="text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.15em] text-slate-400 group-hover:text-slate-500 transition-colors leading-tight">{titulo}</p>
+            <p className="mt-2 text-2xl sm:text-3xl lg:text-[2.25rem] font-black tracking-tight text-slate-900 tabular-nums leading-none">{valor}</p>
+            {subtitulo && <p className="mt-1 text-[9px] sm:text-[10px] font-semibold text-slate-400 leading-tight">{subtitulo}</p>}
           </div>
-          <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-2xl transition-all duration-500 group-hover:scale-110 group-hover:rotate-3" style={{ backgroundColor: `${corHex}12`, color: corHex, boxShadow: `0 0 0 1px ${corHex}18` }}>
+          <div
+            className="flex h-10 w-10 sm:h-12 sm:w-12 flex-shrink-0 items-center justify-center rounded-xl transition-all duration-500 group-hover:scale-110 group-hover:rotate-3"
+            style={{ backgroundColor: `${corHex}10`, color: corHex, boxShadow: `0 0 0 1px ${corHex}15` }}
+          >
             {icone}
           </div>
         </div>
       </div>
-      {/* Bottom subtle line */}
-      <div className="h-px mx-6 bg-gradient-to-r from-transparent via-slate-100 to-transparent" />
-      <div className="px-6 py-3.5 flex items-center justify-between">
+
+      {/* Bottom bar */}
+      <div className="flex items-center justify-between border-t border-slate-100/80 px-4 sm:px-5 py-2.5 bg-slate-50/50">
         <div className="flex items-center gap-1.5">
           <span className="h-1.5 w-1.5 rounded-full animate-pulse" style={{ backgroundColor: corHex }} />
-          <span className="text-[9px] font-bold uppercase tracking-widest text-slate-300">Ativo</span>
+          <span className="text-[8px] sm:text-[9px] font-bold uppercase tracking-widest text-slate-300">Ativo</span>
         </div>
-        <svg className="h-3.5 w-3.5 text-slate-300 group-hover:text-slate-400 transition-colors" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
+        <svg className="h-3 w-3 text-slate-300 group-hover:text-slate-400 transition-colors" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
       </div>
     </div>
   );
@@ -495,20 +499,20 @@ export default function PaginaResumo({ usuarioUnidade }: { usuarioUnidade: strin
   return (
     <>
       {/* ── Hero ────────────────────────────────────────────────────── */}
-      <div className="relative overflow-hidden rounded-b-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-bordo-950 px-5 py-5 sm:px-6 shadow-xl shadow-slate-900/30">
+      <div className="relative overflow-hidden rounded-b-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-bordo-950 px-5 py-4 sm:px-6 sm:py-5 shadow-xl shadow-slate-900/30">
         <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)', backgroundSize: '16px 16px' }} />
         <div className="absolute -right-10 -top-10 h-36 w-36 rounded-full bg-bordo-500/10 blur-3xl" />
         <div className="absolute -bottom-8 -left-8 h-24 w-24 rounded-full bg-bordo-600/15 blur-2xl" />
         <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-bordo-500/40 to-transparent" />
 
-        <div className="relative mx-auto flex max-w-[1380px] flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
-          <div className="flex items-center gap-2.5">
+        <div className="relative mx-auto flex max-w-[1380px] flex-col items-center text-center gap-2 sm:flex-row sm:items-center sm:justify-between sm:text-left">
+          <div className="flex items-center gap-2 sm:gap-2.5">
             <div className="h-6 w-0.5 rounded-full bg-gradient-to-b from-bordo-500 to-bordo-700" />
             <h1 className="text-xl font-black tracking-tight text-white sm:text-2xl">
               RESUMO <span className="text-bordo-400 font-bold">GERAL</span>
             </h1>
           </div>
-          <div className="flex items-baseline gap-2">
+          <div className="flex items-baseline justify-center gap-2">
             <svg className="h-4 w-4 text-amber-300/70" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
             </svg>
@@ -544,7 +548,7 @@ export default function PaginaResumo({ usuarioUnidade }: { usuarioUnidade: strin
 
         {/* ── KPI Cards ────────────────────────────────────────────── */}
         {!carregando && (<>
-        <div className="grid grid-cols-2 gap-5 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:gap-5 lg:grid-cols-4">
           <KpiCard titulo="Acompanhamentos" valor={totalAcomps} cor="bg-violet-500" corHex="#8b5cf6" subtitulo="registros" delay={0}
             icone={<svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15a2.25 2.25 0 0 1 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25Z" /></svg>}
           />

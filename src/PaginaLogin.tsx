@@ -168,6 +168,18 @@ export default function PaginaLogin({ onLogin }: LoginProps) {
 
     setLoading(true);
     try {
+      // Verificar se a unidade já possui cadastro
+      const checkUrl = `${baseUrl()}/records?filter=${encodeURIComponent(`unidade="${unidade}"`)}&perPage=1`;
+      const checkResp = await fetch(checkUrl, {
+        headers: { "Content-Type": "application/json" },
+      });
+      const checkData = await checkResp.json();
+      if (checkResp.ok && checkData?.totalItems > 0) {
+        setError("ESTA UNIDADE JÁ POSSUI CADASTRO NO SISTEMA");
+        setLoading(false);
+        return;
+      }
+
       const url = recordsUrl();
       console.log("[Cadastro] POST", url);
       const resp = await fetch(url, {
@@ -191,7 +203,7 @@ export default function PaginaLogin({ onLogin }: LoginProps) {
           const detalhes = campos.map(c => `${c}: ${data.data[c]?.message || JSON.stringify(data.data[c])}`).join("; ");
           if (detalhes) msg = detalhes;
         }
-        setError(msg.includes("already") ? "Este email já está cadastrado" : msg);
+        setError(msg.includes("already") ? "Este email já está cadastrado" : msg.replace("Value must be unique", "ESTE VALOR JÁ EXISTE NO SISTEMA"));
         return;
       }
 

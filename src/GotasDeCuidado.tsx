@@ -133,7 +133,7 @@ function Header({ pagina, onNavigate, onLogout, user }: HeaderProps) {
             <div className="flex h-7 w-7 sm:h-8 sm:w-8 flex-shrink-0 items-center justify-center rounded-lg bg-bordo-600 text-[10px] sm:text-xs font-bold text-white shadow-lg">{userInitials}</div>
             <div className="hidden lg:block min-w-0">
               <p className="text-[11px] sm:text-xs font-semibold text-white/90 truncate max-w-[100px]">{user.name || user.email}</p>
-              <p className="text-[9px] sm:text-[10px] text-white/50 font-medium">{user.role === "admin" ? "Administrador" : "Usuário"}</p>
+              <p className="text-[9px] sm:text-[10px] text-white/50 font-medium truncate max-w-[120px]">{user.role === "admin" ? "Coordenação" : user.unidade || "Usuário"}</p>
             </div>
           </div>
 
@@ -225,7 +225,7 @@ function Header({ pagina, onNavigate, onLogout, user }: HeaderProps) {
               </div>
               <div className="min-w-0 flex-1">
                 <p className="truncate text-xs font-semibold text-white/90">{user.name || user.email}</p>
-                <p className="text-[10px] text-white/50 font-medium">{user.role === "admin" ? "Administrador" : "Usuário"}</p>
+                <p className="truncate text-[10px] text-white/50 font-medium">{user.role === "admin" ? "Coordenação" : user.unidade || "Usuário"}</p>
               </div>
               <button
                 onClick={onLogout}
@@ -406,7 +406,7 @@ export default function GotasDeCuidado() {
         {pagina === "pacientes" && <PaginaPacientes usuarioId={user.id} usuarioUnidade={user.unidade} usuarioRole={user.role} onNavigateAcompFiltered={handleNavigateAcompFiltered} />}
         {pagina === "favoritos" && <PaginaFavoritos usuarioId={user.id} usuarioUnidade={user.unidade} usuarioRole={user.role} onNavigateAcompFiltered={handleNavigateAcompFiltered} />}
         {pagina === "acompanhamentos" && <PaginaAcompanhamentos selectedPacienteId={selectedPacienteId} usuarioId={user.id} />}
-        {pagina === "configuracoes" && <PaginaConfiguracoes />}
+        {pagina === "configuracoes" && <PaginaConfiguracoes usuarioRole={user.role} />}
       </main>
 
       <footer className="mt-auto border-t border-slate-200 bg-white py-8 text-center">

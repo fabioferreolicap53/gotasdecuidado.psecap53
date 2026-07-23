@@ -50,7 +50,7 @@ const UNIDADES = [
   "SMS CMS DECIO AMARAL FILHO AP 53",
   "SMS CMS EMYDIO CABRAL AP 53",
   "SMS CMS SAVIO ANTUNES ANTARES AP 53",
-];
+].sort((a, b) => a.localeCompare(b, "pt-BR"));
 
 interface LoginProps {
   onLogin: (token: string, record: { id: string; email: string; name: string; role: string; unidade: string }) => void;
@@ -165,6 +165,7 @@ export default function PaginaLogin({ onLogin }: LoginProps) {
           password,
           passwordConfirm: confirmPassword,
           unidade,
+          role: "user",
         }),
       });
       const data = await resp.json();

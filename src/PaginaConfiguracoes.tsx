@@ -10,7 +10,18 @@ interface UserConfig {
   idioma: string;
 }
 
-export default function PaginaConfiguracoes() {
+interface ConfigProps {
+  usuarioRole?: string;
+}
+
+const PB_URL = (import.meta.env.VITE_POCKETBASE_URL as string) || "https://centraldedados.dev.br";
+const PB_USERS_COLLECTION = "gotas_de_cuidado_users";
+
+export default function PaginaConfiguracoes({ usuarioRole }: ConfigProps) {
+  const isAdmin = usuarioRole === "admin";
+  const [novoEmail, setNovoEmail] = useState("");
+  const [emailStatus, setEmailStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [emailErro, setEmailErro] = useState("");
   const [user, setUser] = useState<UserConfig>(() => {
     try {
       const stored = localStorage.getItem("pb_user");
@@ -29,6 +40,44 @@ export default function PaginaConfiguracoes() {
   });
 
   const [mensagem, setMensagem] = useState<string | null>(null);
+
+  async function handleTrocarEmail(e: React.FormEvent) {
+    e.preventDefault();
+    setEmailErro("");
+
+    if (!novoEmail.trim() || novoEmail.trim() === user.email) {
+      setEmailErro("Digite um e-mail diferente do atual.");
+      return;
+    }
+
+    setEmailStatus("loading");
+    try {
+      const token = localStorage.getItem("pb_auth_token");
+      const resp = await fetch(
+        `${PB_URL.replace(/\/+$/, "")}/api/collections/${PB_USERS_COLLECTION}/request-email-change`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+          body: JSON.stringify({ newEmail: novoEmail.trim() }),
+        }
+      );
+      const data = await resp.json().catch(() => ({}));
+      if (resp.ok) {
+        setEmailStatus("success");
+      } else {
+        const msg = data.message || "Erro ao solicitar alteração";
+        setEmailErro(msg.includes("already") ? "Este e-mail já está em uso" : msg);
+        setEmailStatus("error");
+      }
+    } catch {
+      setEmailErro("Erro de conexão. Tente novamente.");
+      setEmailStatus("error");
+    }
+  }
 
   function handleSalvar() {
     try {
@@ -114,6 +163,61 @@ export default function PaginaConfiguracoes() {
           </div>
         </section>
 
+        {/* ═══ TROCA DE E-MAIL ═════════════════════════════════════════ */}
+        <section className="rounded-[2rem] border border-slate-200/60 bg-white p-6 shadow-sm">
+          <div className="mb-5 flex items-center gap-3">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-violet-50">
+              <svg className="h-6 w-6 text-violet-600" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
+              </svg>
+            </div>
+            <div>
+              <h2 className="text-lg font-bold text-slate-800">Alterar E-mail</h2>
+              <p className="text-xs text-slate-400">Um link de confirmação será enviado ao novo e-mail</p>
+            </div>
+          </div>
+
+          {emailStatus === "success" ? (
+            <div className="rounded-xl border border-emerald-100 bg-emerald-50 p-4 text-center text-sm font-medium text-emerald-700">
+              E-mail de confirmação enviado para <strong>{novoEmail}</strong>. Verifique sua caixa de entrada.
+            </div>
+          ) : (
+            <form onSubmit={handleTrocarEmail} className="space-y-4">
+              <div>
+                <label className="mb-1.5 block text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Novo E-mail</label>
+                <input
+                  type="email"
+                  value={novoEmail}
+                  onChange={(e) => { setNovoEmail(e.target.value); setEmailErro(""); setEmailStatus("idle"); }}
+                  placeholder="novo@email.com"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 outline-none transition-colors focus:border-violet-400 focus:bg-white"
+                />
+              </div>
+
+              {emailErro && (
+                <div className="rounded-xl border border-rose-100 bg-rose-50 px-4 py-3 text-center text-xs font-bold text-rose-600">
+                  {emailErro}
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={emailStatus === "loading"}
+                className="inline-flex items-center gap-2 rounded-xl bg-violet-600 px-5 py-3 text-sm font-bold uppercase tracking-widest text-white shadow-lg shadow-violet-200 transition-all hover:bg-violet-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {emailStatus === "loading" ? (
+                  <span className="inline-flex items-center gap-2">
+                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                    Enviando...
+                  </span>
+                ) : (
+                  "Enviar Link de Confirmação"
+                )}
+              </button>
+            </form>
+          )}
+        </section>
+
         {/* ═══ SEGURANÇA ═══════════════════════════════════════════════ */}
         <section className="rounded-[2rem] border border-slate-200/60 bg-white p-6 shadow-sm">
           <div className="mb-5 flex items-center gap-3">
@@ -163,16 +267,20 @@ export default function PaginaConfiguracoes() {
         </div>
 
         {/* ═══ IMPORTAÇÃO ═══════════════════════════════════════════════ */}
-        <section>
-          <h2 className="mb-4 text-sm font-bold uppercase tracking-wider text-slate-400">Importação de Dados</h2>
-          <PaginaImportacao />
-        </section>
+        {isAdmin && (
+          <>
+            <section>
+              <h2 className="mb-4 text-sm font-bold uppercase tracking-wider text-slate-400">Importação de Dados</h2>
+              <PaginaImportacao />
+            </section>
 
-        {/* ═══ EXCLUSÃO ═══════════════════════════════════════════════ */}
-        <section>
-          <h2 className="mb-4 text-sm font-bold uppercase tracking-wider text-slate-400">Gestão de Dados</h2>
-          <PaginaExclusao />
-        </section>
+            {/* ═══ EXCLUSÃO ═══════════════════════════════════════════════ */}
+            <section>
+              <h2 className="mb-4 text-sm font-bold uppercase tracking-wider text-slate-400">Gestão de Dados</h2>
+              <PaginaExclusao />
+            </section>
+          </>
+        )}
       </div>
     </>
   );

@@ -50,8 +50,6 @@ function Header({ pagina, onNavigate, onLogout, user }: HeaderProps) {
     },
   ];
 
-  const userInitials = (user.name || user.email || "?").split(" ").map((n) => n[0]).slice(0, 2).join("").toUpperCase();
-
   const handleNav = useCallback((p: Pagina) => {
     onNavigate(p);
     setSidebarOpen(false);
@@ -128,12 +126,11 @@ function Header({ pagina, onNavigate, onLogout, user }: HeaderProps) {
             </svg>
           </button>
 
-          {/* User avatar + nome */}
-          <div className="flex items-center gap-1.5 sm:gap-2.5 rounded-xl bg-white/10 py-1 sm:py-1.5 pl-1 sm:pl-1.5 pr-1.5 sm:pr-3 ring-1 ring-white/10 transition-all hover:bg-white/20 min-w-0">
-            <div className="flex h-7 w-7 sm:h-8 sm:w-8 flex-shrink-0 items-center justify-center rounded-lg bg-bordo-600 text-[10px] sm:text-xs font-bold text-white shadow-lg">{userInitials}</div>
-            <div className="hidden lg:block min-w-0">
-              <p className="text-[11px] sm:text-xs font-semibold text-white/90 truncate max-w-[100px]">{user.name || user.email}</p>
-              <p className="text-[9px] sm:text-[10px] text-white/50 font-medium truncate max-w-[120px]">{user.role === "admin" ? "Coordenação" : user.unidade || "Usuário"}</p>
+          {/* User info */}
+          <div className="flex items-center gap-2.5 rounded-xl bg-white/10 py-1.5 px-3 ring-1 ring-white/10 transition-all hover:bg-white/20">
+            <div className="hidden lg:block">
+              <p className="text-[11px] sm:text-xs font-semibold text-white/90 whitespace-nowrap">{user.name || user.email}</p>
+              <p className="text-[9px] sm:text-[10px] text-white/50 font-medium whitespace-nowrap">{user.role === "admin" ? "Coordenação" : user.unidade || "Usuário"}</p>
             </div>
           </div>
 
@@ -220,9 +217,6 @@ function Header({ pagina, onNavigate, onLogout, user }: HeaderProps) {
           {/* Drawer footer — user + logout */}
           <div className="border-t border-white/[0.06] px-4 py-4">
             <div className="flex items-center gap-2.5 rounded-xl bg-white/[0.06] px-3 py-2.5 ring-1 ring-white/[0.06]">
-              <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-bordo-600 text-xs font-bold text-white shadow-lg">
-                {userInitials}
-              </div>
               <div className="min-w-0 flex-1">
                 <p className="truncate text-xs font-semibold text-white/90">{user.name || user.email}</p>
                 <p className="truncate text-[10px] text-white/50 font-medium">{user.role === "admin" ? "Coordenação" : user.unidade || "Usuário"}</p>

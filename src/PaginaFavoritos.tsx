@@ -134,6 +134,19 @@ export default function PaginaFavoritos({ usuarioId, usuarioUnidade, usuarioRole
   const [filtroBeneficio, setFiltroBeneficio] = useState<string>("todas");
   const [filtroEscola, setFiltroEscola] = useState<string>("todas");
 
+  // ── Ordenação ──────────────────────────────────────────────────────
+  const [sortField, setSortField] = useState<string>("nome");
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
+
+  const handleSort = (field: string) => {
+    if (sortField === field) {
+      setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+    } else {
+      setSortField(field);
+      setSortDir("asc");
+    }
+  };
+
   const unidades = [...new Set(favoritos.map(p => p.unidade).filter(Boolean))].sort();
   const equipes = [...new Set(favoritos.map(p => p.equipe).filter(Boolean))].sort();
   const microareas = [...new Set(favoritos.map(p => p.microarea).filter(Boolean))].sort();
@@ -295,7 +308,20 @@ export default function PaginaFavoritos({ usuarioId, usuarioUnidade, usuarioRole
 
   const porPagina = 10;
   const totalPaginas = Math.max(1, Math.ceil(filtrados.length / porPagina));
-  const paginaAtual = filtrados.slice((pagina - 1) * porPagina, pagina * porPagina);
+  const filtradosSorted = [...filtrados].sort((a, b) => {
+    let va = "", vb = "";
+    switch (sortField) {
+      case "nome": va = a.nome || ""; vb = b.nome || ""; break;
+      case "unidade": va = a.unidade || ""; vb = b.unidade || ""; break;
+      case "unidade_escolar": va = a.unidade_escolar || ""; vb = b.unidade_escolar || ""; break;
+      case "estado_nutricional": va = a.estado_nutricional || ""; vb = b.estado_nutricional || ""; break;
+      case "extra": va = a.raca || ""; vb = b.raca || ""; break;
+      default: va = a.nome || ""; vb = b.nome || ""; break;
+    }
+    const cmp = va.localeCompare(vb, "pt-BR", { sensitivity: "base" });
+    return sortDir === "asc" ? cmp : -cmp;
+  });
+  const paginaAtual = filtradosSorted.slice((pagina - 1) * porPagina, pagina * porPagina);
 
   function iniciarEdicao(p: Paciente) {
     setFormData({
@@ -568,45 +594,59 @@ export default function PaginaFavoritos({ usuarioId, usuarioUnidade, usuarioRole
                           <span className="text-[11px] font-black uppercase tracking-widest text-white/90">Ação</span>
                         </div>
                       </th>
-                      <th className="px-6 py-1 text-center align-middle h-[76px]">
+                      <th className="px-6 py-1 text-center align-middle h-[76px] cursor-pointer select-none" onClick={() => handleSort("nome")}>
                         <div className="flex flex-col items-center gap-1.5">
                           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/10 text-cyan-300 ring-1 ring-white/10">
                             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"/></svg>
                           </div>
                           <span className="text-[11px] font-black uppercase tracking-widest text-white/90">Paciente</span>
-
+                          {sortField === "nome" && (
+                            <svg className={`h-2.5 w-2.5 text-white/60 transition-all duration-300 ease-out ${sortDir === "desc" ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" /></svg>
+                          )}
                         </div>
                       </th>
-                      <th className="px-6 py-1 text-center align-middle h-[76px]">
+                      <th className="px-6 py-1 text-center align-middle h-[76px] cursor-pointer select-none" onClick={() => handleSort("unidade")}>
                         <div className="flex flex-col items-center gap-1.5">
                           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/10 text-cyan-300 ring-1 ring-white/10">
                             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21"/></svg>
                           </div>
                           <span className="text-[11px] font-black uppercase tracking-widest text-white/90">Unidade</span>
+                          {sortField === "unidade" && (
+                            <svg className={`h-2.5 w-2.5 text-white/60 transition-all duration-300 ease-out ${sortDir === "desc" ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" /></svg>
+                          )}
                         </div>
                       </th>
-                      <th className="px-6 py-1 text-center align-middle h-[76px]">
+                      <th className="px-6 py-1 text-center align-middle h-[76px] cursor-pointer select-none" onClick={() => handleSort("unidade_escolar")}>
                         <div className="flex flex-col items-center gap-1.5">
                           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/10 text-cyan-300 ring-1 ring-white/10">
                             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.904a48.62 48.62 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.636 50.636 0 0 0-2.658-.813A59.906 59.906 0 0 1 12 3.493a59.903 59.903 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0 1 12 13.489a50.702 50.702 0 0 1 7.74-3.342M6.75 15a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 0v-3.675A55.378 55.378 0 0 1 12 8.443m-7.007 11.55A5.981 5.981 0 0 0 6.75 15.75v-1.5" /></svg>
                           </div>
                           <span className="text-[11px] font-black uppercase tracking-widest text-white/90">Escola</span>
+                          {sortField === "unidade_escolar" && (
+                            <svg className={`h-2.5 w-2.5 text-white/60 transition-all duration-300 ease-out ${sortDir === "desc" ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" /></svg>
+                          )}
                         </div>
                       </th>
-                      <th className="px-6 py-1 text-center align-middle h-[76px]">
+                      <th className="px-6 py-1 text-center align-middle h-[76px] cursor-pointer select-none" onClick={() => handleSort("estado_nutricional")}>
                         <div className="flex flex-col items-center gap-1.5">
                           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/10 text-cyan-300 ring-1 ring-white/10">
                             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" /></svg>
                           </div>
                           <span className="text-[11px] font-black uppercase tracking-widest text-white/90">Saúde</span>
+                          {sortField === "estado_nutricional" && (
+                            <svg className={`h-2.5 w-2.5 text-white/60 transition-all duration-300 ease-out ${sortDir === "desc" ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" /></svg>
+                          )}
                         </div>
                       </th>
-                      <th className="px-6 py-1 text-center align-middle h-[76px]">
+                      <th className="px-6 py-1 text-center align-middle h-[76px] cursor-pointer select-none" onClick={() => handleSort("extra")}>
                         <div className="flex flex-col items-center gap-1.5">
                           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/10 text-cyan-300 ring-1 ring-white/10">
                             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15a2.25 2.25 0 0 1 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25ZM6.75 12h.008v.008H6.75V12Zm0 3h.008v.008H6.75V15Zm0 3h.008v.008H6.75V18Z" /></svg>
                           </div>
                           <span className="text-[11px] font-black uppercase tracking-widest text-white/90">Extras</span>
+                          {sortField === "extra" && (
+                            <svg className={`h-2.5 w-2.5 text-white/60 transition-all duration-300 ease-out ${sortDir === "desc" ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" /></svg>
+                          )}
                         </div>
                       </th>
                     </tr>
@@ -627,19 +667,19 @@ export default function PaginaFavoritos({ usuarioId, usuarioUnidade, usuarioRole
                                 <svg className="h-3.5 w-3.5 text-amber-400" fill="currentColor" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z" /></svg>
                               </button>
                               {acompCounts[p.id] > 0 && (
-                                <AcompCountBadge count={acompCounts[p.id]} pacienteId={p.id} onNavigate={onNavigateAcompFiltered} className="inline-flex h-5 min-w-[20px] cursor-pointer select-none items-center justify-center rounded-full bg-gradient-to-br from-red-500 to-rose-600 px-1.5 text-[9px] font-black text-white shadow-md shadow-red-500/30 ring-1 ring-red-400/30 transition-transform hover:scale-110 active:scale-90" />
+                                <AcompCountBadge count={acompCounts[p.id]} pacienteId={p.id} onNavigate={onNavigateAcompFiltered} className="inline-flex h-5 min-w-[20px] cursor-pointer select-none items-center justify-center rounded-full bg-gradient-to-br from-red-500 to-rose-600 px-1.5 text-[9px] font-black text-white shadow-md shadow-red-500/30 ring-1 ring-red-400/30 transition-all duration-300 ease-out hover:scale-110 active:scale-90" />
                               )}
                             </div>
                             <div className="h-px w-10 bg-gradient-to-r from-transparent via-slate-300/60 to-transparent" />
                             <div className="flex w-full flex-col gap-1.5">
                               <button onClick={() => setPacienteAcompModal(p)} className="group/btn relative flex w-full items-center justify-center gap-1.5 overflow-hidden rounded-xl bg-gradient-to-br from-bordo-500 via-bordo-600 to-bordo-700 px-3 py-2 text-[10px] font-extrabold uppercase tracking-wider text-white shadow-lg shadow-bordo-500/25 ring-1 ring-bordo-400/20 transition-all duration-300 hover:from-bordo-400 hover:via-bordo-500 hover:to-bordo-600 hover:shadow-xl hover:shadow-bordo-500/40 hover:-translate-y-0.5 hover:scale-[1.02] active:translate-y-0 active:scale-[0.98]">
                                 <div className="absolute inset-0 bg-gradient-to-t from-white/10 to-transparent opacity-0 transition-opacity duration-300 group-hover/btn:opacity-100" />
-                                <svg className="h-3.5 w-3.5 flex-shrink-0 transition-transform duration-300 group-hover/btn:scale-110 group-hover/btn:rotate-[-5deg]" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm6 3a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Zm-13.5 0a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Z"/></svg>
+                                <svg className="h-3.5 w-3.5 flex-shrink-0 transition-all duration-300 ease-out duration-300 group-hover/btn:scale-110 group-hover/btn:rotate-[-5deg]" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm6 3a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Zm-13.5 0a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Z"/></svg>
                                 <span className="relative z-10">Acomp.</span>
                               </button>
                               <button onClick={() => setPacienteModal(p)} className="group/btn relative flex w-full items-center justify-center gap-1.5 overflow-hidden rounded-xl border-2 border-bordo-100 bg-gradient-to-br from-white to-bordo-50/30 px-3 py-2 text-[10px] font-extrabold uppercase tracking-wider text-bordo-700 shadow-sm shadow-bordo-200/20 transition-all duration-300 hover:border-bordo-300 hover:from-bordo-50 hover:to-white hover:shadow-lg hover:shadow-bordo-300/30 hover:-translate-y-0.5 hover:scale-[1.02] active:translate-y-0 active:scale-[0.98]">
                                 <div className="absolute inset-0 bg-gradient-to-br from-bordo-500/5 to-transparent opacity-0 transition-opacity duration-300 group-hover/btn:opacity-100" />
-                                <svg className="h-3.5 w-3.5 flex-shrink-0 transition-transform duration-300 group-hover/btn:scale-110 group-hover/btn:rotate-[-5deg]" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z"/></svg>
+                                <svg className="h-3.5 w-3.5 flex-shrink-0 transition-all duration-300 ease-out duration-300 group-hover/btn:scale-110 group-hover/btn:rotate-[-5deg]" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z"/></svg>
                                 <span className="relative z-10">Detalhes</span>
                               </button>
                             </div>
@@ -731,46 +771,59 @@ export default function PaginaFavoritos({ usuarioId, usuarioUnidade, usuarioRole
                           <span className="text-[11px] font-black uppercase tracking-widest text-white/90">Ação</span>
                         </div>
                       </th>
-                      <th className="px-6 py-1 text-center align-middle h-[76px]">
+                      <th className="px-6 py-1 text-center align-middle h-[76px] cursor-pointer select-none" onClick={() => handleSort("nome")}>
                         <div className="flex flex-col items-center gap-1.5">
                           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/10 text-cyan-300 ring-1 ring-white/10">
                             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"/></svg>
                           </div>
                           <span className="text-[11px] font-black uppercase tracking-widest text-white/90">Paciente</span>
-
+                          {sortField === "nome" && (
+                            <svg className={`h-2.5 w-2.5 text-white/60 transition-all duration-300 ease-out ${sortDir === "desc" ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" /></svg>
+                          )}
                         </div>
                       </th>
-                      <th className="px-6 py-5 text-center">
+                      <th className="px-6 py-5 text-center cursor-pointer select-none" onClick={() => handleSort("unidade")}>
                         <div className="flex flex-col items-center gap-1.5">
                           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/10 text-cyan-300 ring-1 ring-white/10">
                             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21"/></svg>
                           </div>
                           <span className="text-[11px] font-black uppercase tracking-widest text-white/90">Unidade</span>
-
+                          {sortField === "unidade" && (
+                            <svg className={`h-2.5 w-2.5 text-white/60 transition-all duration-300 ease-out ${sortDir === "desc" ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" /></svg>
+                          )}
                         </div>
                       </th>
-                      <th className="px-6 py-1 text-center align-middle h-[76px]">
+                      <th className="px-6 py-1 text-center align-middle h-[76px] cursor-pointer select-none" onClick={() => handleSort("unidade_escolar")}>
                         <div className="flex flex-col items-center gap-1.5">
                           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/10 text-cyan-300 ring-1 ring-white/10">
                             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.904a48.62 48.62 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.636 50.636 0 0 0-2.658-.813A59.906 59.906 0 0 1 12 3.493a59.903 59.903 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0 1 12 13.489a50.702 50.702 0 0 1 7.74-3.342M6.75 15a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 0v-3.675A55.378 55.378 0 0 1 12 8.443m-7.007 11.55A5.981 5.981 0 0 0 6.75 15.75v-1.5" /></svg>
                           </div>
                           <span className="text-[11px] font-black uppercase tracking-widest text-white/90">Escola</span>
+                          {sortField === "unidade_escolar" && (
+                            <svg className={`h-2.5 w-2.5 text-white/60 transition-all duration-300 ease-out ${sortDir === "desc" ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" /></svg>
+                          )}
                         </div>
                       </th>
-                      <th className="px-6 py-1 text-center align-middle h-[76px]">
+                      <th className="px-6 py-1 text-center align-middle h-[76px] cursor-pointer select-none" onClick={() => handleSort("estado_nutricional")}>
                         <div className="flex flex-col items-center gap-1.5">
                           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/10 text-cyan-300 ring-1 ring-white/10">
                             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" /></svg>
                           </div>
                           <span className="text-[11px] font-black uppercase tracking-widest text-white/90">Saúde</span>
+                          {sortField === "estado_nutricional" && (
+                            <svg className={`h-2.5 w-2.5 text-white/60 transition-all duration-300 ease-out ${sortDir === "desc" ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" /></svg>
+                          )}
                         </div>
                       </th>
-                      <th className="px-6 py-1 text-center align-middle h-[76px]">
+                      <th className="px-6 py-1 text-center align-middle h-[76px] cursor-pointer select-none" onClick={() => handleSort("extra")}>
                         <div className="flex flex-col items-center gap-1.5">
                           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/10 text-cyan-300 ring-1 ring-white/10">
                             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15a2.25 2.25 0 0 1 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25ZM6.75 12h.008v.008H6.75V12Zm0 3h.008v.008H6.75V15Zm0 3h.008v.008H6.75V18Z" /></svg>
                           </div>
                           <span className="text-[11px] font-black uppercase tracking-widest text-white/90">Extras</span>
+                          {sortField === "extra" && (
+                            <svg className={`h-2.5 w-2.5 text-white/60 transition-all duration-300 ease-out ${sortDir === "desc" ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" /></svg>
+                          )}
                         </div>
                       </th>
                     </tr>
@@ -791,19 +844,19 @@ export default function PaginaFavoritos({ usuarioId, usuarioUnidade, usuarioRole
                                 <svg className="h-3.5 w-3.5 text-amber-400" fill="currentColor" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z" /></svg>
                               </button>
                               {acompCounts[p.id] > 0 && (
-                                <AcompCountBadge count={acompCounts[p.id]} pacienteId={p.id} onNavigate={onNavigateAcompFiltered} className="inline-flex h-5 min-w-[20px] cursor-pointer select-none items-center justify-center rounded-full bg-gradient-to-br from-red-500 to-rose-600 px-1.5 text-[9px] font-black text-white shadow-md shadow-red-500/30 ring-1 ring-red-400/30 transition-transform hover:scale-110 active:scale-90" />
+                                <AcompCountBadge count={acompCounts[p.id]} pacienteId={p.id} onNavigate={onNavigateAcompFiltered} className="inline-flex h-5 min-w-[20px] cursor-pointer select-none items-center justify-center rounded-full bg-gradient-to-br from-red-500 to-rose-600 px-1.5 text-[9px] font-black text-white shadow-md shadow-red-500/30 ring-1 ring-red-400/30 transition-all duration-300 ease-out hover:scale-110 active:scale-90" />
                               )}
                             </div>
                             <div className="h-px w-10 bg-gradient-to-r from-transparent via-slate-300/60 to-transparent" />
                             <div className="flex w-full flex-col gap-1.5">
                               <button onClick={() => setPacienteAcompModal(p)} className="group/btn relative flex w-full items-center justify-center gap-1.5 overflow-hidden rounded-xl bg-gradient-to-br from-bordo-500 via-bordo-600 to-bordo-700 px-3 py-2 text-[10px] font-extrabold uppercase tracking-wider text-white shadow-lg shadow-bordo-500/25 ring-1 ring-bordo-400/20 transition-all duration-300 hover:from-bordo-400 hover:via-bordo-500 hover:to-bordo-600 hover:shadow-xl hover:shadow-bordo-500/40 hover:-translate-y-0.5 hover:scale-[1.02] active:translate-y-0 active:scale-[0.98]">
                                 <div className="absolute inset-0 bg-gradient-to-t from-white/10 to-transparent opacity-0 transition-opacity duration-300 group-hover/btn:opacity-100" />
-                                <svg className="h-3.5 w-3.5 flex-shrink-0 transition-transform duration-300 group-hover/btn:scale-110 group-hover/btn:rotate-[-5deg]" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm6 3a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Zm-13.5 0a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Z"/></svg>
+                                <svg className="h-3.5 w-3.5 flex-shrink-0 transition-all duration-300 ease-out duration-300 group-hover/btn:scale-110 group-hover/btn:rotate-[-5deg]" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm6 3a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Zm-13.5 0a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Z"/></svg>
                                 <span className="relative z-10">Acomp.</span>
                               </button>
                               <button onClick={() => setPacienteModal(p)} className="group/btn relative flex w-full items-center justify-center gap-1.5 overflow-hidden rounded-xl border-2 border-bordo-100 bg-gradient-to-br from-white to-bordo-50/30 px-3 py-2 text-[10px] font-extrabold uppercase tracking-wider text-bordo-700 shadow-sm shadow-bordo-200/20 transition-all duration-300 hover:border-bordo-300 hover:from-bordo-50 hover:to-white hover:shadow-lg hover:shadow-bordo-300/30 hover:-translate-y-0.5 hover:scale-[1.02] active:translate-y-0 active:scale-[0.98]">
                                 <div className="absolute inset-0 bg-gradient-to-br from-bordo-500/5 to-transparent opacity-0 transition-opacity duration-300 group-hover/btn:opacity-100" />
-                                <svg className="h-3.5 w-3.5 flex-shrink-0 transition-transform duration-300 group-hover/btn:scale-110 group-hover/btn:rotate-[-5deg]" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z"/></svg>
+                                <svg className="h-3.5 w-3.5 flex-shrink-0 transition-all duration-300 ease-out duration-300 group-hover/btn:scale-110 group-hover/btn:rotate-[-5deg]" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z"/></svg>
                                 <span className="relative z-10">Detalhes</span>
                               </button>
                             </div>
@@ -885,22 +938,31 @@ export default function PaginaFavoritos({ usuarioId, usuarioUnidade, usuarioRole
                           <span className="text-[8px] font-black uppercase tracking-wider text-white/90">Ação</span>
                         </div>
                       </th>
-                      <th className="px-2 py-2.5 text-center" style={{ width: '50%' }}>
+                      <th className="px-2 py-2.5 text-center cursor-pointer select-none" style={{ width: '50%' }} onClick={() => handleSort("nome")}>
                         <div className="flex flex-col items-center gap-0.5">
                           <svg className="h-3 w-3 text-cyan-300" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"/></svg>
                           <span className="text-[8px] font-black uppercase tracking-wider text-white/90">Paciente</span>
+                          {sortField === "nome" && (
+                            <svg className={`h-2 w-2 text-white/60 transition-all duration-300 ease-out ${sortDir === "desc" ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" /></svg>
+                          )}
                         </div>
                       </th>
-                      <th className="px-2 py-2.5 text-center" style={{ width: '30%' }}>
+                      <th className="px-2 py-2.5 text-center cursor-pointer select-none" style={{ width: '30%' }} onClick={() => handleSort("unidade")}>
                         <div className="flex flex-col items-center gap-0.5">
                           <svg className="h-3 w-3 text-cyan-300" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21"/></svg>
                           <span className="text-[8px] font-black uppercase tracking-wider text-white/90">Unidade</span>
+                          {sortField === "unidade" && (
+                            <svg className={`h-2 w-2 text-white/60 transition-all duration-300 ease-out ${sortDir === "desc" ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" /></svg>
+                          )}
                         </div>
                       </th>
-                      <th className="px-2 py-2.5 text-center" style={{ width: '20%' }}>
+                      <th className="px-2 py-2.5 text-center cursor-pointer select-none" style={{ width: '20%' }} onClick={() => handleSort("unidade_escolar")}>
                         <div className="flex flex-col items-center gap-0.5">
                           <svg className="h-3 w-3 text-cyan-300" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15a2.25 2.25 0 0 1 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25ZM6.75 12h.008v.008H6.75V12Zm0 3h.008v.008H6.75V15Zm0 3h.008v.008H6.75V18Z" /></svg>
                           <span className="text-[8px] font-black uppercase tracking-wider text-white/90">Info</span>
+                          {sortField === "unidade_escolar" && (
+                            <svg className={`h-2 w-2 text-white/60 transition-all duration-300 ease-out ${sortDir === "desc" ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" /></svg>
+                          )}
                         </div>
                       </th>
                     </tr>
@@ -922,19 +984,19 @@ export default function PaginaFavoritos({ usuarioId, usuarioUnidade, usuarioRole
                                 <svg className="h-3 w-3 text-amber-400" fill="currentColor" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z" /></svg>
                               </button>
                               {acompCounts[p.id] > 0 && (
-                                <AcompCountBadge count={acompCounts[p.id]} pacienteId={p.id} onNavigate={onNavigateAcompFiltered} className="inline-flex h-4 min-w-[16px] cursor-pointer select-none items-center justify-center rounded-full bg-gradient-to-br from-red-500 to-rose-600 px-1 text-[8px] font-black text-white shadow-sm shadow-red-500/30 ring-1 ring-red-400/30 transition-transform hover:scale-110 active:scale-90" />
+                                <AcompCountBadge count={acompCounts[p.id]} pacienteId={p.id} onNavigate={onNavigateAcompFiltered} className="inline-flex h-4 min-w-[16px] cursor-pointer select-none items-center justify-center rounded-full bg-gradient-to-br from-red-500 to-rose-600 px-1 text-[8px] font-black text-white shadow-sm shadow-red-500/30 ring-1 ring-red-400/30 transition-all duration-300 ease-out hover:scale-110 active:scale-90" />
                               )}
                             </div>
                             <div className="h-px w-8 bg-gradient-to-r from-transparent via-slate-300/60 to-transparent" />
                             <div className="flex w-full flex-col gap-1">
                               <button onClick={() => setPacienteAcompModal(p)} className="group/btn relative flex w-full items-center justify-center gap-1 overflow-hidden rounded-lg bg-gradient-to-br from-bordo-500 via-bordo-600 to-bordo-700 px-2 py-1.5 text-[8px] font-extrabold uppercase tracking-wider text-white shadow-md shadow-bordo-500/20 ring-1 ring-bordo-400/20 transition-all duration-200 hover:from-bordo-400 hover:via-bordo-500 hover:to-bordo-600 hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0">
                                 <div className="absolute inset-0 bg-gradient-to-t from-white/10 to-transparent opacity-0 transition-opacity duration-200 group-hover/btn:opacity-100" />
-                                <svg className="h-3 w-3 flex-shrink-0 transition-transform duration-200 group-hover/btn:scale-110" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm6 3a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Zm-13.5 0a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Z"/></svg>
+                                <svg className="h-3 w-3 flex-shrink-0 transition-all duration-300 ease-out duration-200 group-hover/btn:scale-110" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm6 3a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Zm-13.5 0a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Z"/></svg>
                                 <span className="relative z-10">Acomp.</span>
                               </button>
                               <button onClick={() => setPacienteModal(p)} className="group/btn relative flex w-full items-center justify-center gap-1 overflow-hidden rounded-lg border-2 border-bordo-100 bg-gradient-to-br from-white to-bordo-50/30 px-2 py-1.5 text-[8px] font-extrabold uppercase tracking-wider text-bordo-700 shadow-sm transition-all duration-200 hover:border-bordo-300 hover:from-bordo-50 hover:to-white hover:shadow-md hover:-translate-y-0.5 active:translate-y-0">
                                 <div className="absolute inset-0 bg-gradient-to-br from-bordo-500/5 to-transparent opacity-0 transition-opacity duration-200 group-hover/btn:opacity-100" />
-                                <svg className="h-3 w-3 flex-shrink-0 transition-transform duration-200 group-hover/btn:scale-110" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z"/></svg>
+                                <svg className="h-3 w-3 flex-shrink-0 transition-all duration-300 ease-out duration-200 group-hover/btn:scale-110" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z"/></svg>
                                 <span className="relative z-10">Det.</span>
                               </button>
                             </div>

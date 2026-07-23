@@ -62,6 +62,19 @@ export default function PaginaAcompanhamentos({ selectedPacienteId, usuarioId, u
   const [filtroEntrave, setFiltroEntrave] = useState<string>("todas");
   const [filtroEscola, setFiltroEscola] = useState<string>("todas");
 
+  // ── Ordenação ──────────────────────────────────────────────────────
+  const [sortField, setSortField] = useState<string>("data_da_busca");
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
+
+  const handleSort = (field: string) => {
+    if (sortField === field) {
+      setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+    } else {
+      setSortField(field);
+      setSortDir("desc");
+    }
+  };
+
   const unidades = [...new Set(Object.values(pacMap).map(p => p.unidade).filter(Boolean))].sort();
   const equipes = [...new Set(Object.values(pacMap).map(p => p.equipe).filter(Boolean))].sort();
   const microareas = [...new Set(Object.values(pacMap).map(p => p.microarea).filter(Boolean))].sort();
@@ -167,8 +180,23 @@ export default function PaginaAcompanhamentos({ selectedPacienteId, usuarioId, u
       })
     : acompanhamentos;
 
+  const filtradosSorted = [...filtrados].sort((a, b) => {
+    let va = "", vb = "";
+    switch (sortField) {
+      case "data_da_busca": va = a.data_da_busca || ""; vb = b.data_da_busca || ""; break;
+      case "tipo_busca": va = a.tipo_busca || ""; vb = b.tipo_busca || ""; break;
+      case "situacao_pos_busca": va = a.situacao_pos_busca || ""; vb = b.situacao_pos_busca || ""; break;
+      case "entraves_identificados": va = a.entraves_identificados || ""; vb = b.entraves_identificados || ""; break;
+      case "paciente_nome": va = (pacMap[a.paciente_id]?.nome || "").toLowerCase(); vb = (pacMap[b.paciente_id]?.nome || "").toLowerCase(); break;
+      case "unidade": va = (pacMap[a.paciente_id]?.unidade || "").toLowerCase(); vb = (pacMap[b.paciente_id]?.unidade || "").toLowerCase(); break;
+      default: va = a.data_da_busca || ""; vb = b.data_da_busca || ""; break;
+    }
+    const cmp = va.localeCompare(vb, "pt-BR", { sensitivity: "base" });
+    return sortDir === "asc" ? cmp : -cmp;
+  });
+
   const filtradosComGrupo = (() => {
-    let resultado = filtrados;
+    let resultado = filtradosSorted;
     if (filtro !== "todos") {
       resultado = resultado.filter((a) => {
         const pac = pacMap[a.paciente_id];
@@ -481,52 +509,70 @@ export default function PaginaAcompanhamentos({ selectedPacienteId, usuarioId, u
                 <table className="w-full min-w-[800px]">
                   <thead>
                     <tr className="bg-gradient-to-r from-slate-800 to-slate-700">
-                      <th className="px-6 py-1 text-center align-middle h-[76px]">
+                      <th className="px-6 py-1 text-center align-middle h-[76px] cursor-pointer select-none" onClick={() => handleSort("data_da_busca")}>
                         <div className="flex flex-col items-center justify-center gap-1.5">
                           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/10 text-cyan-300 ring-1 ring-white/10">
                             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5"/></svg>
                           </div>
                           <span className="text-[11px] font-black uppercase tracking-widest text-white/90">Data</span>
+                          {sortField === "data_da_busca" && (
+                            <svg className={`h-2.5 w-2.5 text-white/60 transition-all duration-300 ease-out ${sortDir === "desc" ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" /></svg>
+                          )}
                         </div>
                       </th>
-                      <th className="px-6 py-1 text-center align-middle h-[76px]">
+                      <th className="px-6 py-1 text-center align-middle h-[76px] cursor-pointer select-none" onClick={() => handleSort("paciente_nome")}>
                         <div className="flex flex-col items-center justify-center gap-1.5">
                           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/10 text-cyan-300 ring-1 ring-white/10">
                             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"/></svg>
                           </div>
                           <span className="text-[11px] font-black uppercase tracking-widest text-white/90">Paciente</span>
+                          {sortField === "paciente_nome" && (
+                            <svg className={`h-2.5 w-2.5 text-white/60 transition-all duration-300 ease-out ${sortDir === "desc" ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" /></svg>
+                          )}
                         </div>
                       </th>
-                      <th className="px-6 py-1 text-center align-middle h-[76px]">
+                      <th className="px-6 py-1 text-center align-middle h-[76px] cursor-pointer select-none" onClick={() => handleSort("tipo_busca")}>
                         <div className="flex flex-col items-center justify-center gap-1.5">
                           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/10 text-cyan-300 ring-1 ring-white/10">
                             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0ZM3.75 12h.007v.008H3.75V12Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm-.375 5.25h.007v.008H3.75v-.008Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"/></svg>
                           </div>
                           <span className="text-[11px] font-black uppercase tracking-widest text-white/90">Busca</span>
+                          {sortField === "tipo_busca" && (
+                            <svg className={`h-2.5 w-2.5 text-white/60 transition-all duration-300 ease-out ${sortDir === "desc" ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" /></svg>
+                          )}
                         </div>
                       </th>
-                      <th className="px-6 py-1 text-center align-middle h-[76px]">
+                      <th className="px-6 py-1 text-center align-middle h-[76px] cursor-pointer select-none" onClick={() => handleSort("situacao_pos_busca")}>
                         <div className="flex flex-col items-center justify-center gap-1.5">
                           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/10 text-cyan-300 ring-1 ring-white/10">
                             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z"/></svg>
                           </div>
                           <span className="text-[11px] font-black uppercase tracking-widest text-white/90">Situação</span>
+                          {sortField === "situacao_pos_busca" && (
+                            <svg className={`h-2.5 w-2.5 text-white/60 transition-all duration-300 ease-out ${sortDir === "desc" ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" /></svg>
+                          )}
                         </div>
                       </th>
-                      <th className="px-6 py-1 text-center align-middle h-[76px]">
+                      <th className="px-6 py-1 text-center align-middle h-[76px] cursor-pointer select-none" onClick={() => handleSort("entraves_identificados")}>
                         <div className="flex flex-col items-center justify-center gap-1.5">
                           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/10 text-cyan-300 ring-1 ring-white/10">
                             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
                           </div>
                           <span className="text-[11px] font-black uppercase tracking-widest text-white/90">Entraves</span>
+                          {sortField === "entraves_identificados" && (
+                            <svg className={`h-2.5 w-2.5 text-white/60 transition-all duration-300 ease-out ${sortDir === "desc" ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" /></svg>
+                          )}
                         </div>
                       </th>
-                      <th className="px-6 py-1 text-center align-middle h-[76px]">
+                      <th className="px-6 py-1 text-center align-middle h-[76px] cursor-pointer select-none" onClick={() => handleSort("unidade")}>
                         <div className="flex flex-col items-center justify-center gap-1.5">
                           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/10 text-cyan-300 ring-1 ring-white/10">
                             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/><path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z"/></svg>
                           </div>
                           <span className="text-[11px] font-black uppercase tracking-widest text-white/90">Unidade</span>
+                          {sortField === "unidade" && (
+                            <svg className={`h-2.5 w-2.5 text-white/60 transition-all duration-300 ease-out ${sortDir === "desc" ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" /></svg>
+                          )}
                         </div>
                       </th>
                       <th className="px-6 py-1 text-center align-middle h-[76px]">

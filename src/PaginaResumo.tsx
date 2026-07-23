@@ -94,7 +94,7 @@ function KpiCard({ titulo, valor, icone, cor, corHex, subtitulo, delay = 0 }: { 
       <div className="relative p-4 sm:p-5">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0 flex-1">
-            <p className="text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.15em] text-slate-400 group-hover:text-slate-500 transition-colors leading-tight">{titulo}</p>
+            <p className="text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.15em] text-slate-400 group-hover:text-slate-500 transition-colors leading-tight min-h-[1.75rem] lg:min-h-0">{titulo}</p>
             <p className="mt-2 text-2xl sm:text-3xl lg:text-[2.25rem] font-black tracking-tight text-slate-900 tabular-nums leading-none">{valor}</p>
             {subtitulo && <p className="mt-1 text-[9px] sm:text-[10px] font-semibold text-slate-400 leading-tight">{subtitulo}</p>}
           </div>
@@ -563,162 +563,75 @@ export default function PaginaResumo({ usuarioUnidade }: { usuarioUnidade: strin
           />
         </div>
 
-        {/* ── Gráficos Linha 1 ─────────────────────────────────────── */}
-        <div className="mt-6 grid grid-cols-1 gap-5 lg:grid-cols-2">
-          <ChartCard titulo="Diabetes e Anemia Falciforme" subtitulo="Distribuição por categoria" icone={I.pizza}>
-            <div className="h-[380px]">
-              <Chart option={pizzaOption} className="h-full w-full" />
-            </div>
-          </ChartCard>
-          <ChartCard titulo="Situação Pós-Busca" subtitulo="Resultado dos acompanhamentos">
-            <div className="h-[380px]">
-              <Chart option={donutOption} className="h-full w-full" />
-            </div>
-          </ChartCard>
-        </div>
-
-        {/* ── Gráficos Linha 2 ─────────────────────────────────────── */}
-        <div className="mt-6 grid grid-cols-1 gap-5 lg:grid-cols-2">
-          <ChartCard titulo="Tipos de Busca" subtitulo="Volume por modalidade" icone={I.busca}>
-            <div className="h-[350px]">
-              <Chart option={barraOption} className="h-full w-full" />
-            </div>
-          </ChartCard>
-          <ChartCard titulo="Evolução Mensal" subtitulo="Acompanhamentos nos últimos 12 meses">
-            <div className="h-[350px]">
-              <Chart option={areaOption} className="h-full w-full" />
-            </div>
-          </ChartCard>
-        </div>
-
-        {/* ── Tabelas ──────────────────────────────────────────────── */}
-        <div className="mt-6 grid grid-cols-1 gap-5 lg:grid-cols-2">
-
-          {/* Top Unidades */}
-          <ChartCard titulo="Top Unidades" subtitulo="Pacientes por unidade de saúde">
-            <div className="space-y-3">
-              {topUnidades.map(([nome, count], i) => (
-                <div key={nome} className="group/row flex items-center gap-3 rounded-xl px-3 py-2 transition-all duration-200 hover:bg-slate-50">
-                  <span className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg text-[11px] font-black ${i === 0 ? "bg-gradient-to-br from-amber-100 to-amber-200 text-amber-700 ring-1 ring-amber-300/50" : i === 1 ? "bg-gradient-to-br from-slate-100 to-slate-200 text-slate-600 ring-1 ring-slate-300/50" : i === 2 ? "bg-gradient-to-br from-orange-50 to-orange-100 text-orange-600 ring-1 ring-orange-200/50" : "bg-slate-100 text-slate-500"}`}>
-                    {i + 1}
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-sm font-bold text-slate-700 truncate uppercase group-hover/row:text-slate-900 transition-colors">{nome}</span>
-                      <span className="text-[11px] font-black text-slate-900 ml-2 tabular-nums">{count}</span>
-                    </div>
-                    <div className="h-2 w-full overflow-hidden rounded-full bg-slate-100">
-                      <div className="h-full rounded-full bg-gradient-to-r from-bordo-500 to-blue-600 transition-all duration-1000 ease-out shadow-sm shadow-bordo-200/50" style={{ width: `${(count / maxUnidade) * 100}%` }} />
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </ChartCard>
-
-          {/* Top Equipes */}
-          <ChartCard titulo="Top Equipes" subtitulo="Pacientes por equipe" icone={I.users}>
-            <div className="space-y-3">
-              {topEquipes.map(([nome, count], i) => (
-                <div key={nome} className="group/row flex items-center gap-3 rounded-xl px-3 py-2 transition-all duration-200 hover:bg-slate-50">
-                  <span className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg text-[11px] font-black ${i === 0 ? "bg-gradient-to-br from-amber-100 to-amber-200 text-amber-700 ring-1 ring-amber-300/50" : i === 1 ? "bg-gradient-to-br from-slate-100 to-slate-200 text-slate-600 ring-1 ring-slate-300/50" : i === 2 ? "bg-gradient-to-br from-orange-50 to-orange-100 text-orange-600 ring-1 ring-orange-200/50" : "bg-slate-100 text-slate-500"}`}>
-                    {i + 1}
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-sm font-bold text-slate-700 truncate uppercase group-hover/row:text-slate-900 transition-colors">{nome}</span>
-                      <span className="text-[11px] font-black text-slate-900 ml-2 tabular-nums">{count}</span>
-                    </div>
-                    <div className="h-2 w-full overflow-hidden rounded-full bg-slate-100">
-                      <div className="h-full rounded-full bg-gradient-to-r from-violet-400 to-purple-500 transition-all duration-1000 ease-out shadow-sm shadow-violet-200/50" style={{ width: `${(count / (topEquipes[0]?.[1] || 1)) * 100}%` }} />
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </ChartCard>
-        </div>
-
-        {/* ── Tabela: Indicadores de Saúde ─────────────────────────── */}
-        <div className="mt-6">
-          <ChartCard titulo="Indicadores de Saúde" subtitulo="Prevalência em diabetes e anemia falciforme" icone={I.heart}>
-            <div className="grid grid-cols-2 gap-5 sm:grid-cols-2 lg:grid-cols-2">
-              {[
-                { label: "Diabetes", count: diabetes, color: "blue", bgGrad: "from-blue-50 to-blue-100/50", ringGrad: "ring-blue-200/50", textGrad: "from-blue-500 to-blue-600" },
-                { label: "Anemia Falciforme", count: anemiaFalciforme, color: "bordo", bgGrad: "from-bordo-50 to-bordo-100/50", ringGrad: "ring-bordo-200/50", textGrad: "from-bordo-500 to-bordo-600" },
-              ].map((item, i) => (
-                <div key={item.label} className="group/card flex flex-col items-center rounded-2xl border border-slate-100 bg-white/60 p-6 shadow-[0_4px_10px_rgba(0,0,0,0.04),0_0_0_1px_rgba(226,232,240,0.5)] transition-all duration-500 hover:shadow-[0_20px_40px_-10px_rgba(0,0,0,0.18),0_0_0_1px_rgba(226,232,240,0.8)] hover:-translate-y-1.5 animate-[fadeInUp_0.5s_ease-out_both]" style={{ animationDelay: `${i * 100 + 200}ms` }}>
-                  <div className={`relative flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br ${item.bgGrad} ring-1 ${item.ringGrad} transition-all duration-300 group-hover/card:scale-110 group-hover/card:shadow-md`}>
-                    <span className={`text-2xl font-black bg-gradient-to-br ${item.textGrad} bg-clip-text text-transparent`}>{item.count}</span>
-                  </div>
-                  <p className="mt-3 text-[10px] font-bold uppercase tracking-wider text-slate-500 text-center">{item.label}</p>
-                  <div className="mt-1.5 h-1 w-8 rounded-full bg-slate-100 overflow-hidden">
-                    <div className={`h-full rounded-full bg-gradient-to-r ${item.textGrad} transition-all duration-1000`} style={{ width: `${totalPacientes > 0 ? Math.min((item.count / totalPacientes) * 100 * 4, 100) : 0}%` }} />
-                  </div>
-                  <p className="mt-1 text-[10px] font-black text-slate-400 tabular-nums">{totalPacientes > 0 ? Math.round((item.count / totalPacientes) * 100) : 0}%</p>
-                </div>
-              ))}
-            </div>
-          </ChartCard>
-        </div>
-
-        {/* ── Gráficos Linha 3 ─────────────────────────────────────── */}
-        <div className="mt-6 grid grid-cols-1 gap-5 lg:grid-cols-2">
-          <ChartCard titulo="Tipo de Contato" subtitulo="Como os pacientes foram contatados">
-            <div className="h-[370px]">
-              <Chart option={contatoOption} className="h-full w-full" />
-            </div>
-          </ChartCard>
-          <ChartCard titulo="Entraves Identificados" subtitulo="Barreiras encontradas nos acompanhamentos" icone={I.warning}>
-            <div className="h-[370px]">
-              {topEntraves.length > 0 ? <Chart option={entravesOption} className="h-full w-full" /> : (
-                <div className="flex h-full items-center justify-center text-sm text-slate-400">Nenhum entrave registrado.</div>
-              )}
-            </div>
-          </ChartCard>
-        </div>
-
-        {/* ── Gráficos Linha 4 ─────────────────────────────────────── */}
-        <div className="mt-6 grid grid-cols-1 gap-5 lg:grid-cols-2">
-          <ChartCard titulo="Faixas Etárias" subtitulo="Distribuição por idade dos pacientes prioritários">
-            <div className="h-[350px]">
-              <Chart option={faixaOption} className="h-full w-full" />
-            </div>
-          </ChartCard>
-
-          {/* Top Microáreas */}
-          <ChartCard titulo="Top Microáreas" subtitulo="Pacientes por microárea" icone={I.pin}>
-            <div className="space-y-3">
-              {topMicro.map(([nome, count], i) => (
-                <div key={nome} className="group/row flex items-center gap-3 rounded-xl px-3 py-2 transition-all duration-200 hover:bg-slate-50">
-                  <span className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg text-[11px] font-black ${i === 0 ? "bg-gradient-to-br from-amber-100 to-amber-200 text-amber-700 ring-1 ring-amber-300/50" : i === 1 ? "bg-gradient-to-br from-slate-100 to-slate-200 text-slate-600 ring-1 ring-slate-300/50" : i === 2 ? "bg-gradient-to-br from-orange-50 to-orange-100 text-orange-600 ring-1 ring-orange-200/50" : "bg-slate-100 text-slate-500"}`}>
-                    {i + 1}
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-sm font-bold text-slate-700 truncate uppercase group-hover/row:text-slate-900 transition-colors">{nome}</span>
-                      <span className="text-[11px] font-black text-slate-900 ml-2 tabular-nums">{count}</span>
-                    </div>
-                    <div className="h-2 w-full overflow-hidden rounded-full bg-slate-100">
-                      <div className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-teal-500 transition-all duration-1000 ease-out shadow-sm shadow-emerald-200/50" style={{ width: `${(count / (topMicro[0]?.[1] || 1)) * 100}%` }} />
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </ChartCard>
-        </div>
-
-        {/* ── Divider: Perfil dos Pacientes ────────────────────────── */}
-        <div className="mt-8 mb-5 flex items-center gap-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-md shadow-blue-500/20">
-            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" /></svg>
+        {/* ═══ PERFIL DOS PACIENTES ══════════════════════════════════════ */}
+        <div className="mt-10 mb-6 flex items-center gap-4">
+          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-lg shadow-blue-500/25 ring-1 ring-blue-400/30">
+            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
+            </svg>
           </div>
           <div>
             <h2 className="text-sm font-black uppercase tracking-widest text-slate-700">Perfil dos Pacientes</h2>
-            <p className="text-[10px] font-semibold text-slate-400 tracking-wider">Sexo, ra&ccedil;a, estado nutricional e vacina&ccedil;&atilde;o</p>
+            <p className="text-[10px] font-semibold text-slate-400 tracking-wider">Dados demográficos, classificação de saúde e distribuição</p>
           </div>
-          <div className="flex-1 h-px bg-gradient-to-r from-slate-200 to-transparent" />
+          <div className="flex-1 h-px bg-gradient-to-r from-blue-200/60 via-slate-200 to-transparent" />
+        </div>
+
+        {/* ── Benefícios + Top Escolas ──────────────────────────────── */}
+        <div className="mt-8 grid grid-cols-1 gap-5 lg:grid-cols-2">
+
+          {/* Benefícios */}
+          <ChartCard titulo="Benef&iacute;cios Sociais" subtitulo="Programas que os pacientes recebem" icone={
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+          }>
+            <div className="space-y-2.5">
+              {topBenef.map(([nome, count], i) => {
+                const total = Object.values(benefMap).reduce((a, b) => a + b, 0) || 1;
+                const pct = Math.round((count / total) * 100);
+                const corBen = ["#22d3ee","#a78bfa","#34d399","#fbbf24","#fb7185","#f97316","#64748b","#94a3b8"];
+                return (
+                  <div key={nome} className="group/row flex items-center gap-3 rounded-xl px-3 py-1.5 transition-all duration-200 hover:bg-slate-50">
+                    <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg text-[10px] font-black text-white tabular-nums" style={{ backgroundColor: corBen[i % corBen.length] }}>{count}</span>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center justify-between mb-0.5">
+                        <span className="text-[11px] font-bold text-slate-700 truncate uppercase group-hover/row:text-slate-900 transition-colors">{nome}</span>
+                        <span className="text-[9px] font-bold text-slate-400 ml-2 tabular-nums">{pct}%</span>
+                      </div>
+                      <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
+                        <div className="h-full rounded-full transition-all duration-1000" style={{ width: `${pct}%`, backgroundColor: corBen[i % corBen.length] }} />
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+              {topBenef.length === 0 && <p className="text-sm text-slate-400 text-center py-4">Nenhum benef&iacute;cio registrado.</p>}
+            </div>
+          </ChartCard>
+
+          {/* Top Escolas */}
+          <ChartCard titulo="Top Escolas" subtitulo="Unidades de ensino com mais pacientes" icone={
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.904a48.62 48.62 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.636 50.636 0 0 0-2.658-.813A59.906 59.906 0 0 1 12 3.493a59.903 59.903 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0 1 12 13.489a50.702 50.702 0 0 1 7.74-3.342M6.75 15a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 0v-3.675A55.378 55.378 0 0 1 12 8.443m-7.007 11.55A5.981 5.981 0 0 0 6.75 15.75v-1.5" /></svg>
+          }>
+            <div className="space-y-2.5">
+              {topEscolas.map(([nome, count], i) => (
+                <div key={nome} className="group/row flex items-center gap-3 rounded-xl px-3 py-1.5 transition-all duration-200 hover:bg-slate-50">
+                  <span className={`flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg text-[10px] font-black ${i === 0 ? "bg-gradient-to-br from-amber-100 to-amber-200 text-amber-700 ring-1 ring-amber-300/50" : i === 1 ? "bg-gradient-to-br from-slate-100 to-slate-200 text-slate-600 ring-1 ring-slate-300/50" : i === 2 ? "bg-gradient-to-br from-orange-50 to-orange-100 text-orange-600 ring-1 ring-orange-200/50" : "bg-slate-100 text-slate-500"}`}>
+                    {i + 1}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-[11px] font-bold text-slate-700 truncate uppercase group-hover/row:text-slate-900 transition-colors">{nome}</span>
+                      <span className="text-[10px] font-black text-slate-900 ml-2 tabular-nums">{count}</span>
+                    </div>
+                    <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
+                      <div className="h-full rounded-full bg-gradient-to-r from-amber-400 to-orange-500 transition-all duration-1000 ease-out shadow-sm shadow-amber-200/50" style={{ width: `${(count / maxEscola) * 100}%` }} />
+                    </div>
+                  </div>
+                </div>
+              ))}
+              {topEscolas.length === 0 && <p className="text-sm text-slate-400 text-center py-4">Nenhuma escola registrada.</p>}
+            </div>
+          </ChartCard>
         </div>
 
         {/* ── Sexo + Raça ───────────────────────────────────────────── */}
@@ -840,74 +753,171 @@ export default function PaginaResumo({ usuarioUnidade }: { usuarioUnidade: strin
           </ChartCard>
         </div>
 
-        {/* ── Divider: Benefícios e Escolas ──────────────────────────── */}
-        <div className="mt-8 mb-5 flex items-center gap-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-md shadow-amber-500/20">
-            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 0 0-2.455 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z" /></svg>
-          </div>
-          <div>
-            <h2 className="text-sm font-black uppercase tracking-widest text-slate-700">Benef&iacute;cios e Escolas</h2>
-            <p className="text-[10px] font-semibold text-slate-400 tracking-wider">Programas sociais e unidades de ensino</p>
-          </div>
-          <div className="flex-1 h-px bg-gradient-to-r from-slate-200 to-transparent" />
-        </div>
-
-        {/* ── Benefícios + Top Escolas ──────────────────────────────── */}
+        {/* ── Faixas Etárias + Top Microáreas ──────────────────────────── */}
         <div className="mt-6 grid grid-cols-1 gap-5 lg:grid-cols-2">
-
-          {/* Benefícios */}
-          <ChartCard titulo="Benef&iacute;cios Sociais" subtitulo="Programas que os pacientes recebem" icone={
-            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
-          }>
-            <div className="space-y-2.5">
-              {topBenef.map(([nome, count], i) => {
-                const total = Object.values(benefMap).reduce((a, b) => a + b, 0) || 1;
-                const pct = Math.round((count / total) * 100);
-                const corBen = ["#22d3ee","#a78bfa","#34d399","#fbbf24","#fb7185","#f97316","#64748b","#94a3b8"];
-                return (
-                  <div key={nome} className="group/row flex items-center gap-3 rounded-xl px-3 py-1.5 transition-all duration-200 hover:bg-slate-50">
-                    <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg text-[10px] font-black text-white tabular-nums" style={{ backgroundColor: corBen[i % corBen.length] }}>{count}</span>
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center justify-between mb-0.5">
-                        <span className="text-[11px] font-bold text-slate-700 truncate uppercase group-hover/row:text-slate-900 transition-colors">{nome}</span>
-                        <span className="text-[9px] font-bold text-slate-400 ml-2 tabular-nums">{pct}%</span>
-                      </div>
-                      <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
-                        <div className="h-full rounded-full transition-all duration-1000" style={{ width: `${pct}%`, backgroundColor: corBen[i % corBen.length] }} />
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-              {topBenef.length === 0 && <p className="text-sm text-slate-400 text-center py-4">Nenhum benef&iacute;cio registrado.</p>}
+          <ChartCard titulo="Faixas Etárias" subtitulo="Distribuição por idade dos pacientes prioritários">
+            <div className="h-[350px]">
+              <Chart option={faixaOption} className="h-full w-full" />
             </div>
           </ChartCard>
 
-          {/* Top Escolas */}
-          <ChartCard titulo="Top Escolas" subtitulo="Unidades de ensino com mais pacientes" icone={
-            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.904a48.62 48.62 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.636 50.636 0 0 0-2.658-.813A59.906 59.906 0 0 1 12 3.493a59.903 59.903 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0 1 12 13.489a50.702 50.702 0 0 1 7.74-3.342M6.75 15a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 0v-3.675A55.378 55.378 0 0 1 12 8.443m-7.007 11.55A5.981 5.981 0 0 0 6.75 15.75v-1.5" /></svg>
-          }>
-            <div className="space-y-2.5">
-              {topEscolas.map(([nome, count], i) => (
-                <div key={nome} className="group/row flex items-center gap-3 rounded-xl px-3 py-1.5 transition-all duration-200 hover:bg-slate-50">
-                  <span className={`flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg text-[10px] font-black ${i === 0 ? "bg-gradient-to-br from-amber-100 to-amber-200 text-amber-700 ring-1 ring-amber-300/50" : i === 1 ? "bg-gradient-to-br from-slate-100 to-slate-200 text-slate-600 ring-1 ring-slate-300/50" : i === 2 ? "bg-gradient-to-br from-orange-50 to-orange-100 text-orange-600 ring-1 ring-orange-200/50" : "bg-slate-100 text-slate-500"}`}>
+          {/* Top Microáreas */}
+          <ChartCard titulo="Top Microáreas" subtitulo="Pacientes por microárea" icone={I.pin}>
+            <div className="space-y-3">
+              {topMicro.map(([nome, count], i) => (
+                <div key={nome} className="group/row flex items-center gap-3 rounded-xl px-3 py-2 transition-all duration-200 hover:bg-slate-50">
+                  <span className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg text-[11px] font-black ${i === 0 ? "bg-gradient-to-br from-amber-100 to-amber-200 text-amber-700 ring-1 ring-amber-300/50" : i === 1 ? "bg-gradient-to-br from-slate-100 to-slate-200 text-slate-600 ring-1 ring-slate-300/50" : i === 2 ? "bg-gradient-to-br from-orange-50 to-orange-100 text-orange-600 ring-1 ring-orange-200/50" : "bg-slate-100 text-slate-500"}`}>
                     {i + 1}
                   </span>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-[11px] font-bold text-slate-700 truncate uppercase group-hover/row:text-slate-900 transition-colors">{nome}</span>
-                      <span className="text-[10px] font-black text-slate-900 ml-2 tabular-nums">{count}</span>
+                      <span className="text-sm font-bold text-slate-700 truncate uppercase group-hover/row:text-slate-900 transition-colors">{nome}</span>
+                      <span className="text-[11px] font-black text-slate-900 ml-2 tabular-nums">{count}</span>
                     </div>
-                    <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
-                      <div className="h-full rounded-full bg-gradient-to-r from-amber-400 to-orange-500 transition-all duration-1000 ease-out shadow-sm shadow-amber-200/50" style={{ width: `${(count / maxEscola) * 100}%` }} />
+                    <div className="h-2 w-full overflow-hidden rounded-full bg-slate-100">
+                      <div className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-teal-500 transition-all duration-1000 ease-out shadow-sm shadow-emerald-200/50" style={{ width: `${(count / (topMicro[0]?.[1] || 1)) * 100}%` }} />
                     </div>
                   </div>
                 </div>
               ))}
-              {topEscolas.length === 0 && <p className="text-sm text-slate-400 text-center py-4">Nenhuma escola registrada.</p>}
             </div>
           </ChartCard>
         </div>
+
+        {/* ── Top Unidades + Top Equipes ───────────────────────────────── */}
+        <div className="mt-6 grid grid-cols-1 gap-5 lg:grid-cols-2">
+
+          {/* Top Unidades */}
+          <ChartCard titulo="Top Unidades" subtitulo="Pacientes por unidade de saúde">
+            <div className="space-y-3">
+              {topUnidades.map(([nome, count], i) => (
+                <div key={nome} className="group/row flex items-center gap-3 rounded-xl px-3 py-2 transition-all duration-200 hover:bg-slate-50">
+                  <span className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg text-[11px] font-black ${i === 0 ? "bg-gradient-to-br from-amber-100 to-amber-200 text-amber-700 ring-1 ring-amber-300/50" : i === 1 ? "bg-gradient-to-br from-slate-100 to-slate-200 text-slate-600 ring-1 ring-slate-300/50" : i === 2 ? "bg-gradient-to-br from-orange-50 to-orange-100 text-orange-600 ring-1 ring-orange-200/50" : "bg-slate-100 text-slate-500"}`}>
+                    {i + 1}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-sm font-bold text-slate-700 truncate uppercase group-hover/row:text-slate-900 transition-colors">{nome}</span>
+                      <span className="text-[11px] font-black text-slate-900 ml-2 tabular-nums">{count}</span>
+                    </div>
+                    <div className="h-2 w-full overflow-hidden rounded-full bg-slate-100">
+                      <div className="h-full rounded-full bg-gradient-to-r from-bordo-500 to-blue-600 transition-all duration-1000 ease-out shadow-sm shadow-bordo-200/50" style={{ width: `${(count / maxUnidade) * 100}%` }} />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </ChartCard>
+
+          {/* Top Equipes */}
+          <ChartCard titulo="Top Equipes" subtitulo="Pacientes por equipe" icone={I.users}>
+            <div className="space-y-3">
+              {topEquipes.map(([nome, count], i) => (
+                <div key={nome} className="group/row flex items-center gap-3 rounded-xl px-3 py-2 transition-all duration-200 hover:bg-slate-50">
+                  <span className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg text-[11px] font-black ${i === 0 ? "bg-gradient-to-br from-amber-100 to-amber-200 text-amber-700 ring-1 ring-amber-300/50" : i === 1 ? "bg-gradient-to-br from-slate-100 to-slate-200 text-slate-600 ring-1 ring-slate-300/50" : i === 2 ? "bg-gradient-to-br from-orange-50 to-orange-100 text-orange-600 ring-1 ring-orange-200/50" : "bg-slate-100 text-slate-500"}`}>
+                    {i + 1}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-sm font-bold text-slate-700 truncate uppercase group-hover/row:text-slate-900 transition-colors">{nome}</span>
+                      <span className="text-[11px] font-black text-slate-900 ml-2 tabular-nums">{count}</span>
+                    </div>
+                    <div className="h-2 w-full overflow-hidden rounded-full bg-slate-100">
+                      <div className="h-full rounded-full bg-gradient-to-r from-violet-400 to-purple-500 transition-all duration-1000 ease-out shadow-sm shadow-violet-200/50" style={{ width: `${(count / (topEquipes[0]?.[1] || 1)) * 100}%` }} />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </ChartCard>
+        </div>
+
+        {/* ── Indicadores de Saúde ───────────────────────────────────── */}
+        <div className="mt-6">
+          <ChartCard titulo="Indicadores de Saúde" subtitulo="Prevalência em diabetes e anemia falciforme" icone={I.heart}>
+            <div className="grid grid-cols-2 gap-5 sm:grid-cols-2 lg:grid-cols-2">
+              {[
+                { label: "Diabetes", count: diabetes, color: "blue", bgGrad: "from-blue-50 to-blue-100/50", ringGrad: "ring-blue-200/50", textGrad: "from-blue-500 to-blue-600" },
+                { label: "Anemia Falciforme", count: anemiaFalciforme, color: "bordo", bgGrad: "from-bordo-50 to-bordo-100/50", ringGrad: "ring-bordo-200/50", textGrad: "from-bordo-500 to-bordo-600" },
+              ].map((item, i) => (
+                <div key={item.label} className="group/card flex flex-col items-center rounded-2xl border border-slate-100 bg-white/60 p-6 shadow-[0_4px_10px_rgba(0,0,0,0.04),0_0_0_1px_rgba(226,232,240,0.5)] transition-all duration-500 hover:shadow-[0_20px_40px_-10px_rgba(0,0,0,0.18),0_0_0_1px_rgba(226,232,240,0.8)] hover:-translate-y-1.5 animate-[fadeInUp_0.5s_ease-out_both]" style={{ animationDelay: `${i * 100 + 200}ms` }}>
+                  <div className={`relative flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br ${item.bgGrad} ring-1 ${item.ringGrad} transition-all duration-300 group-hover/card:scale-110 group-hover/card:shadow-md`}>
+                    <span className={`text-2xl font-black bg-gradient-to-br ${item.textGrad} bg-clip-text text-transparent`}>{item.count}</span>
+                  </div>
+                  <p className="mt-3 text-[10px] font-bold uppercase tracking-wider text-slate-500 text-center">{item.label}</p>
+                  <div className="mt-1.5 h-1 w-8 rounded-full bg-slate-100 overflow-hidden">
+                    <div className={`h-full rounded-full bg-gradient-to-r ${item.textGrad} transition-all duration-1000`} style={{ width: `${totalPacientes > 0 ? Math.min((item.count / totalPacientes) * 100 * 4, 100) : 0}%` }} />
+                  </div>
+                  <p className="mt-1 text-[10px] font-black text-slate-400 tabular-nums">{totalPacientes > 0 ? Math.round((item.count / totalPacientes) * 100) : 0}%</p>
+                </div>
+              ))}
+            </div>
+          </ChartCard>
+        </div>
+
+        {/* ── Diabetes e Anemia Falciforme ──────────────────────────── */}
+        <div className="mt-6 grid grid-cols-1 gap-5 lg:grid-cols-1">
+          <ChartCard titulo="Diabetes e Anemia Falciforme" subtitulo="Distribuição por categoria" icone={I.pizza}>
+            <div className="h-[380px]">
+              <Chart option={pizzaOption} className="h-full w-full" />
+            </div>
+          </ChartCard>
+        </div>
+
+        {/* ═══ ACOMPANHAMENTOS ═══════════════════════════════════════════ */}
+        <div className="mt-10 mb-6 flex items-center gap-4">
+          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-bordo-500 to-rose-600 text-white shadow-lg shadow-bordo-500/25 ring-1 ring-bordo-400/30">
+            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15a2.25 2.25 0 0 1 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25Z" />
+            </svg>
+          </div>
+          <div>
+            <h2 className="text-sm font-black uppercase tracking-widest text-slate-700">Acompanhamentos</h2>
+            <p className="text-[10px] font-semibold text-slate-400 tracking-wider">Análises das buscas, contatos e resultados obtidos</p>
+          </div>
+          <div className="flex-1 h-px bg-gradient-to-r from-bordo-200/60 via-slate-200 to-transparent" />
+        </div>
+
+        {/* ── Situação Pós-Busca ────────────────────────────────────── */}
+        <div className="mt-6 grid grid-cols-1 gap-5 lg:grid-cols-1">
+          <ChartCard titulo="Situação Pós-Busca" subtitulo="Resultado dos acompanhamentos">
+            <div className="h-[380px]">
+              <Chart option={donutOption} className="h-full w-full" />
+            </div>
+          </ChartCard>
+        </div>
+
+        {/* ── Tipos de Busca + Evolução Mensal ──────────────────────── */}
+        <div className="mt-6 grid grid-cols-1 gap-5 lg:grid-cols-2">
+          <ChartCard titulo="Tipos de Busca" subtitulo="Volume por modalidade" icone={I.busca}>
+            <div className="h-[350px]">
+              <Chart option={barraOption} className="h-full w-full" />
+            </div>
+          </ChartCard>
+          <ChartCard titulo="Evolução Mensal" subtitulo="Acompanhamentos nos últimos 12 meses">
+            <div className="h-[350px]">
+              <Chart option={areaOption} className="h-full w-full" />
+            </div>
+          </ChartCard>
+        </div>
+
+        {/* ── Tipo de Contato + Entraves Identificados ──────────────── */}
+        <div className="mt-6 grid grid-cols-1 gap-5 lg:grid-cols-2">
+          <ChartCard titulo="Tipo de Contato" subtitulo="Como os pacientes foram contatados">
+            <div className="h-[370px]">
+              <Chart option={contatoOption} className="h-full w-full" />
+            </div>
+          </ChartCard>
+          <ChartCard titulo="Entraves Identificados" subtitulo="Barreiras encontradas nos acompanhamentos" icone={I.warning}>
+            <div className="h-[370px]">
+              {topEntraves.length > 0 ? <Chart option={entravesOption} className="h-full w-full" /> : (
+                <div className="flex h-full items-center justify-center text-sm text-slate-400">Nenhum entrave registrado.</div>
+              )}
+            </div>
+          </ChartCard>
+        </div>
+
+
         </>)}
       </div>
     </>

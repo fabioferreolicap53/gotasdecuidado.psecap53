@@ -73,6 +73,7 @@ interface Props {
   onFechar: () => void;
   acompanhamentoEdit?: Acompanhamento | null;
   onEditSalvo?: () => void;
+  onNovoSalvo?: (novo: Acompanhamento) => void;
 }
 
 // ── Ícones reutilizáveis (SVG) ───────────────────────────────────────────
@@ -405,7 +406,7 @@ function MultiSelect({
 
 // ═══ Componente Principal ════════════════════════════════════════════════
 
-export default function ModalAcompanhamento({ paciente, usuarioId, onFechar, acompanhamentoEdit, onEditSalvo }: Props) {
+export default function ModalAcompanhamento({ paciente, usuarioId, onFechar, acompanhamentoEdit, onEditSalvo, onNovoSalvo }: Props) {
   const [acompanhamentos, setAcompanhamentos] = useState<Acompanhamento[]>([]);
   const [carregando, setCarregando] = useState(true);
   const [salvando, setSalvando] = useState(false);
@@ -496,6 +497,7 @@ export default function ModalAcompanhamento({ paciente, usuarioId, onFechar, aco
         });
         setAcompanhamentos((prev) => [novo, ...prev]);
         setToast("Registro salvo com sucesso!");
+        onNovoSalvo?.(novo);
         limparForm();
         setModoForm(false);
       }

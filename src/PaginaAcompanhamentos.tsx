@@ -775,9 +775,9 @@ export default function PaginaAcompanhamentos({ selectedPacienteId, usuarioId, u
           paciente={novoAcompPaciente}
           usuarioId={usuarioId}
           onFechar={() => { setNovoAcompPaciente(null); }}
-          onEditSalvo={() => {
+          onNovoSalvo={(novo) => {
+            setAcompanhamentos((prev) => [novo, ...prev]);
             setNovoAcompPaciente(null);
-            buscarTodosAcompanhamentos().then((items) => setAcompanhamentos(items)).catch(() => {});
           }}
         />,
         document.body

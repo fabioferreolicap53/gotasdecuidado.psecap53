@@ -392,7 +392,9 @@ export default function PaginaPacientes({ usuarioId, usuarioUnidade, usuarioRole
     setSalvando(true);
     try {
       await atualizarPaciente(pacienteModal.id, formData);
-      setPacienteModal({ ...pacienteModal, ...formData } as Paciente);
+      const atualizado = { ...pacienteModal, ...formData } as Paciente;
+      setPacienteModal(atualizado);
+      setPacientes((prev) => prev.map((p) => p.id === atualizado.id ? atualizado : p));
       setEditando(false);
     } catch (e) {
       console.error("Erro ao salvar:", e);

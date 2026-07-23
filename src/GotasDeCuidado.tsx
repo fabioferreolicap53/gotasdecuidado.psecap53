@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import PaginaResumo from "./PaginaResumo";
 import PaginaPacientes from "./PaginaPacientes";
 import PaginaFavoritos from "./PaginaFavoritos";
@@ -287,18 +287,35 @@ export default function GotasDeCuidado() {
     return "nenhum";
   });
 
-  // Rolar para o topo ao navegar entre páginas
-  useEffect(() => { window.scrollTo(0, 0); }, [pagina]);
+  // Preservação de scroll por página
+  const scrollPositions = useRef<Map<string, number>>(new Map());
+  const isRestoringScroll = useRef(false);
+
+  useEffect(() => {
+    if (isRestoringScroll.current) {
+      isRestoringScroll.current = false;
+      return;
+    }
+    window.scrollTo(0, 0);
+  }, [pagina]);
 
   const handleNavigate = useCallback((p: Pagina) => {
+    scrollPositions.current.set(pagina, window.scrollY);
     setSelectedPacienteId(null);
     setPagina(p);
-  }, []);
+    const saved = scrollPositions.current.get(p) ?? 0;
+    isRestoringScroll.current = true;
+    requestAnimationFrame(() => window.scrollTo(0, saved));
+  }, [pagina]);
 
   const handleNavigateAcompFiltered = useCallback((pacienteId: string) => {
+    scrollPositions.current.set(pagina, window.scrollY);
     setSelectedPacienteId(pacienteId);
     setPagina("acompanhamentos");
-  }, []);
+    const saved = scrollPositions.current.get("acompanhamentos") ?? 0;
+    isRestoringScroll.current = true;
+    requestAnimationFrame(() => window.scrollTo(0, saved));
+  }, [pagina]);
 
   function handleLogin(_token: string, record: AuthUser) {
     try { localStorage.setItem("pb_user", JSON.stringify(record)); } catch { /* ignore */ }

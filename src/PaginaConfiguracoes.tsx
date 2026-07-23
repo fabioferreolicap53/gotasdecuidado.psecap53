@@ -79,13 +79,29 @@ export default function PaginaConfiguracoes({ usuarioRole }: ConfigProps) {
     }
   }
 
-  function handleSalvar() {
+  async function handleSalvar() {
     try {
       const stored = localStorage.getItem("pb_user");
-      if (stored) {
+      const token = localStorage.getItem("pb_auth_token");
+      if (stored && token) {
         const u = JSON.parse(stored);
-        u.name = user.nome;
-        localStorage.setItem("pb_user", JSON.stringify(u));
+        // Atualiza no PocketBase
+        const resp = await fetch(
+          `${PB_URL.replace(/\/+$/, "")}/api/collections/${PB_USERS_COLLECTION}/records/${u.id}`,
+          {
+            method: "PATCH",
+            headers: {
+              "Content-Type": "application/json",
+              "Accept": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ name: user.nome }),
+          }
+        );
+        if (resp.ok) {
+          u.name = user.nome;
+          localStorage.setItem("pb_user", JSON.stringify(u));
+        }
       }
     } catch { /* ignore */ }
     localStorage.setItem("user_preferences", JSON.stringify({

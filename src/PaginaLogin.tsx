@@ -117,12 +117,25 @@ export default function PaginaLogin({ onLogin }: LoginProps) {
 
       try { localStorage.setItem("pb_auth_token", token); } catch { /* ignore */ }
 
+      // Busca o registro completo para garantir todos os campos
+      let fullRecord = record;
+      try {
+        const recResp = await fetch(
+          `${baseUrl()}/records/${record.id}`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        if (recResp.ok) {
+          const recData = await recResp.json();
+          fullRecord = recData;
+        }
+      } catch { /* usa o record do login */ }
+
       onLogin(token, {
-        id: record.id,
-        email: record.email ?? email,
-        name: record.name ?? "",
-        role: record.role ?? "user",
-        unidade: record.unidade ?? "",
+        id: fullRecord.id,
+        email: fullRecord.email ?? email,
+        name: fullRecord.name ?? "",
+        role: fullRecord.role ?? "user",
+        unidade: fullRecord.unidade ?? "",
       });
     } catch (err: any) {
       console.error("[Login] fetch error:", err);

@@ -72,7 +72,7 @@ interface Props {
   usuarioId: string;
   onFechar: () => void;
   acompanhamentoEdit?: Acompanhamento | null;
-  onEditSalvo?: () => void;
+  onEditSalvo?: (atualizado?: Acompanhamento) => void;
   onNovoSalvo?: (novo: Acompanhamento) => void;
 }
 
@@ -471,7 +471,7 @@ export default function ModalAcompanhamento({ paciente, usuarioId, onFechar, aco
     setErro(null);
     try {
       if (acompanhamentoEdit) {
-        await atualizarAcompanhamento(acompanhamentoEdit.id, {
+        const dadosEdit = {
           data_da_busca: dataBusca,
           tipo_busca: tipoBusca,
           tipo_contato: tipoContato,
@@ -479,9 +479,11 @@ export default function ModalAcompanhamento({ paciente, usuarioId, onFechar, aco
           situacao_pos_busca: situacaoPosBusca,
           entraves_identificados: entravesIdentificados.join("; "),
           observacoes,
-        });
+        };
+        await atualizarAcompanhamento(acompanhamentoEdit.id, dadosEdit);
+        const atualizado = { ...acompanhamentoEdit, ...dadosEdit } as Acompanhamento;
         setToast("Registro atualizado com sucesso!");
-        onEditSalvo?.();
+        onEditSalvo?.(atualizado);
         setTimeout(() => onFechar(), 800);
       } else {
         const novo = await criarAcompanhamento({

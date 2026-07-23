@@ -790,10 +790,11 @@ export default function PaginaAcompanhamentos({ selectedPacienteId, usuarioId, u
           usuarioId={editandoAcomp.usuario_id}
           onFechar={() => setEditandoAcomp(null)}
           acompanhamentoEdit={editandoAcomp}
-          onEditSalvo={() => {
+          onEditSalvo={(atualizado) => {
+            if (atualizado) {
+              setAcompanhamentos((prev) => prev.map((a) => a.id === atualizado.id ? atualizado : a));
+            }
             setEditandoAcomp(null);
-            // Recarregar dados
-            buscarTodosAcompanhamentos().then((items) => setAcompanhamentos(items)).catch(() => {});
           }}
         />,
         document.body

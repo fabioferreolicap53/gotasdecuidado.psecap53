@@ -409,7 +409,7 @@ export default function GotasDeCuidado() {
         {pagina === "resumo" && <PaginaResumo usuarioUnidade={user.unidade} />}
         {pagina === "pacientes" && <PaginaPacientes usuarioId={user.id} usuarioUnidade={user.unidade} usuarioRole={user.role} onNavigateAcompFiltered={handleNavigateAcompFiltered} />}
         {pagina === "favoritos" && <PaginaFavoritos usuarioId={user.id} usuarioUnidade={user.unidade} usuarioRole={user.role} onNavigateAcompFiltered={handleNavigateAcompFiltered} />}
-        {pagina === "acompanhamentos" && <PaginaAcompanhamentos selectedPacienteId={selectedPacienteId} usuarioId={user.id} />}
+        {pagina === "acompanhamentos" && <PaginaAcompanhamentos selectedPacienteId={selectedPacienteId} usuarioId={user.id} usuarioUnidade={user.unidade} usuarioRole={user.role} />}
         {pagina === "configuracoes" && <PaginaConfiguracoes usuarioRole={user.role} />}
       </main>
 

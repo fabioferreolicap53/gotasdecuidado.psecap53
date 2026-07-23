@@ -435,6 +435,14 @@ export default function PaginaLogin({ onLogin }: LoginProps) {
             Acesso Restrito
           </p>
         </div>
+
+        {/* Crédito */}
+        <p className="mt-6 text-center text-[9px] font-medium tracking-[0.08em] text-slate-400/60">
+          Desenvolvido por{" "}
+          <span className="font-semibold text-slate-500/80">Fabio Ferreira de Oliveira</span>
+          <span className="mx-1.5 text-slate-300/40">—</span>
+          <span className="text-slate-400/60">DAPS/CAP5.3</span>
+        </p>
       </div>
     </div>
   );

@@ -125,6 +125,16 @@ export default function PaginaResumo({ usuarioUnidade }: { usuarioUnidade: strin
   const [pacientes, setPacientes] = useState<Paciente[]>([]);
   const [acomps, setAcomps] = useState<Acompanhamento[]>([]);
   const [carregando, setCarregando] = useState(true);
+  const [filtroUnidade, setFiltroUnidade] = useState<string>("todas");
+  const [filtroEquipe, setFiltroEquipe] = useState<string>("todas");
+  const [filtroMicroarea, setFiltroMicroarea] = useState<string>("todas");
+  const [filtroSexo, setFiltroSexo] = useState<string>("todas");
+  const [filtroRaca, setFiltroRaca] = useState<string>("todas");
+  const [filtroNutricional, setFiltroNutricional] = useState<string>("todas");
+  const [filtroVacinal, setFiltroVacinal] = useState<string>("todas");
+  const [filtroBeneficio, setFiltroBeneficio] = useState<string>("todas");
+  const [filtroEscola, setFiltroEscola] = useState<string>("todas");
+  const [mostrarAvancada, setMostrarAvancada] = useState(false);
 
   useEffect(() => {
     let cancel = false;
@@ -150,12 +160,12 @@ export default function PaginaResumo({ usuarioUnidade }: { usuarioUnidade: strin
 
   // ── Métricas ────────────────────────────────────────────────────────
 
-  const totalPacientes = pacientes.length;
+  const totalPacientes = pacientesFiltrados.length;
 
   const isPrioritario = (p: Paciente) => {
     return p.classificacao?.toLowerCase().includes("diabetes") || p.classificacao?.toLowerCase().includes("anemia");
   };
-  const pacientesPrioritarios = pacientes.filter(isPrioritario);
+  const pacientesPrioritarios = pacientesFiltrados.filter(isPrioritario);
   const idsPrioritarios = new Set(pacientesPrioritarios.map((p) => p.id));
   const acompsPrioritarios = acomps.filter((a) => idsPrioritarios.has(a.paciente_id));
 
@@ -171,6 +181,33 @@ export default function PaginaResumo({ usuarioUnidade }: { usuarioUnidade: strin
 
   const diabetes = pacientesPrioritarios.filter((p) => p.classificacao?.toLowerCase().includes("diabetes")).length;
   const anemiaFalciforme = pacientesPrioritarios.filter((p) => p.classificacao?.toLowerCase().includes("anemia")).length;
+
+  // ── Opções para filtros avançados ─────────────────────────────────────
+  const unidades = [...new Set(pacientes.map(p => p.unidade).filter(Boolean))].sort();
+  const equipes = [...new Set(pacientes.map(p => p.equipe).filter(Boolean))].sort();
+  const microareas = [...new Set(pacientes.map(p => p.microarea).filter(Boolean))].sort();
+  const sexosDisponiveis = [...new Set(pacientes.map(p => p.sexo).filter(Boolean))].sort();
+  const racasDisponiveis = [...new Set(pacientes.map(p => p.raca).filter(Boolean))].sort();
+  const nutricionaisDisponiveis = [...new Set(pacientes.map(p => p.estado_nutricional).filter(Boolean))].sort();
+  const vacinaisDisponiveis = [...new Set(pacientes.map(p => p.situacao_vacinal).filter(Boolean))].sort();
+  const beneficiosDisponiveis = [...new Set(pacientes.map(p => p.recebe_algum_beneficio).filter(Boolean))].sort();
+  const escolasDisponiveis = [...new Set(pacientes.map(p => p.unidade_escolar).filter(Boolean))].sort();
+
+  // ── Aplicar filtros aos pacientes ─────────────────────────────────────
+  const pacientesFiltrados = pacientes.filter((p) => {
+    const matchUnidade = filtroUnidade === "todas" || p.unidade === filtroUnidade;
+    const matchEquipe = filtroEquipe === "todas" || p.equipe === filtroEquipe;
+    const matchMicroarea = filtroMicroarea === "todas" || p.microarea === filtroMicroarea;
+    const matchSexo = filtroSexo === "todas" || p.sexo === filtroSexo;
+    const matchRaca = filtroRaca === "todas" || p.raca === filtroRaca;
+    const matchNutricional = filtroNutricional === "todas" || p.estado_nutricional === filtroNutricional;
+    const matchVacinal = filtroVacinal === "todas" || p.situacao_vacinal === filtroVacinal;
+    const matchBeneficio = filtroBeneficio === "todas" || p.recebe_algum_beneficio === filtroBeneficio;
+    const matchEscola = filtroEscola === "todas" || p.unidade_escolar === filtroEscola;
+    return matchUnidade && matchEquipe && matchMicroarea && matchSexo && matchRaca && matchNutricional && matchVacinal && matchBeneficio && matchEscola;
+  });
+
+  const totalFiltrados = pacientesFiltrados.length;
 
   // ── Sexo ──────────────────────────────────────────────────────────────
   const sexoMap = pacientesPrioritarios.reduce<Record<string, number>>((acc, p) => {
@@ -512,15 +549,116 @@ export default function PaginaResumo({ usuarioUnidade }: { usuarioUnidade: strin
               RESUMO <span className="text-bordo-400 font-bold">GERAL</span>
             </h1>
           </div>
-          <div className="flex items-baseline justify-center gap-2">
-            <svg className="h-4 w-4 text-amber-300/70" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
-            </svg>
-            <span className="text-[9px] font-bold uppercase tracking-widest text-white/40">Total Pacientes</span>
-            <span className="text-2xl font-black text-white tabular-nums leading-none">{totalPacientes.toLocaleString("pt-BR")}</span>
+          <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3">
+            <div className="flex items-baseline gap-2">
+              <svg className="h-4 w-4 text-amber-300/70" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
+              </svg>
+              <span className="text-[9px] font-bold uppercase tracking-widest text-white/40">Total</span>
+              <span className="text-2xl font-black text-white tabular-nums leading-none">{totalFiltrados.toLocaleString("pt-BR")}</span>
+            </div>
+            <div className="h-4 w-px bg-white/10" />
+            <button onClick={() => setMostrarAvancada(!mostrarAvancada)} className={`flex h-7 w-7 items-center justify-center rounded-lg transition-all duration-200 ${mostrarAvancada ? 'bg-white/10 text-white/70' : 'text-white/40 hover:bg-white/10 hover:text-white/70'}`} title="Filtros avançados">
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75" /></svg>
+            </button>
           </div>
         </div>
       </div>
+
+      {mostrarAvancada && (
+        <div className="relative bg-gradient-to-br from-slate-900 via-slate-800 to-bordo-950 px-5 sm:px-6 pb-4">
+          <div className="mx-auto max-w-[1380px] rounded-xl bg-white/[0.05] p-4 ring-1 ring-white/10">
+            <div className="mb-3 flex items-center justify-between">
+              <h3 className="text-xs font-bold uppercase tracking-widest text-white/60">Filtros Avançados</h3>
+              <button onClick={() => setMostrarAvancada(false)} className="flex h-6 w-6 items-center justify-center rounded-md text-white/40 transition-all hover:bg-white/10 hover:text-white/70">
+                <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
+              </button>
+            </div>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+              <div>
+                <label className="mb-1 block text-[9px] font-bold uppercase tracking-widest text-white/40">Unidade</label>
+                <select value={filtroUnidade} onChange={(e) => setFiltroUnidade(e.target.value)}
+                  className="w-full rounded-lg bg-white/[0.07] border border-white/10 px-3 py-2 text-xs font-medium text-white outline-none transition-all focus:border-bordo-500/40 focus:ring-1 focus:ring-bordo-500/20 [&>option]:bg-slate-800 [&>option]:text-white">
+                  <option value="todas">Todas</option>
+                  {unidades.map(u => <option key={u} value={u}>{u}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="mb-1 block text-[9px] font-bold uppercase tracking-widest text-white/40">Equipe</label>
+                <select value={filtroEquipe} onChange={(e) => setFiltroEquipe(e.target.value)}
+                  className="w-full rounded-lg bg-white/[0.07] border border-white/10 px-3 py-2 text-xs font-medium text-white outline-none transition-all focus:border-bordo-500/40 focus:ring-1 focus:ring-bordo-500/20 [&>option]:bg-slate-800 [&>option]:text-white">
+                  <option value="todas">Todas</option>
+                  {equipes.map(e => <option key={e} value={e}>{e}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="mb-1 block text-[9px] font-bold uppercase tracking-widest text-white/40">Microárea</label>
+                <select value={filtroMicroarea} onChange={(e) => setFiltroMicroarea(e.target.value)}
+                  className="w-full rounded-lg bg-white/[0.07] border border-white/10 px-3 py-2 text-xs font-medium text-white outline-none transition-all focus:border-bordo-500/40 focus:ring-1 focus:ring-bordo-500/20 [&>option]:bg-slate-800 [&>option]:text-white">
+                  <option value="todas">Todas</option>
+                  {microareas.map(m => <option key={m} value={m}>{m}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="mb-1 block text-[9px] font-bold uppercase tracking-widest text-white/40">Sexo</label>
+                <select value={filtroSexo} onChange={(e) => setFiltroSexo(e.target.value)}
+                  className="w-full rounded-lg bg-white/[0.07] border border-white/10 px-3 py-2 text-xs font-medium text-white outline-none transition-all focus:border-bordo-500/40 focus:ring-1 focus:ring-bordo-500/20 [&>option]:bg-slate-800 [&>option]:text-white">
+                  <option value="todas">Todos</option>
+                  {sexosDisponiveis.map(s => <option key={s} value={s}>{s}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="mb-1 block text-[9px] font-bold uppercase tracking-widest text-white/40">Raça</label>
+                <select value={filtroRaca} onChange={(e) => setFiltroRaca(e.target.value)}
+                  className="w-full rounded-lg bg-white/[0.07] border border-white/10 px-3 py-2 text-xs font-medium text-white outline-none transition-all focus:border-bordo-500/40 focus:ring-1 focus:ring-bordo-500/20 [&>option]:bg-slate-800 [&>option]:text-white">
+                  <option value="todas">Todas</option>
+                  {racasDisponiveis.map(r => <option key={r} value={r}>{r}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="mb-1 block text-[9px] font-bold uppercase tracking-widest text-white/40">Estado Nutricional</label>
+                <select value={filtroNutricional} onChange={(e) => setFiltroNutricional(e.target.value)}
+                  className="w-full rounded-lg bg-white/[0.07] border border-white/10 px-3 py-2 text-xs font-medium text-white outline-none transition-all focus:border-bordo-500/40 focus:ring-1 focus:ring-bordo-500/20 [&>option]:bg-slate-800 [&>option]:text-white">
+                  <option value="todas">Todos</option>
+                  {nutricionaisDisponiveis.map(n => <option key={n} value={n}>{n}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="mb-1 block text-[9px] font-bold uppercase tracking-widest text-white/40">Situação Vacinal</label>
+                <select value={filtroVacinal} onChange={(e) => setFiltroVacinal(e.target.value)}
+                  className="w-full rounded-lg bg-white/[0.07] border border-white/10 px-3 py-2 text-xs font-medium text-white outline-none transition-all focus:border-bordo-500/40 focus:ring-1 focus:ring-bordo-500/20 [&>option]:bg-slate-800 [&>option]:text-white">
+                  <option value="todas">Todas</option>
+                  {vacinaisDisponiveis.map(v => <option key={v} value={v}>{v}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="mb-1 block text-[9px] font-bold uppercase tracking-widest text-white/40">Benefício</label>
+                <select value={filtroBeneficio} onChange={(e) => setFiltroBeneficio(e.target.value)}
+                  className="w-full rounded-lg bg-white/[0.07] border border-white/10 px-3 py-2 text-xs font-medium text-white outline-none transition-all focus:border-bordo-500/40 focus:ring-1 focus:ring-bordo-500/20 [&>option]:bg-slate-800 [&>option]:text-white">
+                  <option value="todas">Todos</option>
+                  {beneficiosDisponiveis.map(b => <option key={b} value={b}>{b}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="mb-1 block text-[9px] font-bold uppercase tracking-widest text-white/40">Escola</label>
+                <select value={filtroEscola} onChange={(e) => setFiltroEscola(e.target.value)}
+                  className="w-full rounded-lg bg-white/[0.07] border border-white/10 px-3 py-2 text-xs font-medium text-white outline-none transition-all focus:border-bordo-500/40 focus:ring-1 focus:ring-bordo-500/20 [&>option]:bg-slate-800 [&>option]:text-white">
+                  <option value="todas">Todas</option>
+                  {escolasDisponiveis.map(e => <option key={e} value={e}>{e.length > 50 ? e.slice(0, 50) + "..." : e}</option>)}
+                </select>
+              </div>
+            </div>
+            <div className="mt-3 flex justify-end">
+              <button
+                onClick={() => { setFiltroUnidade("todas"); setFiltroEquipe("todas"); setFiltroMicroarea("todas"); setFiltroSexo("todas"); setFiltroRaca("todas"); setFiltroNutricional("todas"); setFiltroVacinal("todas"); setFiltroBeneficio("todas"); setFiltroEscola("todas"); }}
+                className="rounded-lg bg-white/[0.07] border border-white/10 px-4 py-2 text-[10px] font-bold uppercase tracking-wider text-white/50 transition-all hover:bg-white/10 hover:text-white/70"
+              >
+                Limpar Filtros
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="mx-auto max-w-[1380px] px-4 py-8 sm:px-6 lg:px-8" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(148,163,184,0.10) 1px, transparent 0)', backgroundSize: '28px 28px' }}>
 

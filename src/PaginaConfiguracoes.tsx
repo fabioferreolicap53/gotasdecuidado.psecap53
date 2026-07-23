@@ -1,6 +1,5 @@
 import { useState } from "react";
 import PaginaImportacao from "./PaginaImportacao";
-import PaginaExclusao from "./PaginaExclusao";
 
 interface UserConfig {
   nome: string;
@@ -284,18 +283,10 @@ export default function PaginaConfiguracoes({ usuarioRole }: ConfigProps) {
 
         {/* ═══ IMPORTAÇÃO ═══════════════════════════════════════════════ */}
         {isAdmin && (
-          <>
-            <section>
-              <h2 className="mb-4 text-sm font-bold uppercase tracking-wider text-slate-400">Importação de Dados</h2>
-              <PaginaImportacao />
-            </section>
-
-            {/* ═══ EXCLUSÃO ═══════════════════════════════════════════════ */}
-            <section>
-              <h2 className="mb-4 text-sm font-bold uppercase tracking-wider text-slate-400">Gestão de Dados</h2>
-              <PaginaExclusao />
-            </section>
-          </>
+          <section>
+            <h2 className="mb-4 text-sm font-bold uppercase tracking-wider text-slate-400">Importação de Dados</h2>
+            <PaginaImportacao />
+          </section>
         )}
       </div>
     </>

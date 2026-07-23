@@ -413,21 +413,22 @@ export default function GotasDeCuidado() {
         {pagina === "configuracoes" && <PaginaConfiguracoes usuarioRole={user.role} />}
       </main>
 
-      <footer className="mt-auto border-t border-slate-200 bg-white">
+      <footer className="mt-auto border-t border-slate-200/80 bg-gradient-to-b from-white to-slate-50/70">
         <div className="mx-auto max-w-[1380px] px-5 sm:px-6">
-          <div className="flex flex-col items-center gap-3 py-6 sm:py-8">
-            <div className="flex items-center gap-1.5 opacity-40">
-              <span className="text-xs font-black uppercase tracking-widest text-slate-900">SISTEMA</span>
-              <span className="text-xs font-black uppercase tracking-widest text-bordo-600">GOTAS DE CUIDADO</span>
+          <div className="flex flex-col items-center justify-center gap-4 py-6 sm:py-8">
+            {/* Logo */}
+            <div className="flex items-center gap-2 opacity-30 hover:opacity-60 transition-opacity duration-300">
+              <span className="text-[10px] font-black uppercase tracking-[0.25em] text-slate-900">Gotas de</span>
+              <span className="text-[10px] font-black uppercase tracking-[0.25em] bg-gradient-to-r from-bordo-600 to-bordo-500 bg-clip-text text-transparent">Cuidado</span>
             </div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">
-              Monitoramento de Crianças e Adolescentes com Diabetes e Anemia Falciforme
-            </p>
-            <div className="h-px w-16 bg-gradient-to-r from-transparent via-slate-300 to-transparent" />
-            <p className="text-[9px] font-semibold tracking-[0.15em] text-slate-400/70 uppercase">
-              Desenvolvido por <span className="font-black text-slate-500">Fabio Ferreira de Oliveira</span>
-              <span className="mx-1.5 text-slate-300/50">•</span>
-              <span className="text-slate-400">DAPS/CAP5.3</span>
+            {/* Divider */}
+            <div className="h-px w-12 bg-gradient-to-r from-transparent via-slate-300/60 to-transparent" />
+            {/* Crédito */}
+            <p className="text-[10px] font-medium tracking-[0.08em] text-slate-400/80 text-center leading-relaxed">
+              Desenvolvido por{" "}
+              <span className="font-bold text-slate-500/90 hover:text-bordo-500/80 transition-colors duration-300">Fabio Ferreira de Oliveira</span>
+              <span className="mx-2 text-slate-300/40">—</span>
+              <span className="text-slate-400/70 font-medium">DAPS/CAP5.3</span>
             </p>
           </div>
         </div>

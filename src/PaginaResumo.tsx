@@ -125,6 +125,8 @@ export default function PaginaResumo({ usuarioUnidade }: { usuarioUnidade: strin
   const [pacientes, setPacientes] = useState<Paciente[]>([]);
   const [acomps, setAcomps] = useState<Acompanhamento[]>([]);
   const [carregando, setCarregando] = useState(true);
+  const [busca, setBusca] = useState("");
+  const [mostrarBusca, setMostrarBusca] = useState(false);
   const [filtroUnidade, setFiltroUnidade] = useState<string>("todas");
   const [filtroEquipe, setFiltroEquipe] = useState<string>("todas");
   const [filtroMicroarea, setFiltroMicroarea] = useState<string>("todas");
@@ -158,6 +160,35 @@ export default function PaginaResumo({ usuarioUnidade }: { usuarioUnidade: strin
     return () => { cancel = true; };
   }, []);
 
+  // ── Aplicar filtros aos pacientes ─────────────────────────────────────
+  const buscaLower = busca.toLowerCase().trim();
+  const pacientesFiltrados = pacientes.filter((p) => {
+    const matchBusca = !buscaLower || (p.nome?.toLowerCase().includes(buscaLower)) || (p.equipe?.toLowerCase().includes(buscaLower)) || (p.unidade?.toLowerCase().includes(buscaLower));
+    const matchUnidade = filtroUnidade === "todas" || p.unidade === filtroUnidade;
+    const matchEquipe = filtroEquipe === "todas" || p.equipe === filtroEquipe;
+    const matchMicroarea = filtroMicroarea === "todas" || p.microarea === filtroMicroarea;
+    const matchSexo = filtroSexo === "todas" || p.sexo === filtroSexo;
+    const matchRaca = filtroRaca === "todas" || p.raca === filtroRaca;
+    const matchNutricional = filtroNutricional === "todas" || p.estado_nutricional === filtroNutricional;
+    const matchVacinal = filtroVacinal === "todas" || p.situacao_vacinal === filtroVacinal;
+    const matchBeneficio = filtroBeneficio === "todas" || p.recebe_algum_beneficio === filtroBeneficio;
+    const matchEscola = filtroEscola === "todas" || p.unidade_escolar === filtroEscola;
+    return matchBusca && matchUnidade && matchEquipe && matchMicroarea && matchSexo && matchRaca && matchNutricional && matchVacinal && matchBeneficio && matchEscola;
+  });
+
+  const totalFiltrados = pacientesFiltrados.length;
+
+  // ── Opções para filtros avançados ─────────────────────────────────────
+  const unidades = [...new Set(pacientes.map(p => p.unidade).filter(Boolean))].sort();
+  const equipes = [...new Set(pacientes.map(p => p.equipe).filter(Boolean))].sort();
+  const microareas = [...new Set(pacientes.map(p => p.microarea).filter(Boolean))].sort();
+  const sexosDisponiveis = [...new Set(pacientes.map(p => p.sexo).filter(Boolean))].sort();
+  const racasDisponiveis = [...new Set(pacientes.map(p => p.raca).filter(Boolean))].sort();
+  const nutricionaisDisponiveis = [...new Set(pacientes.map(p => p.estado_nutricional).filter(Boolean))].sort();
+  const vacinaisDisponiveis = [...new Set(pacientes.map(p => p.situacao_vacinal).filter(Boolean))].sort();
+  const beneficiosDisponiveis = [...new Set(pacientes.map(p => p.recebe_algum_beneficio).filter(Boolean))].sort();
+  const escolasDisponiveis = [...new Set(pacientes.map(p => p.unidade_escolar).filter(Boolean))].sort();
+
   // ── Métricas ────────────────────────────────────────────────────────
 
   const totalPacientes = pacientesFiltrados.length;
@@ -181,33 +212,6 @@ export default function PaginaResumo({ usuarioUnidade }: { usuarioUnidade: strin
 
   const diabetes = pacientesPrioritarios.filter((p) => p.classificacao?.toLowerCase().includes("diabetes")).length;
   const anemiaFalciforme = pacientesPrioritarios.filter((p) => p.classificacao?.toLowerCase().includes("anemia")).length;
-
-  // ── Opções para filtros avançados ─────────────────────────────────────
-  const unidades = [...new Set(pacientes.map(p => p.unidade).filter(Boolean))].sort();
-  const equipes = [...new Set(pacientes.map(p => p.equipe).filter(Boolean))].sort();
-  const microareas = [...new Set(pacientes.map(p => p.microarea).filter(Boolean))].sort();
-  const sexosDisponiveis = [...new Set(pacientes.map(p => p.sexo).filter(Boolean))].sort();
-  const racasDisponiveis = [...new Set(pacientes.map(p => p.raca).filter(Boolean))].sort();
-  const nutricionaisDisponiveis = [...new Set(pacientes.map(p => p.estado_nutricional).filter(Boolean))].sort();
-  const vacinaisDisponiveis = [...new Set(pacientes.map(p => p.situacao_vacinal).filter(Boolean))].sort();
-  const beneficiosDisponiveis = [...new Set(pacientes.map(p => p.recebe_algum_beneficio).filter(Boolean))].sort();
-  const escolasDisponiveis = [...new Set(pacientes.map(p => p.unidade_escolar).filter(Boolean))].sort();
-
-  // ── Aplicar filtros aos pacientes ─────────────────────────────────────
-  const pacientesFiltrados = pacientes.filter((p) => {
-    const matchUnidade = filtroUnidade === "todas" || p.unidade === filtroUnidade;
-    const matchEquipe = filtroEquipe === "todas" || p.equipe === filtroEquipe;
-    const matchMicroarea = filtroMicroarea === "todas" || p.microarea === filtroMicroarea;
-    const matchSexo = filtroSexo === "todas" || p.sexo === filtroSexo;
-    const matchRaca = filtroRaca === "todas" || p.raca === filtroRaca;
-    const matchNutricional = filtroNutricional === "todas" || p.estado_nutricional === filtroNutricional;
-    const matchVacinal = filtroVacinal === "todas" || p.situacao_vacinal === filtroVacinal;
-    const matchBeneficio = filtroBeneficio === "todas" || p.recebe_algum_beneficio === filtroBeneficio;
-    const matchEscola = filtroEscola === "todas" || p.unidade_escolar === filtroEscola;
-    return matchUnidade && matchEquipe && matchMicroarea && matchSexo && matchRaca && matchNutricional && matchVacinal && matchBeneficio && matchEscola;
-  });
-
-  const totalFiltrados = pacientesFiltrados.length;
 
   // ── Sexo ──────────────────────────────────────────────────────────────
   const sexoMap = pacientesPrioritarios.reduce<Record<string, number>>((acc, p) => {
@@ -558,12 +562,38 @@ export default function PaginaResumo({ usuarioUnidade }: { usuarioUnidade: strin
               <span className="text-2xl font-black text-white tabular-nums leading-none">{totalFiltrados.toLocaleString("pt-BR")}</span>
             </div>
             <div className="h-4 w-px bg-white/10" />
-            <button onClick={() => setMostrarAvancada(!mostrarAvancada)} className={`flex h-7 w-7 items-center justify-center rounded-lg transition-all duration-200 ${mostrarAvancada ? 'bg-white/10 text-white/70' : 'text-white/40 hover:bg-white/10 hover:text-white/70'}`} title="Filtros avançados">
+            <button onClick={() => { setMostrarBusca(!mostrarBusca); setMostrarAvancada(false); }} className={`flex h-7 w-7 items-center justify-center rounded-lg transition-all duration-200 ${mostrarBusca ? 'bg-white/10 text-white/70' : 'text-white/40 hover:bg-white/10 hover:text-white/70'}`} title="Busca rápida">
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" /></svg>
+            </button>
+            <button onClick={() => { setMostrarAvancada(!mostrarAvancada); setMostrarBusca(false); }} className={`flex h-7 w-7 items-center justify-center rounded-lg transition-all duration-200 ${mostrarAvancada ? 'bg-white/10 text-white/70' : 'text-white/40 hover:bg-white/10 hover:text-white/70'}`} title="Filtros avançados">
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75" /></svg>
             </button>
           </div>
         </div>
       </div>
+
+      {mostrarBusca && (
+        <div className="relative bg-gradient-to-br from-slate-900 via-slate-800 to-bordo-950 px-5 sm:px-6 pb-4">
+          <div className="mx-auto flex max-w-[1380px] items-center gap-3">
+            <div className="relative flex-1">
+              <svg className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+              </svg>
+              <input
+                type="text"
+                placeholder="Buscar por nome, equipe, unidade..."
+                value={busca}
+                onChange={(e) => setBusca(e.target.value)}
+                autoFocus
+                className="w-full rounded-lg bg-white/[0.07] border border-white/10 py-2 pl-10 pr-4 text-sm font-medium text-white placeholder-white/40 outline-none transition-all duration-200 focus:border-bordo-500/40 focus:ring-1 focus:ring-bordo-500/20"
+              />
+            </div>
+            <button onClick={() => { setMostrarBusca(false); setBusca(""); }} className="flex h-8 w-8 items-center justify-center rounded-lg text-white/40 transition-all hover:bg-white/10 hover:text-white/70">
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
+            </button>
+          </div>
+        </div>
+      )}
 
       {mostrarAvancada && (
         <div className="relative bg-gradient-to-br from-slate-900 via-slate-800 to-bordo-950 px-5 sm:px-6 pb-4">

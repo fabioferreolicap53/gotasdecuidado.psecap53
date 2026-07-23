@@ -537,6 +537,74 @@ export default function PaginaResumo({ usuarioUnidade }: { usuarioUnidade: strin
   }, {});
   const topEquipes = Object.entries(equipesMap).sort((a, b) => b[1] - a[1]).slice(0, 6);
 
+  // ── Monitoramento: Consultas por mês + Últimas consultas ─────────────
+
+  const mesesNomes = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
+  const consultaMesMap: Record<string, number> = {};
+  const buscaMesMap: Record<string, number> = {};
+  for (let m = 0; m <= mesAtual; m++) {
+    const chave = `${anoAtual}-${String(m + 1).padStart(2, "0")}`;
+    consultaMesMap[chave] = 0;
+    buscaMesMap[chave] = 0;
+  }
+  // Contar consultas por mês a partir do campo ult_consulta dos pacientes filtrados
+  pacientesFiltrados.forEach((p) => {
+    const dt = p.ult_consulta || "";
+    if (dt.length >= 7) {
+      const chave = dt.substring(0, 7);
+      if (consultaMesMap[chave] !== undefined) consultaMesMap[chave]++;
+    }
+  });
+  // Contar buscas (acompanhamentos) por mês
+  acomps.forEach((a) => {
+    const dt = a.data_da_busca || "";
+    if (dt.length >= 7) {
+      const chave = dt.substring(0, 7);
+      if (buscaMesMap[chave] !== undefined) buscaMesMap[chave]++;
+    }
+  });
+  const monitLabels = Object.keys(consultaMesMap).map((k) => {
+    const [, m] = k.split("-");
+    return `${mesesNomes[parseInt(m, 10) - 1]}/${anoAtual.toString().slice(2)}`;
+  });
+  const monitValores = Object.values(consultaMesMap);
+  const buscaValores = Object.values(buscaMesMap);
+
+  const chartMonitoramentoOption = {
+    tooltip: { ...tooltipPremium, trigger: "axis" as const, formatter: (params: any) => {
+      const items = Array.isArray(params) ? params : [params];
+      let html = `<div style="font-size:12px;font-weight:700;color:#f8fafc;margin-bottom:6px">${items[0]?.name || ""}</div>`;
+      items.forEach((item: any) => {
+        const cor = item.seriesName === "Consultas" ? "#a78bfa" : "#f59e0b";
+        html += `<div style="display:flex;align-items:center;gap:6px;margin-top:3px"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${cor}"></span><span style="font-size:11px;color:#94a3b8">${item.seriesName}</span><span style="font-size:14px;font-weight:900;color:#f8fafc;margin-left:auto">${item.value}</span></div>`;
+      });
+      return html;
+    }},
+    legend: { bottom: 0, textStyle: { color: "#64748b", fontSize: 10, fontWeight: "bold" as const }, itemGap: 20, itemWidth: 12, itemHeight: 8, icon: "roundRect" },
+    grid: { top: 20, right: 16, bottom: 40, left: 48 },
+    xAxis: { type: "category" as const, data: monitLabels, axisLine: { lineStyle: { color: "#e2e8f0" } }, axisTick: { show: false }, axisLabel: { color: "#64748b", fontSize: 10, fontWeight: "bold" as const } },
+    yAxis: { type: "value" as const, minInterval: 1, axisLine: { show: false }, axisTick: { show: false }, splitLine: { lineStyle: { color: "#f1f5f9", type: "dashed" as const } }, axisLabel: { color: "#94a3b8", fontSize: 10 } },
+    series: [
+      {
+        name: "Consultas", type: "bar", barWidth: "40%",
+        data: monitValores.map((v) => ({
+          value: v,
+          itemStyle: { borderRadius: [6, 6, 0, 0], color: v > 0 ? { type: "linear", x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: "#a78bfa" }, { offset: 1, color: "#7c3aed" }] } : { type: "linear", x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: "#e2e8f0" }, { offset: 1, color: "#cbd5e1" }] } },
+        })),
+        animationDelay: (i: number) => i * 80,
+        label: { show: true, position: "top" as const, fontSize: 10, fontWeight: "900" as const, color: "#7c3aed", formatter: (p: any) => p.value > 0 ? p.value : "" },
+      },
+      {
+        name: "Buscas", type: "line", smooth: true, symbol: "circle", symbolSize: 7,
+        lineStyle: { color: "#f59e0b", width: 2.5, type: "dashed" as const },
+        itemStyle: { color: "#d97706", borderWidth: 2, borderColor: "#fff" },
+        data: buscaValores, animationDuration: 1500, animationEasing: "cubicOut" as const,
+        label: { show: true, position: "top" as const, fontSize: 10, fontWeight: "700" as const, color: "#d97706", formatter: (p: any) => p.value > 0 ? p.value : "" },
+      },
+    ],
+    animationDuration: 1000,
+  };
+
   return (
     <>
       {/* ── Hero ────────────────────────────────────────────────────── */}
@@ -729,6 +797,63 @@ export default function PaginaResumo({ usuarioUnidade }: { usuarioUnidade: strin
           <KpiCard titulo="Anemia Falciforme" valor={anemiaFalciforme} cor="bg-bordo-500" corHex="#b91c3a" subtitulo="pacientes" delay={300}
             icone={<svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" /></svg>}
           />
+        </div>
+
+        {/* ═══ MONITORAMENTO DE CONSULTAS ════════════════════════════════ */}
+        <div className="mt-10 mb-6 flex items-center gap-4">
+          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 text-white shadow-lg shadow-violet-500/25 ring-1 ring-violet-400/30">
+            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" />
+            </svg>
+          </div>
+          <div>
+            <h2 className="text-sm font-black uppercase tracking-widest text-slate-700">Monitoramento de Consultas</h2>
+            <p className="text-[10px] font-semibold text-slate-400 tracking-wider">Acompanhamento temporal de consultas e buscas realizadas</p>
+          </div>
+          <div className="flex-1 h-px bg-gradient-to-r from-violet-200/60 via-slate-200 to-transparent" />
+        </div>
+
+        <div className="group rounded-2xl border border-slate-200/60 border-t-2 border-t-violet-400 bg-white/80 backdrop-blur-sm shadow-[0_4px_12px_rgba(0,0,0,0.05),0_0_0_1px_rgba(226,232,240,0.6)] transition-all duration-500 hover:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.15),0_8px_24px_-6px_rgba(0,0,0,0.08),0_0_0_1px_rgba(226,232,240,0.6)] hover:-translate-y-1.5">
+          {/* Glow sutil */}
+          <div className="absolute -right-16 -top-16 h-40 w-40 rounded-full bg-violet-300/6 blur-[80px] transition-opacity duration-700 group-hover:opacity-100 opacity-0 pointer-events-none" />
+
+          {/* Header */}
+          <div className="relative flex flex-col gap-3 border-b border-slate-100/80 px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-2.5">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-bordo-50 to-blue-50 ring-1 ring-bordo-200/50 shadow-sm">
+                <svg className="h-4 w-4 text-bordo-500" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 18 9 11.25l4.306 4.306a11.95 11.95 0 0 1 5.334-4.581 3 3 0 0 1 4.025 3.44 11.95 11.95 0 0 1-2.14 6.07" /><path strokeLinecap="round" strokeLinejoin="round" d="M18 6V3h-3m4.5 3-6 6" /></svg>
+              </div>
+              <div>
+                <p className="text-[12px] font-black uppercase tracking-widest text-slate-500 group-hover:text-slate-700 transition-colors">Consultas por M&ecirc;s</p>
+                <p className="text-[10px] font-bold text-slate-300 uppercase tracking-wider group-hover:text-slate-400 transition-colors">Evolução desde Janeiro {anoAtual}</p>
+              </div>
+            </div>
+            {/* KPIs */}
+            <div className="flex items-center gap-2.5">
+              <div className="flex items-center gap-1.5 rounded-lg bg-violet-50 px-2.5 py-1.5 ring-1 ring-violet-100">
+                <svg className="h-3 w-3 text-violet-400" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" /></svg>
+                <span className="text-[10px] font-black text-violet-600 tabular-nums">{monitValores.reduce((a, b) => a + b, 0)}</span>
+                <span className="text-[8px] font-bold uppercase tracking-wider text-violet-400/80">consultas</span>
+              </div>
+              <div className="h-5 w-px bg-slate-200/60" />
+              <div className="flex items-center gap-1.5 rounded-lg bg-amber-50 px-2.5 py-1.5 ring-1 ring-amber-100">
+                <svg className="h-3 w-3 text-amber-400" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" /></svg>
+                <span className="text-[10px] font-black text-amber-600 tabular-nums">{buscaValores.reduce((a, b) => a + b, 0)}</span>
+                <span className="text-[8px] font-bold uppercase tracking-wider text-amber-400/80">buscas</span>
+              </div>
+              <div className="h-5 w-px bg-slate-200/60" />
+              <div className="flex items-center gap-1.5 rounded-lg bg-slate-50 px-2.5 py-1.5 ring-1 ring-slate-100">
+                <svg className="h-3 w-3 text-slate-400" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" /></svg>
+                <span className="text-[10px] font-black text-slate-600 tabular-nums">{totalFiltrados}</span>
+                <span className="text-[8px] font-bold uppercase tracking-wider text-slate-400/80">pacientes</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Chart */}
+          <div className="relative p-5">
+            <Chart option={chartMonitoramentoOption} className="h-[320px] w-full" />
+          </div>
         </div>
 
         {/* ═══ PERFIL DOS PACIENTES ══════════════════════════════════════ */}

@@ -112,19 +112,19 @@ function Header({ pagina, onNavigate, onLogout, user }: HeaderProps) {
         {/* User + Ações */}
         <div className="flex items-center gap-1.5 sm:gap-3 flex-shrink-0">
           {/* Unidade/Coordenação badge — sm+ */}
-          <div className="hidden sm:flex sm:items-center">
-            <div className="flex items-center gap-1.5 rounded-xl bg-white/10 px-2.5 py-1.5 ring-1 ring-white/10 transition-all duration-200 hover:bg-white/20 group">
+          <div className="hidden sm:flex sm:items-center min-w-0">
+            <div className="flex items-center gap-1 sm:gap-1.5 rounded-xl bg-white/10 px-1.5 sm:px-2 lg:px-2.5 py-1 sm:py-1.5 ring-1 ring-white/10 transition-all duration-200 hover:bg-white/20 group max-w-[95px] md:max-w-[170px] lg:max-w-[260px]">
               {user.role === "admin" ? (
-                <svg className="h-3 w-3 text-amber-400/80 transition-transform duration-200 group-hover:scale-110" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                <svg className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-amber-400/80 transition-transform duration-200 group-hover:scale-110 flex-shrink-0" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z" />
                 </svg>
               ) : (
-                <svg className="h-3 w-3 text-bordo-400/80 transition-transform duration-200 group-hover:scale-110" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                <svg className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-bordo-400/80 transition-transform duration-200 group-hover:scale-110 flex-shrink-0" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
                   <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
                 </svg>
               )}
-              <span className="text-[9px] font-bold uppercase tracking-[0.15em] text-white/70 transition-colors duration-200 group-hover:text-white/90">
+              <span className="text-[9px] sm:text-[9px] font-bold uppercase tracking-[0.1em] sm:tracking-[0.15em] text-white/70 transition-colors duration-200 group-hover:text-white/90 truncate" title={user.role === "admin" ? "Coordenação" : user.unidade || ""}>
                 {user.role === "admin" ? "Coordenação" : user.unidade || ""}
               </span>
             </div>

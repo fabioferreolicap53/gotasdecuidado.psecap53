@@ -248,23 +248,23 @@ export default function PaginaPacientes({ usuarioId, usuarioUnidade, usuarioRole
 
   useEffect(() => {
     let cancelado = false;
-    async function carregar() {
+    async function carregar(silent = false) {
       try {
-        setCarregando(true);
-        setErro(null);
+        if (!silent) { setCarregando(true); setErro(null); }
         const { items } = await buscarPacientes({ perPage: 500 });
         if (!cancelado) {
           const filtrados = usuarioUnidade ? items.filter((p) => p.unidade === usuarioUnidade) : items;
           setPacientes(filtrados);
         }
       } catch (e) {
-        if (!cancelado) setErro(e instanceof Error ? e.message : "Erro ao carregar pacientes");
+        if (!cancelado && !silent) setErro(e instanceof Error ? e.message : "Erro ao carregar pacientes");
       } finally {
-        if (!cancelado) setCarregando(false);
+        if (!cancelado && !silent) setCarregando(false);
       }
     }
     carregar();
-    return () => { cancelado = true; };
+    const interval = setInterval(() => carregar(true), 30000);
+    return () => { cancelado = true; clearInterval(interval); };
   }, []);
 
   // Carregar favoritos do usuario

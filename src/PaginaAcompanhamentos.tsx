@@ -122,8 +122,9 @@ export default function PaginaAcompanhamentos({ selectedPacienteId, usuarioId, u
 
   useEffect(() => {
     let cancel = false;
-    async function carregar() {
+    async function carregar(silent = false) {
       try {
+        if (!silent) setCarregando(true);
         const pacsPromise = buscarPacientes({ perPage: 500 });
         const acompsPromise = selectedPacienteId
           ? buscarAcompanhamentos(selectedPacienteId)
@@ -140,10 +141,11 @@ export default function PaginaAcompanhamentos({ selectedPacienteId, usuarioId, u
           setAcompanhamentos(acomps.filter((a) => map[a.paciente_id]?.unidade === usuarioUnidade));
         }
       } catch { /* ignore */ }
-      finally { if (!cancel) setCarregando(false); }
+      finally { if (!cancel && !silent) setCarregando(false); }
     }
     carregar();
-    return () => { cancel = true; };
+    const interval = setInterval(() => carregar(true), 30000);
+    return () => { cancel = true; clearInterval(interval); };
   }, [selectedPacienteId]);
 
   const tabelaMobileRef = useRef<HTMLDivElement>(null);

@@ -140,8 +140,9 @@ export default function PaginaResumo({ usuarioUnidade }: { usuarioUnidade: strin
 
   useEffect(() => {
     let cancel = false;
-    async function carregar() {
+    async function carregar(silent = false) {
       try {
+        if (!silent) setCarregando(true);
         const [pacs, ac] = await Promise.all([
           buscarTodosPacientes(),
           buscarTodosAcompanhamentos(),
@@ -154,10 +155,12 @@ export default function PaginaResumo({ usuarioUnidade }: { usuarioUnidade: strin
           setAcomps(acompsFiltrados);
         }
       } catch { /* ignore */ }
-      finally { if (!cancel) setCarregando(false); }
+      finally { if (!cancel && !silent) setCarregando(false); }
     }
     carregar();
-    return () => { cancel = true; };
+    // Polling silencioso a cada 30s
+    const interval = setInterval(() => carregar(true), 30000);
+    return () => { cancel = true; clearInterval(interval); };
   }, []);
 
   // ── Aplicar filtros aos pacientes ─────────────────────────────────────

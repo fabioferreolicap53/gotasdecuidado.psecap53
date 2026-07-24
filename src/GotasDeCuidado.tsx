@@ -6,6 +6,7 @@ import PaginaAcompanhamentos from "./PaginaAcompanhamentos";
 import PaginaConfiguracoes from "./PaginaConfiguracoes";
 import PaginaLogin from "./PaginaLogin";
 import PaginaRedefinicao from "./PaginaRedefinicao";
+import InstallBanner from "./InstallBanner";
 
 // ── Tipos ───────────────────────────────────────────────────────────────
 
@@ -429,6 +430,10 @@ export default function GotasDeCuidado() {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans antialiased">
       <Header pagina={pagina} onNavigate={handleNavigate} onLogout={handleLogout} user={user} />
+
+      <div className="mx-auto max-w-[1380px] px-4 pt-4 sm:px-6 lg:px-8">
+        <InstallBanner />
+      </div>
 
       <main>
         {pagina === "resumo" && <PaginaResumo usuarioUnidade={user.unidade} />}

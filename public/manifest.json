@@ -1,0 +1,25 @@
+{
+  "name": "Gotas de Cuidado",
+  "short_name": "Gotas de Cuidado",
+  "description": "Monitoramento de Crianças e Adolescentes com Diabetes e Anemia Falciforme",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "theme_color": "#6b2138",
+  "background_color": "#0f172a",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "pwa-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "pwa-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

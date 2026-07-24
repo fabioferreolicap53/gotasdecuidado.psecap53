@@ -253,10 +253,9 @@ function Header({ pagina, onNavigate, onLogout, user }: HeaderProps) {
 
 export default function GotasDeCuidado() {
   const [pagina, setPagina] = useState<Pagina>(() => {
-    try {
-      const saved = sessionStorage.getItem("current_page");
-      if (saved === "resumo" || saved === "pacientes" || saved === "acompanhamentos" || saved === "configuracoes" || saved === "favoritos") return saved;
-    } catch { /* ignore */ }
+    const hash = window.location.hash.replace("#", "");
+    const validPages: Pagina[] = ["resumo", "pacientes", "acompanhamentos", "configuracoes", "favoritos"];
+    if (validPages.includes(hash as Pagina)) return hash as Pagina;
     return "resumo";
   });
   const [user, setUser] = useState<AuthUser | null>(() => {
@@ -309,7 +308,7 @@ export default function GotasDeCuidado() {
     scrollPositions.current.set(pagina, window.scrollY);
     setSelectedPacienteId(null);
     setPagina(p);
-    try { sessionStorage.setItem("current_page", p); } catch { /* ignore */ }
+    window.location.hash = p;
     const saved = scrollPositions.current.get(p) ?? 0;
     isRestoringScroll.current = true;
     requestAnimationFrame(() => window.scrollTo(0, saved));
@@ -319,7 +318,7 @@ export default function GotasDeCuidado() {
     scrollPositions.current.set(pagina, window.scrollY);
     setSelectedPacienteId(pacienteId);
     setPagina("acompanhamentos");
-    try { sessionStorage.setItem("current_page", "acompanhamentos"); } catch { /* ignore */ }
+    window.location.hash = "acompanhamentos";
     const saved = scrollPositions.current.get("acompanhamentos") ?? 0;
     isRestoringScroll.current = true;
     requestAnimationFrame(() => window.scrollTo(0, saved));
@@ -337,7 +336,7 @@ export default function GotasDeCuidado() {
     } catch { /* ignore */ }
     setUser(null);
     setPagina("resumo");
-    try { sessionStorage.setItem("current_page", "resumo"); } catch { /* ignore */ }
+    window.location.hash = "resumo";
   }
 
   // 1. Email action (reset password) — ANTES do auth check

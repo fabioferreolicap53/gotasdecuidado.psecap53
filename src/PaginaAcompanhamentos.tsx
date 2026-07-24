@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { createPortal } from "react-dom";
 import type { Acompanhamento, Paciente } from "./types";
 import { buscarTodosAcompanhamentos, buscarAcompanhamentos, buscarPacientes, excluirAcompanhamento } from "./pocketbase";
@@ -63,6 +63,16 @@ export default function PaginaAcompanhamentos({ selectedPacienteId, usuarioId, u
   const [filtroEntraveInformadoPor, setFiltroEntraveInformadoPor] = useState<string>("todas");
   const [filtroEntrave, setFiltroEntrave] = useState<string>("todas");
   const [filtroEscola, setFiltroEscola] = useState<string>("todas");
+
+  // ── PacMap filtrado por unidade do usuário (para Painel de Monitoria) ──
+  const pacMapFiltrado = useMemo(() => {
+    if (isAdmin || !usuarioUnidade) return pacMap;
+    const filtered: Record<string, Paciente> = {};
+    for (const [id, pac] of Object.entries(pacMap)) {
+      if (pac.unidade === usuarioUnidade) filtered[id] = pac;
+    }
+    return filtered;
+  }, [pacMap, isAdmin, usuarioUnidade]);
 
   // ── Ordenação ──────────────────────────────────────────────────────
   const [sortField, setSortField] = useState<string>("data_da_busca");
@@ -510,7 +520,7 @@ export default function PaginaAcompanhamentos({ selectedPacienteId, usuarioId, u
         )}
 
         {/* ═══ PAINEL DE MONITORIA ═══════════════════════════════════════ */}
-        <PainelMonitoria pacMap={pacMap} />
+        <PainelMonitoria pacMap={pacMapFiltrado} />
 
         {/* ═══ TABELA ═══════════════════════════════════════ */}
             <div ref={tabelaMobileRef} className="-mx-4 sm:mx-0 mt-2 overflow-hidden rounded-2xl bg-white border border-slate-200/80 shadow-xl shadow-slate-200/60 ring-1 ring-black/[0.02]">

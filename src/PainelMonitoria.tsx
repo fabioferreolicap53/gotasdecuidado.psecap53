@@ -186,7 +186,7 @@ export default function PainelMonitoria({
   if (total === 0) return null;
 
   return (
-    <div className="mx-auto max-w-[1380px] px-4 pt-6 sm:px-6 lg:px-8">
+    <div className="mx-auto max-w-[1380px] px-4 pt-6 pb-4 sm:px-6 lg:px-8">
       {/* ── Header do Painel ──────────────────────────────── */}
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-3">

@@ -510,7 +510,7 @@ export default function PaginaAcompanhamentos({ selectedPacienteId, usuarioId, u
         <PainelMonitoria pacMap={pacMap} />
 
         {/* ═══ TABELA ═══════════════════════════════════════ */}
-            <div ref={tabelaMobileRef} className="-mx-4 sm:mx-0 overflow-hidden rounded-2xl bg-white border border-slate-200/80 shadow-xl shadow-slate-200/60 ring-1 ring-black/[0.02]">
+            <div ref={tabelaMobileRef} className="-mx-4 sm:mx-0 mt-2 overflow-hidden rounded-2xl bg-white border border-slate-200/80 shadow-xl shadow-slate-200/60 ring-1 ring-black/[0.02]">
               <div className="overflow-x-auto">
                 <table className="w-full min-w-[800px]">
                   <thead>

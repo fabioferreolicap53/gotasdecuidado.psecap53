@@ -1080,8 +1080,8 @@ export default function PaginaResumo({ usuarioUnidade }: { usuarioUnidade: strin
             <div className="h-[300px]">
               <Chart option={{
                 tooltip: { ...tooltipPremium, trigger: "axis", axisPointer: { type: "shadow" } },
-                grid: { left: 8, right: 20, bottom: 8, top: 16, containLabel: true },
-                xAxis: { type: "category", data: topNut.map(([k]) => k.toUpperCase()), axisLabel: { color: "#475569", fontSize: 10, fontWeight: "bold", interval: 0, rotate: 0, width: 90, overflow: "break", align: "center", lineHeight: 14 }, axisLine: { lineStyle: { color: "#e2e8f0" } }, axisTick: { show: false } },
+                grid: { left: 8, right: 20, bottom: 70, top: 16, containLabel: true },
+                xAxis: { type: "category", data: topNut.map(([k]) => k.toUpperCase()), axisLabel: { color: "#475569", fontSize: 10, fontWeight: "bold", interval: 0, rotate: 0, width: 110, overflow: "break", align: "center", lineHeight: 14, formatter: (v: string) => v.length > 10 ? v.replace(/\s+/g, "\n") : v }, axisLine: { lineStyle: { color: "#e2e8f0" } }, axisTick: { show: false } },
                 yAxis: { type: "value", minInterval: 1, splitLine: { lineStyle: { color: "#f1f5f9", type: "dashed" } }, axisLabel: { color: "#94a3b8", fontSize: 11, fontWeight: "bold" } },
                 animationDuration: 1000, animationEasing: "elasticOut",
                 series: [{

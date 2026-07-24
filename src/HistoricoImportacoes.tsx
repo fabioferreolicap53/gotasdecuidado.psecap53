@@ -123,7 +123,7 @@ function Chart({ option, className }: { option: any; className?: string }) {
 }
 
 // ═══ COMPONENTE PRINCIPAL ═════════════════════════════════════════════
-export default function HistoricoImportacoes() {
+export default function HistoricoImportacoes({ isAdmin }: { isAdmin?: boolean }) {
   const [history, setHistory] = useState<ImportLog[]>([]);
   const [confirmClear, setConfirmClear] = useState(false);
 
@@ -246,7 +246,7 @@ export default function HistoricoImportacoes() {
             <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-[9px] font-black uppercase tracking-wider text-slate-500">
               {history.length} registros
             </span>
-            {history.length > 0 && (
+            {history.length > 0 && isAdmin && (
               confirmClear ? (
                 <div className="flex items-center gap-1">
                   <button onClick={() => { clearImportHistory(); setHistory([]); setConfirmClear(false); }} className="rounded-lg bg-rose-500 px-2 py-1 text-[9px] font-bold text-white hover:bg-rose-600">Confirmar</button>

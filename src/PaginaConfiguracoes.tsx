@@ -304,7 +304,7 @@ export default function PaginaConfiguracoes({ usuarioRole }: ConfigProps) {
                 <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Controle e monitoramento de todas as importações realizadas</p>
               </div>
             </div>
-            <HistoricoImportacoes />
+            <HistoricoImportacoes isAdmin={isAdmin} />
           </section>
         )}
       </div>

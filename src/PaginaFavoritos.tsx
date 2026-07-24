@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import type { Paciente, Acompanhamento } from "./types";
 import { buscarPacientes, buscarFavoritos, removerFavorito, buscarTodosAcompanhamentos, buscarAcompanhamentos, atualizarPaciente } from "./pocketbase";
 import { getCoresCategoria } from "./data";
+import { UNIDADE_EQUIPES } from "./unidades";
 import ModalAcompanhamento from "./ModalAcompanhamento";
 
 // ── Helpers ─────────────────────────────────────────────────────────────
@@ -148,7 +149,9 @@ export default function PaginaFavoritos({ usuarioId, usuarioUnidade, usuarioRole
   };
 
   const unidades = [...new Set(favoritos.map(p => p.unidade).filter(Boolean))].sort();
-  const equipes = [...new Set(favoritos.map(p => p.equipe).filter(Boolean))].sort();
+  const equipes = filtroUnidade !== "todas"
+    ? (UNIDADE_EQUIPES[filtroUnidade] || [])
+    : [...new Set(Object.values(UNIDADE_EQUIPES).flat())].sort();
   const microareas = [...new Set(favoritos.map(p => p.microarea).filter(Boolean))].sort();
   const sexosDisponiveis = [...new Set(favoritos.map(p => p.sexo).filter(Boolean))].sort();
   const racasDisponiveis = [...new Set(favoritos.map(p => p.raca).filter(Boolean))].sort();
@@ -456,7 +459,7 @@ export default function PaginaFavoritos({ usuarioId, usuarioUnidade, usuarioRole
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
               <div>
                 <label className="mb-1 block text-[9px] font-bold uppercase tracking-widest text-white/40">Unidade</label>
-                <select value={filtroUnidade} onChange={(e) => setFiltroUnidade(e.target.value)}
+                <select value={filtroUnidade} onChange={(e) => { setFiltroUnidade(e.target.value); setFiltroEquipe("todas"); }}
                   className="w-full rounded-lg bg-white/[0.07] border border-white/10 px-3 py-2 text-xs font-medium text-white outline-none transition-all focus:border-bordo-500/40 focus:ring-1 focus:ring-bordo-500/20 [&>option]:bg-slate-800 [&>option]:text-white">
                   <option value="todas">Todas</option>
                   {unidades.map(u => <option key={u} value={u}>{u}</option>)}

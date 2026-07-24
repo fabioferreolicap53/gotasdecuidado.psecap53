@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import type { Paciente, Acompanhamento } from "./types";
 import { buscarPacientes, buscarFavoritos, adicionarFavorito, removerFavorito, buscarTodosAcompanhamentos, buscarAcompanhamentos, atualizarPaciente } from "./pocketbase";
 import { getCoresCategoria } from "./data";
+import { UNIDADE_EQUIPES } from "./unidades";
 import ModalAcompanhamento from "./ModalAcompanhamento";
 
 // ── Helpers ─────────────────────────────────────────────────────────────
@@ -86,36 +87,6 @@ function renderCategorias(p: Paciente) {
   );
 }
 
-// ── Mapeamento Unidade → Equipes ────────────────────────────────────────
-
-const UNIDADE_EQUIPES: Record<string, string[]> = {
-  "SMS CF VALERIA GOMES ESTEVES AP 53": ["BARREIRA","PIAI","PEDRO LEITAO","BALNEARIO GLOBO","EUCALIPAL"],
-  "SMS CF LOURENCO DE MELLO AP 53": ["BAIRRO FARIAS","ALZIRA MARTINHO","ALZIRA GENI"],
-  "SMS CF DEOLINDO COUTO AP 53": ["DR. CONTINENTINO","JAQUEIRA","PEDRINHAS","BONS AMIGOS","MARQUES DE ERVAL"],
-  "SMS CF EDSON ABDALLA SAAD AP 53": ["PRACA DO MAIA","MARCOLINA","ESPERANCA","PALESTINA","VETERANO","CENTRO CULTURAL"],
-  "SMS CF HELANDE DE MELLO GONCALVES AP 53": ["SAO PAULO","VIEIRAS","JULIA MIGUEL"],
-  "SMS CF ILZO MOTTA DE MELLO AP 53": ["TRES PONTES","MARIA APARECIDA","ROBERTO MORENA"],
-  "SMS CF JAMIL HADDAD AP 53": ["ANDORINHAS","AUSTIN","COLINA","IPEG","AGAI"],
-  "SMS CF JOSE ANTONIO CIRAUDO AP 53": ["SAO BENEDITO","SAO DOMINGOS SAVIO","AREIA BRANCA","COQUEIRAL (C)","VITOR DUMAS","AURORA","MANOEL JULIO"],
-  "SMS CF LENICE MARIA MONTEIRO COELHO AP 53": ["LOTE 14","BOA ESPERANCA","SAQUASSU","PARQUE DAS PEDRAS"],
-  "SMS CF SERGIO AROUCA AP 53": ["JARDIM ITA","IMPERIO","CAMPEIRO MOR","GENERAL OLIMPIO","BODEGAO","BOA VISTA"],
-  "SMS CMS EMYDIO CABRAL AP 53": ["1º DE ABRIL","GOUVEIA","DR. HELIO RIBEIRO","MONTE SINAI","MONTE DAS OLIVEIRA"],
-  "SMS CMS SAVIO ANTUNES ANTARES AP 53": ["CAMPO DOS BANDEIRANTES","SEMPRE VIDA","PONTE AMARELA"],
-  "SMS CF SAMUEL PENHA VALLE AP 53": ["ALTA","TORRE","VAGAO"],
-  "SMS CMS DECIO AMARAL FILHO AP 53": ["MAESTRO OLIMPIO","VALE DOS PALMARES","URUCANIA","BARRO VERMELHO","BAMBUZAL","53 EAP 01"],
-  "SMS CMS CYRO DE MELLO MANGUARIBA AP 53": ["JOAO DE BARRO","PARAISO","NOVA INDIA"],
-  "SMS CMS ADELINO SIMOES NOVA SEPETIBA AP 53": ["RUBI","SAFIRA","ESMERALDA","TOPAZIO","DIAMANTE"],
-  "SMS CF WALDEMAR BERARDINELLI AP 53": ["TRES PODERES","AMAZONAS","AREAL","TRIUNFO","IPIRANGA","MIRANTE","COQUEIRAL (W)","ILHA DO TATU"],
-  "SMS CMS CATTAPRETA AP 53": ["ALVORADA","CONJUNTO 61","CHATUBA"],
-  "SMS CF ERNANI DE PAIVA FERREIRA BRAGA AP 53": ["SERAFIM VIEGAS","GUANDU I E LIBERDADE","MIECIMO","PADRE GUILHERME DECAMINADA","HORTO FLORESTAL","VILLAGE ATLANTA","GUANDU E GUANDU VELHO","JOAO XXIII"],
-  "SMS CMS CESARIO DE MELLO AP 53": ["FELIPE CARDOSO","CURRAL FALSO","BLASO","VERIDIANA","MARQUES","CARVALHAU","TASSO"],
-  "SMS CF JOAO BATISTA CHAGAS AP 53": ["AGUAS DA PRATA","DO FUTURO","NOVA ESPERANCA","VENDA DE VARANDA","OLINDINA"],
-  "SMS CMS ALOYSIO AMANCIO DA SILVA AP 53": ["MORRO DO AR"],
-  "SMS CMS FLORIPES GALDINO PEREIRA AP 53": ["SAGRADO CORACAO","NOVO HORIZONTE"],
-  "SMS CF ALICE DE JESUS REGO AP 53": ["JESUITAS","BAIXADINHA","MERCADANTE","NOVO CONDOMINIO"],
-  "SMS CMS MARIA APARECIDA DE ALMEIDA AP 53": ["CESARINHO"],
-};
-
 // ── Componente ──────────────────────────────────────────────────────────
 
 function AcompCountBadge({
@@ -174,7 +145,9 @@ export default function PaginaPacientes({ usuarioId, usuarioUnidade, usuarioRole
   };
 
   const unidades = [...new Set(pacientes.map(p => p.unidade).filter(Boolean))].sort();
-  const equipes = [...new Set(pacientes.map(p => p.equipe).filter(Boolean))].sort();
+  const equipes = filtroUnidade !== "todas"
+    ? (UNIDADE_EQUIPES[filtroUnidade] || [])
+    : [...new Set(Object.values(UNIDADE_EQUIPES).flat())].sort();
   const microareas = [...new Set(pacientes.map(p => p.microarea).filter(Boolean))].sort();
   const sexosDisponiveis = [...new Set(pacientes.map(p => p.sexo).filter(Boolean))].sort();
   const racasDisponiveis = [...new Set(pacientes.map(p => p.raca).filter(Boolean))].sort();
@@ -493,7 +466,7 @@ export default function PaginaPacientes({ usuarioId, usuarioUnidade, usuarioRole
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
               <div>
                 <label className="mb-1 block text-[9px] font-bold uppercase tracking-widest text-white/40">Unidade</label>
-                <select value={filtroUnidade} onChange={(e) => setFiltroUnidade(e.target.value)}
+                <select value={filtroUnidade} onChange={(e) => { setFiltroUnidade(e.target.value); setFiltroEquipe("todas"); }}
                   className="w-full rounded-lg bg-white/[0.07] border border-white/10 px-3 py-2 text-xs font-medium text-white outline-none transition-all focus:border-bordo-500/40 focus:ring-1 focus:ring-bordo-500/20 [&>option]:bg-slate-800 [&>option]:text-white">
                   <option value="todas">Todas</option>
                   {unidades.map(u => <option key={u} value={u}>{u}</option>)}

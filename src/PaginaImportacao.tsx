@@ -274,6 +274,25 @@ export default function PaginaImportacao() {
     setControl("idle");
     setStep("completed");
 
+    // Save import log to history
+    try {
+      const importLog = {
+        id: `imp_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+        fileName: preview?.fileName || "desconhecido",
+        date: new Date().toISOString(),
+        totalRecords: records.length,
+        imported,
+        errors,
+        durationSec: elapsed,
+        speedRegSec: speed,
+        collection: "gotas_de_cuidado_pacientes",
+        status: imported === records.length ? "success" : imported > 0 ? "partial" : "error",
+      };
+      const existing = JSON.parse(localStorage.getItem("import_history") || "[]");
+      existing.push(importLog);
+      localStorage.setItem("import_history", JSON.stringify(existing));
+    } catch { /* ignore */ }
+
     if (flagsRef.current.cancelled) {
       addLog(`Importação interrompida — ${imported} registros importados, ${errors} falhas`, "warn");
     } else {

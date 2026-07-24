@@ -1,5 +1,6 @@
 import { useState } from "react";
 import PaginaImportacao from "./PaginaImportacao";
+import HistoricoImportacoes from "./HistoricoImportacoes";
 
 interface UserConfig {
   nome: string;
@@ -286,6 +287,24 @@ export default function PaginaConfiguracoes({ usuarioRole }: ConfigProps) {
           <section>
             <h2 className="mb-4 text-sm font-bold uppercase tracking-wider text-slate-400">Importação de Dados</h2>
             <PaginaImportacao />
+          </section>
+        )}
+
+        {/* ═══ HISTÓRICO DE IMPORTAÇÕES ══════════════════════════════ */}
+        {isAdmin && (
+          <section>
+            <div className="mb-4 flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-violet-500 shadow-lg shadow-indigo-500/25">
+                <svg className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 0 1 0 3.75H5.625a1.875 1.875 0 0 1 0-3.75Z" />
+                </svg>
+              </div>
+              <div>
+                <h2 className="text-sm font-black uppercase tracking-tight text-slate-800">Histórico de Importações</h2>
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Controle e monitoramento de todas as importações realizadas</p>
+              </div>
+            </div>
+            <HistoricoImportacoes />
           </section>
         )}
       </div>

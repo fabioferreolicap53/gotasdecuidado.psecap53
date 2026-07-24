@@ -115,6 +115,7 @@ export default function PaginaImportacao() {
   const startTimeRef = useRef(0);
   const tickRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const csvTextRef = useRef<string>("");
 
   const addLog = useCallback((msg: string, type: LogEntry["type"] = "info") => {
     setLogs((prev) => [...prev, { time: now(), msg, type }]);
@@ -150,6 +151,7 @@ export default function PaginaImportacao() {
 
     try {
       const csvText = await file.text();
+      csvTextRef.current = csvText;
       const parsed = Papa.parse(csvText, { header: true, skipEmptyLines: true });
       const headers = parsed.meta.fields ?? [];
       const fieldMap: Record<string, string> = {};
@@ -199,16 +201,14 @@ export default function PaginaImportacao() {
     let imported = 0;
     let errors = 0;
 
-    // Re-read file for import
-    const input = fileInputRef.current;
-    const file = input?.files?.[0];
-    if (!file) {
+    // Use stored CSV text from initial upload
+    const csvText = csvTextRef.current;
+    if (!csvText) {
       setErrorMsg("Arquivo não encontrado. Faça o upload novamente.");
       setStep("error");
       return;
     }
 
-    const csvText = await file.text();
     const parsed = Papa.parse(csvText, { header: true, skipEmptyLines: true });
     const records: Record<string, unknown>[] = [];
 
@@ -303,6 +303,7 @@ export default function PaginaImportacao() {
     setLogs([]);
     setErrorMsg("");
     if (fileInputRef.current) fileInputRef.current.value = "";
+    csvTextRef.current = "";
   }, []);
 
   const progressPct = metrics.total > 0 ? Math.round((metrics.imported / metrics.total) * 100) : 0;

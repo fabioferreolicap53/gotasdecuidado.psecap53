@@ -26,23 +26,31 @@ function authHeaders(): Record<string, string> {
 }
 
 const FIELD_ALIASES: Record<string, string[]> = {
+  unidade_especializada: ["UNIDADE_ESPECIALIZADA", "UNIDADE ESPECIALIZADA", "ESPECIALIZADA", "ESPECIALISTA"],
+  unidade_escolar: ["UNIDADE_ESCOLAR", "UNIDADE ESCOLAR", "ESCOLA", "ESCOLA DO PACIENTE"],
   unidade: ["UNIDADE", "UNIDADE DE SAUDE", "UBS", "ESTABELECIMENTO"],
+  recebe_algum_beneficio: ["RECEBE_ALGUM_BENEFICIO", "RECEBE ALGUM BENEFICIO", "BENEFICIO", "BENEFÍCIO", "RECEBE BENEFICIO"],
+  situacao_vacinal: ["SITUACAO_VACINAL", "SITUAÇÃO VACINAL", "SITUACAO VACINAL", "VACINAL", "VACINA"],
+  estado_nutricional: ["ESTADO_NUTRICIONAL", "ESTADO NUTRICIONAL", "NUTRICIONAL", "ESTADO NUTRI"],
+  data_de_nascimento: ["DATA_DE_NASCIMENTO", "DATA NASCIMENTO", "DATA DE NASCIMENTO", "NASCIMENTO", "DT_NASCIMENTO"],
+  ult_consulta: ["ULT_CONSULTA", "DATA_ULTIMA_CONS_ORICLISTA", "DATA ULTIMA CONS ORICLISTA", "DATA ULTIMA CONSULTA", "DATA ULTIMA CONS", "DATA_ULTIMA_CONS_DENTISTA", "DATA ULTIMA CONS DENTISTA"],
+  classificacao: ["CLASSIFICACAO", "CLASSIFICAÇÃO", "TIPO", "CATEGORIA"],
+  observacoes: ["OBSERVACOES", "OBSERVAÇÕES", "OBS", "OBS GERAIS"],
   nome: ["NOME", "PACIENTE", "NOME PACIENTE", "NOME DO PACIENTE", "NOME COMPLETO"],
   sexo: ["SEXO", "GENERO", "GÊNERO"],
   raca: ["RACA", "RAÇA", "COR", "ETNIA"],
   idade: ["IDADE", "IDADE ATUAL"],
-  data_de_nascimento: ["DATA_DE_NASCIMENTO", "DATA NASCIMENTO", "DATA DE NASCIMENTO", "NASCIMENTO", "DT_NASCIMENTO"],
   equipe: ["EQUIPE", "EQ", "EQUIPE DE SAUDE"],
   microarea: ["MICROAREA", "MICRO AREA", "MICRO"],
-  ult_consulta: ["ULT_CONSULTA", "DATA_ULTIMA_CONS_ORICLISTA", "DATA ULTIMA CONS ORICLISTA", "DATA ULTIMA CONSULTA", "DATA ULTIMA CONS", "DATA_ULTIMA_CONS_DENTISTA", "DATA ULTIMA CONS DENTISTA"],
-  classificacao: ["CLASSIFICACAO", "CLASSIFICAÇÃO", "TIPO", "CATEGORIA"],
-  unidade_escolar: ["UNIDADE_ESCOLAR", "UNIDADE ESCOLAR", "ESCOLA", "ESCOLA DO PACIENTE"],
-  estado_nutricional: ["ESTADO_NUTRICIONAL", "ESTADO NUTRICIONAL", "NUTRICIONAL", "ESTADO NUTRI"],
-  recebe_algum_beneficio: ["RECEBE_ALGUM_BENEFICIO", "RECEBE ALGUM BENEFICIO", "BENEFICIO", "BENEFÍCIO", "RECEBE BENEFICIO"],
-  situacao_vacinal: ["SITUACAO_VACINAL", "SITUAÇÃO VACINAL", "SITUACAO VACINAL", "VACINAL", "VACINA"],
-  observacoes: ["OBSERVACOES", "OBSERVAÇÕES", "OBS", "OBS GERAIS"],
-  unidade_especializada: ["UNIDADE_ESPECIALIZADA", "UNIDADE ESPECIALIZADA", "ESPECIALIZADA", "ESPECIALISTA"],
 };
+
+// Also index by the field name itself (e.g. "unidade_especializada" matches itself)
+for (const field of Object.keys(FIELD_ALIASES)) {
+  const upper = field.toUpperCase();
+  if (!FIELD_ALIASES[field].includes(upper)) {
+    FIELD_ALIASES[field].unshift(upper);
+  }
+}
 
 function normalize(h: string): string {
   return h.trim().toUpperCase().replace(/[^\w\s]/g, " ").replace(/\s+/g, " ").trim();
@@ -52,7 +60,6 @@ function findField(csvHeader: string): string | null {
   const norm = normalize(csvHeader);
   for (const [field, aliases] of Object.entries(FIELD_ALIASES)) {
     if (aliases.some((a) => normalize(a) === norm)) return field;
-    if (aliases.some((a) => norm.includes(normalize(a)) || normalize(a).includes(norm))) return field;
   }
   return null;
 }

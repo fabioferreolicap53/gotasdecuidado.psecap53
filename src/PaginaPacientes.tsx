@@ -3,7 +3,7 @@ import { createPortal } from "react-dom";
 import type { Paciente, Acompanhamento } from "./types";
 import { buscarPacientes, buscarFavoritos, adicionarFavorito, removerFavorito, buscarTodosAcompanhamentos, buscarAcompanhamentos, atualizarPaciente } from "./pocketbase";
 import { getCoresCategoria } from "./data";
-import { UNIDADE_EQUIPES } from "./unidades";
+import { UNIDADE_EQUIPES, UNIDADES } from "./unidades";
 import ModalAcompanhamento from "./ModalAcompanhamento";
 
 // ── Helpers ─────────────────────────────────────────────────────────────
@@ -1235,11 +1235,16 @@ export default function PaginaPacientes({ usuarioId, usuarioUnidade, usuarioRole
                   <div>
                     <p className="mb-0.5 text-[9px] font-bold uppercase tracking-widest text-slate-400">Unidade</p>
                     {editando && usuarioRole === "admin" ? (
-                      <input type="text" value={formData.unidade || ""} onChange={(e) => {
+                      <select value={formData.unidade || ""} onChange={(e) => {
                         const novaUnidade = e.target.value;
                         const equipesNova = UNIDADE_EQUIPES[novaUnidade] || [];
                         setFormData({ ...formData, unidade: novaUnidade, equipe: equipesNova.includes(formData.equipe || "") ? formData.equipe : "" });
-                      }} className="w-full rounded-lg border border-blue-300 bg-white px-3 py-1.5 text-sm font-bold text-slate-800 outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500" />
+                      }} className="w-full rounded-lg border border-blue-300 bg-white px-3 py-1.5 text-sm font-bold text-slate-800 outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500">
+                        <option value="">Selecione</option>
+                        {UNIDADES.map(u => (
+                          <option key={u} value={u}>{u}</option>
+                        ))}
+                      </select>
                     ) : (
                       <p className="text-sm font-bold text-slate-800 break-words">{pacienteModal.unidade || "\u2014"}</p>
                     )}

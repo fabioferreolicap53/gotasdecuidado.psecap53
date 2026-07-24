@@ -74,7 +74,7 @@ function Header({ pagina, onNavigate, onLogout, user }: HeaderProps) {
 
         {/* Logo texto — mobile (< sm) — centralizado */}
         <div className="sm:hidden flex-1 text-center min-w-0">
-          <p className="text-[10px] font-bold tracking-[0.15em] text-white/90 uppercase leading-tight">Gotas de Cuidado</p>
+          <p className="text-[10px] font-bold tracking-[0.15em] text-white/90 uppercase leading-tight">Gotas de Cuidado PSE Cap 53</p>
           <p className="text-[8px] font-medium tracking-wider text-white/40 leading-tight mt-0.5 truncate mx-auto">{user.role === "admin" ? "Coordenação" : user.unidade || ""}</p>
         </div>
 
@@ -84,6 +84,7 @@ function Header({ pagina, onNavigate, onLogout, user }: HeaderProps) {
             <div className="flex items-baseline gap-1.5 flex-nowrap">
               <span className="text-[13px] sm:text-[15px] font-bold tracking-wide text-white/90 whitespace-nowrap">GOTAS DE</span>
               <span className="bg-gradient-to-r from-bordo-400 to-blue-500 bg-clip-text text-[13px] sm:text-[15px] font-bold tracking-wide text-transparent whitespace-nowrap">CUIDADO</span>
+              <span className="text-[10px] sm:text-[11px] font-semibold tracking-wider text-white/50 whitespace-nowrap ml-1">PSE CAP 53</span>
             </div>
             <p className="hidden lg:block mt-px text-[9px] sm:text-[10px] font-medium tracking-wider text-white/40 leading-tight">MONITORAMENTO DE CRIANÇAS E ADOLESCENTES<br />COM DIABETES E ANEMIA FALCIFORME</p>
           </div>
@@ -176,7 +177,7 @@ function Header({ pagina, onNavigate, onLogout, user }: HeaderProps) {
                 CA
               </div>
               <div>
-                <span className="text-sm font-bold tracking-wide text-white/90">GOTAS DE CUIDADO</span>
+                <span className="text-sm font-bold tracking-wide text-white/90">GOTAS DE CUIDADO PSE CAP 53</span>
                 <p className="text-[9px] font-bold tracking-wider text-bordo-400">MONITORAMENTO DE CRIANÇAS E ADOLESCENTES COM DIABETES E ANEMIA FALCIFORME</p>
               </div>
             </div>
@@ -431,10 +432,6 @@ export default function GotasDeCuidado() {
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans antialiased">
       <Header pagina={pagina} onNavigate={handleNavigate} onLogout={handleLogout} user={user} />
 
-      <div className="mx-auto max-w-[1380px] px-4 pt-4 sm:px-6 lg:px-8">
-        <InstallBanner />
-      </div>
-
       <main>
         {pagina === "resumo" && <PaginaResumo usuarioUnidade={user.unidade} />}
         {pagina === "pacientes" && <PaginaPacientes usuarioId={user.id} usuarioUnidade={user.unidade} usuarioRole={user.role} onNavigateAcompFiltered={handleNavigateAcompFiltered} />}
@@ -450,6 +447,7 @@ export default function GotasDeCuidado() {
             <div className="flex items-center gap-2 opacity-30 hover:opacity-60 transition-opacity duration-300">
               <span className="text-[10px] font-black uppercase tracking-[0.25em] text-slate-900">Gotas de</span>
               <span className="text-[10px] font-black uppercase tracking-[0.25em] bg-gradient-to-r from-bordo-600 to-bordo-500 bg-clip-text text-transparent">Cuidado</span>
+              <span className="text-[8px] font-bold uppercase tracking-[0.15em] text-slate-400">PSE Cap 53</span>
             </div>
             {/* Divider */}
             <div className="h-px w-12 bg-gradient-to-r from-transparent via-slate-300/60 to-transparent" />
@@ -463,6 +461,8 @@ export default function GotasDeCuidado() {
           </div>
         </div>
       </footer>
+
+      <InstallBanner />
     </div>
   );
 }

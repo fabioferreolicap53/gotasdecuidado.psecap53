@@ -1,16 +1,4 @@
-import { useState, useEffect } from "react";
-
-// ── Captura global do beforeinstallprompt (FORA do componente) ────────
-// O evento pode disparar antes do React montar (durante login/loading).
-// Se o hook só registra listener no useEffect, o evento é perdido para sempre.
-let capturedPrompt: any = null;
-
-if (typeof window !== "undefined") {
-  window.addEventListener("beforeinstallprompt", (e: Event) => {
-    e.preventDefault();
-    capturedPrompt = e;
-  });
-}
+import { useState, useEffect, useCallback } from "react";
 
 // ── Tipos ─────────────────────────────────────────────────────────────
 type Platform = "android" | "ios" | "windows" | "other";
@@ -41,46 +29,64 @@ function isStandalone(): boolean {
 
 const DISMISS_KEY = "pwa_install_banner_dismissed";
 
+function wasDismissed(): boolean {
+  try {
+    return localStorage.getItem(DISMISS_KEY) === "true";
+  } catch {
+    return false;
+  }
+}
+
 // ── Hook ──────────────────────────────────────────────────────────────
 export function useInstallPrompt(): UseInstallPrompt {
-  const [deferredPrompt, setDeferredPrompt] = useState<any>(capturedPrompt);
-  const [shouldShow, setShouldShow] = useState<boolean>(() => {
-    if (isStandalone()) return false;
-    if (localStorage.getItem(DISMISS_KEY)) return false;
-    const platform = getPlatform();
-    if (capturedPrompt) return true;
-    if (platform === "ios" || platform === "android") return true;
-    return false;
-  });
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [shouldShow, setShouldShow] = useState(false);
+
+  // Captura do beforeinstallprompt — listener ativo durante toda a vida do componente
+  useEffect(() => {
+    if (isStandalone() || wasDismissed()) return;
+
+    const handler = (e: Event) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+      setShouldShow(true);
+    };
+
+    window.addEventListener("beforeinstallprompt", handler);
+
+    // Verifica se o evento já disparou antes do mount
+    // (Chrome pode ter disparado antes do useEffect rodar)
+    // Nesse caso, o banner ainda deve aparecer para plataformas suportadas
+    if (getPlatform() === "ios" || getPlatform() === "android" || getPlatform() === "windows") {
+      setShouldShow(true);
+    }
+
+    return () => window.removeEventListener("beforeinstallprompt", handler);
+  }, []);
 
   const platform = getPlatform();
   const canNativeInstall = !!deferredPrompt;
 
-  // Atualiza se o evento chegar depois do mount
-  useEffect(() => {
-    if (capturedPrompt && !deferredPrompt) {
-      setDeferredPrompt(capturedPrompt);
-      setShouldShow(true);
+  const install = useCallback(async () => {
+    if (!deferredPrompt) return;
+    try {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === "accepted") {
+        setDeferredPrompt(null);
+        setShouldShow(false);
+      }
+    } catch {
+      // instalação falhou silenciosamente
     }
   }, [deferredPrompt]);
 
-  const install = async () => {
-    if (!deferredPrompt) return;
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    if (outcome === "accepted") {
-      setDeferredPrompt(null);
-      capturedPrompt = null;
-      setShouldShow(false);
-    }
-  };
-
-  const dismiss = () => {
+  const dismiss = useCallback(() => {
     try {
       localStorage.setItem(DISMISS_KEY, "true");
     } catch { /* ignore */ }
     setShouldShow(false);
-  };
+  }, []);
 
   return { shouldShow, platform, canNativeInstall, install, dismiss };
 }

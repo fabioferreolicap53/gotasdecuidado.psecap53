@@ -22,3 +22,13 @@
 .animate-toast-in {
   animation: toast-in 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
+
+@keyframes pwa-slide-in {
+  from { opacity: 0; transform: translateY(-20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pwa-slide-up {
+  from { opacity: 0; transform: translate(-50%, 16px); }
+  to   { opacity: 1; transform: translate(-50%, 0); }
+}

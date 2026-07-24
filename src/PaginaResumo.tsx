@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import * as echarts from "echarts";
 import { buscarTodosPacientes, buscarTodosAcompanhamentos } from "./pocketbase";
 import type { Paciente, Acompanhamento } from "./types";
@@ -76,9 +76,60 @@ function ChartCard({ titulo, subtitulo, children, icone, className = "" }: { tit
   );
 }
 
+// ── Hook contagem animada ─────────────────────────────────────────────
+function useContagemAnimada(alvo: number, duracao = 1400): number {
+  const [atual, setAtual] = useState(0);
+  const ref = useRef<number | null>(null);
+  useEffect(() => {
+    const inicio = performance.now();
+    const from = atual;
+    function tick(now: number) {
+      const progress = Math.min((now - inicio) / duracao, 1);
+      const eased = 1 - Math.pow(1 - progress, 4);
+      setAtual(Math.round(from + (alvo - from) * eased));
+      if (progress < 1) ref.current = requestAnimationFrame(tick);
+    }
+    ref.current = requestAnimationFrame(tick);
+    return () => { if (ref.current) cancelAnimationFrame(ref.current); };
+  }, [alvo, duracao]);
+  return atual;
+}
+
+// ── Mini Sparkline SVG ────────────────────────────────────────────────
+function Sparkline({ dados, cor }: { dados: number[]; cor: string }) {
+  if (dados.length < 2) return null;
+  const max = Math.max(...dados, 1);
+  const min = Math.min(...dados, 0);
+  const range = max - min || 1;
+  const w = 80;
+  const h = 28;
+  const pts = dados.map((v, i) => {
+    const x = (i / (dados.length - 1)) * w;
+    const y = h - ((v - min) / range) * (h - 4) - 2;
+    return `${x},${y}`;
+  });
+  const area = `M0,${h} L${pts.join(" L")} L${w},${h} Z`;
+  return (
+    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} className="opacity-60 group-hover:opacity-100 transition-opacity duration-300">
+      <defs>
+        <linearGradient id={`sg-${cor.replace("#", "")}`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={cor} stopOpacity="0.3" />
+          <stop offset="100%" stopColor={cor} stopOpacity="0.02" />
+        </linearGradient>
+      </defs>
+      <path d={area} fill={`url(#sg-${cor.replace("#", "")})`} />
+      <polyline points={pts.join(" ")} fill="none" stroke={cor} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      <circle cx={pts[pts.length - 1]?.split(",")[0]} cy={pts[pts.length - 1]?.split(",")[1]} r="3" fill={cor} stroke="#fff" strokeWidth="1.5" />
+    </svg>
+  );
+}
+
 // ── KPI Stat Card ───────────────────────────────────────────────────────
 
-function KpiCard({ titulo, valor, icone, cor, corHex, subtitulo, delay = 0 }: { titulo: string; valor: string | number; icone: React.ReactNode; cor: string; corHex: string; subtitulo?: string; delay?: number }) {
+function KpiCard({ titulo, valor, icone, cor, corHex, subtitulo, delay = 0, sparkline }: { titulo: string; valor: string | number; icone: React.ReactNode; cor: string; corHex: string; subtitulo?: string; delay?: number; sparkline?: number[] }) {
+  const valorNumerico = typeof valor === "number" ? valor : parseInt(String(valor).replace(/\D/g, ""), 10) || 0;
+  const valorAnimado = useContagemAnimada(valorNumerico);
+  const valorFormatado = typeof valor === "number" ? valorAnimado.toLocaleString("pt-BR") : valor;
   return (
     <div
       className="group relative overflow-hidden rounded-2xl border border-slate-200/60 bg-white shadow-[0_2px_8px_rgba(0,0,0,0.04)] transition-all duration-500 hover:shadow-[0_20px_40px_-12px_rgba(0,0,0,0.2)] hover:-translate-y-1 animate-[fadeInUp_0.5s_ease-out_both] min-w-0"
@@ -95,7 +146,7 @@ function KpiCard({ titulo, valor, icone, cor, corHex, subtitulo, delay = 0 }: { 
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0 flex-1">
             <p className="text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.15em] text-slate-400 group-hover:text-slate-500 transition-colors leading-tight min-h-[1.75rem] lg:min-h-0">{titulo}</p>
-            <p className="mt-2 text-2xl sm:text-3xl lg:text-[2.25rem] font-black tracking-tight text-slate-900 tabular-nums leading-none">{valor}</p>
+            <p className="mt-2 text-2xl sm:text-3xl lg:text-[2.25rem] font-black tracking-tight text-slate-900 tabular-nums leading-none">{valorFormatado}</p>
             {subtitulo && <p className="mt-1 text-[9px] sm:text-[10px] font-semibold text-slate-400 leading-tight">{subtitulo}</p>}
           </div>
           <div
@@ -107,13 +158,17 @@ function KpiCard({ titulo, valor, icone, cor, corHex, subtitulo, delay = 0 }: { 
         </div>
       </div>
 
-      {/* Bottom bar */}
+      {/* Bottom bar with sparkline */}
       <div className="flex items-center justify-between border-t border-slate-100/80 px-4 sm:px-5 py-2.5 bg-slate-50/50">
         <div className="flex items-center gap-1.5">
           <span className="h-1.5 w-1.5 rounded-full animate-pulse" style={{ backgroundColor: corHex }} />
           <span className="text-[8px] sm:text-[9px] font-bold uppercase tracking-widest text-slate-300">Ativo</span>
         </div>
-        <svg className="h-3 w-3 text-slate-300 group-hover:text-slate-400 transition-colors" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
+        {sparkline && sparkline.length >= 2 ? (
+          <Sparkline dados={sparkline} cor={corHex} />
+        ) : (
+          <svg className="h-3 w-3 text-slate-300 group-hover:text-slate-400 transition-colors" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
+        )}
       </div>
     </div>
   );
@@ -230,7 +285,6 @@ export default function PaginaResumo({ usuarioUnidade }: { usuarioUnidade: strin
     return acc;
   }, {});
   const topRacas = Object.entries(racaMap).sort((a, b) => b[1] - a[1]);
-  const maxRaca = topRacas[0]?.[1] || 1;
 
   // ── Estado Nutricional ────────────────────────────────────────────────
   const nutMap = pacientesPrioritarios.reduce<Record<string, number>>((acc, p) => {
@@ -239,7 +293,6 @@ export default function PaginaResumo({ usuarioUnidade }: { usuarioUnidade: strin
     return acc;
   }, {});
   const topNut = Object.entries(nutMap).sort((a, b) => b[1] - a[1]);
-  const maxNut = topNut[0]?.[1] || 1;
 
   // ── Situação Vacinal ─────────────────────────────────────────────────
   const vacMap = pacientesPrioritarios.reduce<Record<string, number>>((acc, p) => {
@@ -576,37 +629,61 @@ export default function PaginaResumo({ usuarioUnidade }: { usuarioUnidade: strin
   const chartMonitoramentoOption = {
     tooltip: { ...tooltipPremium, trigger: "axis" as const, formatter: (params: any) => {
       const items = Array.isArray(params) ? params : [params];
-      let html = `<div style="font-size:12px;font-weight:700;color:#f8fafc;margin-bottom:6px">${items[0]?.name || ""}</div>`;
+      let html = `<div style="font-size:13px;font-weight:800;color:#f8fafc;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid rgba(255,255,255,0.1)">${items[0]?.name || ""}</div>`;
       items.forEach((item: any) => {
-        const cor = item.seriesName === "Consultas" ? "#a78bfa" : "#f59e0b";
-        html += `<div style="display:flex;align-items:center;gap:6px;margin-top:3px"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${cor}"></span><span style="font-size:11px;color:#94a3b8">${item.seriesName}</span><span style="font-size:14px;font-weight:900;color:#f8fafc;margin-left:auto">${item.value}</span></div>`;
+        const cor = item.seriesName === "Consultas" ? "#a78bfa" : item.seriesName === "Buscas" ? "#f59e0b" : "#10b981";
+        html += `<div style="display:flex;align-items:center;gap:8px;margin-top:5px"><span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:${cor}"></span><span style="font-size:11px;color:#94a3b8;font-weight:600">${item.seriesName}</span><span style="font-size:16px;font-weight:900;color:#f8fafc;margin-left:auto">${item.value}</span></div>`;
       });
       return html;
     }},
     legend: { bottom: 0, textStyle: { color: "#64748b", fontSize: 10, fontWeight: "bold" as const }, itemGap: 20, itemWidth: 12, itemHeight: 8, icon: "roundRect" },
-    grid: { top: 20, right: 16, bottom: 40, left: 48 },
+    grid: { top: 24, right: 16, bottom: 40, left: 48 },
     xAxis: { type: "category" as const, data: monitLabels, axisLine: { lineStyle: { color: "#e2e8f0" } }, axisTick: { show: false }, axisLabel: { color: "#64748b", fontSize: 10, fontWeight: "bold" as const } },
     yAxis: { type: "value" as const, minInterval: 1, axisLine: { show: false }, axisTick: { show: false }, splitLine: { lineStyle: { color: "#f1f5f9", type: "dashed" as const } }, axisLabel: { color: "#94a3b8", fontSize: 10 } },
     series: [
       {
-        name: "Consultas", type: "bar", barWidth: "40%",
+        name: "Consultas", type: "bar", barWidth: "35%",
         data: monitValores.map((v) => ({
           value: v,
           itemStyle: { borderRadius: [6, 6, 0, 0], color: v > 0 ? { type: "linear", x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: "#a78bfa" }, { offset: 1, color: "#7c3aed" }] } : { type: "linear", x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: "#e2e8f0" }, { offset: 1, color: "#cbd5e1" }] } },
         })),
         animationDelay: (i: number) => i * 80,
         label: { show: true, position: "top" as const, fontSize: 10, fontWeight: "900" as const, color: "#7c3aed", formatter: (p: any) => p.value > 0 ? p.value : "" },
+        emphasis: { itemStyle: { shadowBlur: 10, shadowColor: "rgba(124,58,237,0.3)" } },
       },
       {
         name: "Buscas", type: "line", smooth: true, symbol: "circle", symbolSize: 7,
         lineStyle: { color: "#f59e0b", width: 2.5, type: "dashed" as const },
         itemStyle: { color: "#d97706", borderWidth: 2, borderColor: "#fff" },
+        areaStyle: { color: { type: "linear", x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: "rgba(245,158,11,0.15)" }, { offset: 1, color: "rgba(245,158,11,0.01)" }] } },
         data: buscaValores, animationDuration: 1500, animationEasing: "cubicOut" as const,
         label: { show: true, position: "top" as const, fontSize: 10, fontWeight: "700" as const, color: "#d97706", formatter: (p: any) => p.value > 0 ? p.value : "" },
+        emphasis: { itemStyle: { shadowBlur: 10, shadowColor: "rgba(217,119,6,0.3)" } },
       },
     ],
     animationDuration: 1000,
   };
+
+  // ── Sparklines para KPIs (últimos 6 meses) ──────────────────────────
+  const sparkAcomps = useMemo(() => {
+    const arr: number[] = [];
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(anoAtual, mesAtual - i, 1);
+      const chave = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+      arr.push(acompsPrioritarios.filter((a) => (a.data_da_busca || "").startsWith(chave)).length);
+    }
+    return arr;
+  }, [acompsPrioritarios, mesAtual, anoAtual]);
+
+  const sparkConsultas = useMemo(() => {
+    const arr: number[] = [];
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(anoAtual, mesAtual - i, 1);
+      const chave = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+      arr.push(pacientesFiltrados.filter((p) => (p.ult_consulta || "").startsWith(chave)).length);
+    }
+    return arr;
+  }, [pacientesFiltrados, mesAtual, anoAtual]);
 
   return (
     <>
@@ -788,10 +865,10 @@ export default function PaginaResumo({ usuarioUnidade }: { usuarioUnidade: strin
         {/* ── KPI Cards ────────────────────────────────────────────── */}
         {!carregando && (<>
         <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:gap-5 lg:grid-cols-4">
-          <KpiCard titulo="Acompanhamentos" valor={totalAcomps} cor="bg-violet-500" corHex="#8b5cf6" subtitulo="registros" delay={0}
+          <KpiCard titulo="Acompanhamentos" valor={totalAcomps} cor="bg-violet-500" corHex="#8b5cf6" subtitulo="registros" delay={0} sparkline={sparkAcomps}
             icone={<svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15a2.25 2.25 0 0 1 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25Z" /></svg>}
           />
-          <KpiCard titulo="Este Mês" valor={acompsMesAtual} cor="bg-emerald-500" corHex="#10b981" subtitulo="acompanhamentos" delay={100}
+          <KpiCard titulo="Este Mês" valor={acompsMesAtual} cor="bg-emerald-500" corHex="#10b981" subtitulo="acompanhamentos" delay={100} sparkline={sparkConsultas}
             icone={<svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" /></svg>}
           />
           <KpiCard titulo="Diabetes" valor={diabetes} cor="bg-blue-600" corHex="#2563eb" subtitulo="pacientes" delay={200}
@@ -937,23 +1014,31 @@ export default function PaginaResumo({ usuarioUnidade }: { usuarioUnidade: strin
           <ChartCard titulo="Sexo" subtitulo="Distribui&ccedil;&atilde;o por sexo" icone={
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" /></svg>
           }>
-            <div className="flex items-center justify-center gap-8 py-4">
-              {(["M", "F"] as const).map((s) => {
-                const v = sexoMap[s] || 0;
-                const total = Object.values(sexoMap).reduce((a, b) => a + b, 0) || 1;
-                const pct = Math.round((v / total) * 100);
-                return (
-                  <div key={s} className="flex flex-col items-center gap-3">
-                    <div className={`flex h-24 w-24 items-center justify-center rounded-full ring-4 ring-white shadow-xl ${s === "M" ? "bg-gradient-to-br from-blue-400 to-blue-600" : "bg-gradient-to-br from-pink-400 to-rose-500"}`}>
-                      <span className="text-4xl font-black text-white">{pct}%</span>
-                    </div>
-                    <div className="text-center">
-                      <p className="text-sm font-black text-slate-800 uppercase">{s === "M" ? "Masculino" : "Feminino"}</p>
-                      <p className="text-[11px] font-bold text-slate-400 tabular-nums">{v} pacientes</p>
-                    </div>
-                  </div>
-                );
-              })}
+            <div className="h-[280px]">
+              <Chart option={{
+                tooltip: { ...tooltipPremium, trigger: "item", formatter: "{b}<br/><span style='font-size:20px;font-weight:900'>{c}</span> <span style='color:#94a3b8'>({d}%)</span>" },
+                legend: { bottom: 0, textStyle: { color: "#64748b", fontSize: 12, fontWeight: "bold" }, itemGap: 24, itemWidth: 14, itemHeight: 14, icon: "roundRect" },
+                animationDuration: 1200, animationEasing: "elasticOut",
+                series: [{
+                  type: "pie", radius: ["42%", "70%"], center: ["50%", "44%"],
+                  itemStyle: { borderRadius: 10, borderColor: "#fff", borderWidth: 3 },
+                  label: {
+                    show: true, position: "outside", fontSize: 13, fontWeight: "900",
+                    formatter: "{b}\n{d}%",
+                    rich: {
+                      b: { fontSize: 11, fontWeight: "bold", color: "#64748b", lineHeight: 18 },
+                      d: { fontSize: 18, fontWeight: "900", color: "#1e293b", lineHeight: 26 },
+                    },
+                  },
+                  labelLine: { length: 16, length2: 12, lineStyle: { color: "#cbd5e1", width: 2 }, smooth: true },
+                  emphasis: { scale: true, scaleSize: 10, label: { fontSize: 17 }, itemStyle: { shadowBlur: 20, shadowColor: "rgba(0,0,0,0.15)" } },
+                  animationType: "scale", animationDelay: (i: number) => i * 200,
+                  data: [
+                    { value: sexoMap["M"] || 0, name: "Masculino", itemStyle: { color: { type: "linear", x: 0, y: 0, x2: 1, y2: 1, colorStops: [{ offset: 0, color: "#3b82f6" }, { offset: 1, color: "#1d4ed8" }] } } },
+                    { value: sexoMap["F"] || 0, name: "Feminino", itemStyle: { color: { type: "linear", x: 0, y: 0, x2: 1, y2: 1, colorStops: [{ offset: 0, color: "#f43f5e" }, { offset: 1, color: "#e11d48" }] } } },
+                  ].filter((d) => d.value > 0),
+                }],
+              }} className="h-full w-full" />
             </div>
           </ChartCard>
 
@@ -961,28 +1046,23 @@ export default function PaginaResumo({ usuarioUnidade }: { usuarioUnidade: strin
           <ChartCard titulo="Ra&ccedil;a" subtitulo="Distribui&ccedil;&atilde;o racial" icone={
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
           }>
-            <div className="space-y-2.5">
-              {topRacas.map(([nome, count], i) => {
-                const total = Object.values(racaMap).reduce((a, b) => a + b, 0) || 1;
-                const pct = Math.round((count / total) * 100);
-                const cores = ["#3b82f6","#8b5cf6","#06b6d4","#f59e0b","#10b981","#f43f5e","#64748b"];
-                return (
-                  <div key={nome} className="group/row flex items-center gap-3 rounded-xl px-3 py-1.5 transition-all duration-200 hover:bg-slate-50">
-                    <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg text-[10px] font-black text-white" style={{ backgroundColor: cores[i % cores.length] }}>
-                      {pct}%
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-xs font-bold text-slate-700 truncate uppercase group-hover/row:text-slate-900 transition-colors">{nome}</span>
-                        <span className="text-[10px] font-black text-slate-900 ml-2 tabular-nums">{count}</span>
-                      </div>
-                      <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
-                        <div className="h-full rounded-full transition-all duration-1000" style={{ width: `${(count / maxRaca) * 100}%`, backgroundColor: cores[i % cores.length] }} />
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
+            <div className="h-[300px]">
+              <Chart option={{
+                tooltip: { ...tooltipPremium, trigger: "axis", axisPointer: { type: "shadow" } },
+                grid: { left: 8, right: 40, bottom: 8, top: 8, containLabel: true },
+                xAxis: { type: "value", minInterval: 1, splitLine: { lineStyle: { color: "#f1f5f9", type: "dashed" } }, axisLabel: { color: "#94a3b8", fontSize: 11, fontWeight: "bold" } },
+                yAxis: { type: "category", data: topRacas.map(([k]) => k).reverse(), axisLabel: { color: "#475569", fontSize: 11, fontWeight: "bold", width: 120, overflow: "truncate", formatter: (v: string) => v.toUpperCase() }, axisLine: { show: false }, axisTick: { show: false } },
+                animationDuration: 1200, animationEasing: "cubicOut",
+                series: [{
+                  type: "bar", barWidth: "60%",
+                  data: topRacas.map(([, v], i) => ({
+                    value: v,
+                    itemStyle: { borderRadius: [0, 8, 8, 0], color: { type: "linear", x: 0, y: 0, x2: 1, y2: 0, colorStops: [{ offset: 0, color: ["#3b82f6","#8b5cf6","#06b6d4","#f59e0b","#10b981","#f43f5e","#64748b"][i % 7] }, { offset: 1, color: ["#2563eb","#7c3aed","#0891b2","#d97706","#059669","#e11d48","#475569"][i % 7] }] } },
+                  })).reverse(),
+                  label: { show: true, position: "right", fontSize: 12, fontWeight: "900", color: "#475569", formatter: "{c}" },
+                  animationDelay: (i: number) => i * 100,
+                }],
+              }} className="h-full w-full" />
             </div>
           </ChartCard>
         </div>
@@ -994,26 +1074,23 @@ export default function PaginaResumo({ usuarioUnidade }: { usuarioUnidade: strin
           <ChartCard titulo="Estado Nutricional" subtitulo="Classifica&ccedil;&atilde;o nutricional" icone={
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" /></svg>
           }>
-            <div className="space-y-2.5">
-              {topNut.map(([nome, count], i) => {
-                const pct = Math.round((count / maxNut) * 100);
-                const corNut = ["#10b981","#34d399","#fbbf24","#f59e0b","#f97316","#ef4444","#64748b"];
-                return (
-                  <div key={nome} className="group/row flex items-center gap-3 rounded-xl px-3 py-1.5 transition-all duration-200 hover:bg-slate-50">
-                    <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg text-[10px] font-black text-white tabular-nums" style={{ backgroundColor: corNut[i % corNut.length] }}>{count}</span>
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center justify-between mb-0.5">
-                        <span className="text-[11px] font-bold text-slate-700 truncate uppercase group-hover/row:text-slate-900 transition-colors">{nome}</span>
-                        <span className="text-[9px] font-bold text-slate-400 ml-2 tabular-nums">{pct}%</span>
-                      </div>
-                      <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
-                        <div className="h-full rounded-full transition-all duration-1000" style={{ width: `${pct}%`, backgroundColor: corNut[i % corNut.length] }} />
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-              {topNut.length === 0 && <p className="text-sm text-slate-400 text-center py-4">Nenhum dado nutricional registrado.</p>}
+            <div className="h-[300px]">
+              <Chart option={{
+                tooltip: { ...tooltipPremium, trigger: "axis", axisPointer: { type: "shadow" } },
+                grid: { left: 8, right: 20, bottom: 8, top: 16, containLabel: true },
+                xAxis: { type: "category", data: topNut.map(([k]) => k.toUpperCase()), axisLabel: { color: "#475569", fontSize: 10, fontWeight: "bold", interval: 0, rotate: 0, width: 90, overflow: "break", align: "center", lineHeight: 14 }, axisLine: { lineStyle: { color: "#e2e8f0" } }, axisTick: { show: false } },
+                yAxis: { type: "value", minInterval: 1, splitLine: { lineStyle: { color: "#f1f5f9", type: "dashed" } }, axisLabel: { color: "#94a3b8", fontSize: 11, fontWeight: "bold" } },
+                animationDuration: 1000, animationEasing: "elasticOut",
+                series: [{
+                  type: "bar", barWidth: "60%",
+                  data: topNut.map(([, v], i) => ({
+                    value: v,
+                    itemStyle: { borderRadius: [8, 8, 0, 0], color: { type: "linear", x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: ["#10b981","#34d399","#fbbf24","#f59e0b","#f97316","#ef4444","#64748b"][i % 7] }, { offset: 1, color: ["#059669","#0d9488","#d97706","#b45309","#ea580c","#dc2626","#475569"][i % 7] }] } },
+                  })),
+                  label: { show: true, position: "top", fontSize: 12, fontWeight: "900", color: "#475569" },
+                  animationDelay: (i: number) => i * 100,
+                }],
+              }} className="h-full w-full" />
             </div>
           </ChartCard>
 
@@ -1021,30 +1098,23 @@ export default function PaginaResumo({ usuarioUnidade }: { usuarioUnidade: strin
           <ChartCard titulo="Situa&ccedil;&atilde;o Vacinal" subtitulo="Status de vacina&ccedil;&atilde;o" icone={
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z" /></svg>
           }>
-            <div className="space-y-2.5">
-              {topVac.map(([nome, count], i) => {
-                const total = Object.values(vacMap).reduce((a, b) => a + b, 0) || 1;
-                const pct = Math.round((count / total) * 100);
-                const corVac = ["#22c55e","#ef4444","#3b82f6","#f59e0b","#a855f7","#64748b"];
-                return (
-                  <div key={nome} className="group/row flex items-center gap-3 rounded-xl px-3 py-1.5 transition-all duration-200 hover:bg-slate-50">
-                    <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-[10px] font-black text-white" style={{ backgroundColor: corVac[i % corVac.length] }}>
-                      {i + 1}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center justify-between mb-0.5">
-                        <span className="text-[11px] font-bold text-slate-700 truncate uppercase group-hover/row:text-slate-900 transition-colors">{nome}</span>
-                        <span className="text-[10px] font-black text-slate-900 ml-2 tabular-nums">{count}</span>
-                      </div>
-                      <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
-                        <div className="h-full rounded-full transition-all duration-1000" style={{ width: `${pct}%`, backgroundColor: corVac[i % corVac.length] }} />
-                      </div>
-                    </div>
-                    <span className="text-[9px] font-bold text-slate-400 tabular-nums">{pct}%</span>
-                  </div>
-                );
-              })}
-              {topVac.length === 0 && <p className="text-sm text-slate-400 text-center py-4">Nenhum dado vacinal registrado.</p>}
+            <div className="h-[280px]">
+              <Chart option={{
+                tooltip: { ...tooltipPremium, trigger: "axis", axisPointer: { type: "shadow" } },
+                grid: { left: 8, right: 40, bottom: 8, top: 8, containLabel: true },
+                xAxis: { type: "value", minInterval: 1, splitLine: { lineStyle: { color: "#f1f5f9", type: "dashed" } }, axisLabel: { color: "#94a3b8", fontSize: 11, fontWeight: "bold" } },
+                yAxis: { type: "category", data: topVac.map(([k]) => k).reverse(), axisLabel: { color: "#475569", fontSize: 11, fontWeight: "bold", formatter: (v: string) => v.toUpperCase() }, axisLine: { show: false }, axisTick: { show: false } },
+                animationDuration: 1200, animationEasing: "cubicOut",
+                series: [{
+                  type: "bar", barWidth: "60%",
+                  data: topVac.map(([, v], i) => ({
+                    value: v,
+                    itemStyle: { borderRadius: [0, 8, 8, 0], color: { type: "linear", x: 0, y: 0, x2: 1, y2: 0, colorStops: [{ offset: 0, color: ["#22c55e","#ef4444","#3b82f6","#f59e0b","#a855f7","#64748b"][i % 6] }, { offset: 1, color: ["#16a34a","#dc2626","#2563eb","#d97706","#9333ea","#475569"][i % 6] }] } },
+                  })).reverse(),
+                  label: { show: true, position: "right", fontSize: 12, fontWeight: "900", color: "#475569", formatter: "{c}" },
+                  animationDelay: (i: number) => i * 100,
+                }],
+              }} className="h-full w-full" />
             </div>
           </ChartCard>
         </div>

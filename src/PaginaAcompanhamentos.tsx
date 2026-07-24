@@ -4,6 +4,7 @@ import type { Acompanhamento, Paciente } from "./types";
 import { buscarTodosAcompanhamentos, buscarAcompanhamentos, buscarPacientes, excluirAcompanhamento } from "./pocketbase";
 import { getCoresCategoria } from "./data";
 import ModalAcompanhamento from "./ModalAcompanhamento";
+import PainelMonitoria from "./PainelMonitoria";
 
 function formatarData(dateStr: string): string {
   if (!dateStr) return "";
@@ -504,6 +505,9 @@ export default function PaginaAcompanhamentos({ selectedPacienteId, usuarioId, u
             {toast.msg}
           </div>
         )}
+
+        {/* ═══ PAINEL DE MONITORIA ═══════════════════════════════════════ */}
+        <PainelMonitoria pacMap={pacMap} />
 
         {/* ═══ TABELA ═══════════════════════════════════════ */}
             <div ref={tabelaMobileRef} className="-mx-4 sm:mx-0 overflow-hidden rounded-2xl bg-white border border-slate-200/80 shadow-xl shadow-slate-200/60 ring-1 ring-black/[0.02]">

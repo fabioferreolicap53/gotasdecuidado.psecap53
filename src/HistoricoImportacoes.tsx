@@ -1,14 +1,13 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import * as echarts from "echarts/core";
-import { BarChart, PieChart } from "echarts/charts";
+import { BarChart } from "echarts/charts";
 import {
   GridComponent,
   TooltipComponent,
-  LegendComponent,
 } from "echarts/components";
 import { CanvasRenderer } from "echarts/renderers";
 
-echarts.use([BarChart, PieChart, GridComponent, TooltipComponent, LegendComponent, CanvasRenderer]);
+echarts.use([BarChart, GridComponent, TooltipComponent, CanvasRenderer]);
 
 // ── Types ─────────────────────────────────────────────────────────────
 interface ImportLog {
@@ -311,27 +310,6 @@ export default function HistoricoImportacoes() {
           sub="registros com falha"
           icon={<svg className="h-5 w-5 text-rose-500" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" /></svg>}
         />
-      </div>
-
-      {/* ── Gráficos ─────────────────────────────────────────────── */}
-      <div className="grid gap-5 lg:grid-cols-3">
-        {/* Bar chart: imports per month */}
-        <div className="rounded-2xl border border-slate-200/60 bg-white p-4 shadow-sm lg:col-span-2">
-          <div className="mb-3 flex items-center gap-2">
-            <div className="h-2 w-2 rounded-full bg-gradient-to-r from-emerald-400 to-rose-400" />
-            <h3 className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-600">Importações por Mês</h3>
-          </div>
-          <Chart option={barOption} className="h-[260px] w-full" />
-        </div>
-
-        {/* Donut: status */}
-        <div className="rounded-2xl border border-slate-200/60 bg-white p-4 shadow-sm">
-          <div className="mb-3 flex items-center gap-2">
-            <div className="h-2 w-2 rounded-full bg-gradient-to-r from-emerald-400 to-amber-400" />
-            <h3 className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-600">Status das Importações</h3>
-          </div>
-          <Chart option={donutOption} className="h-[260px] w-full" />
-        </div>
       </div>
 
       {/* ── Records per import ──────────────────────────────────── */}

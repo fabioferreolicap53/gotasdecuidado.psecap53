@@ -252,7 +252,13 @@ function Header({ pagina, onNavigate, onLogout, user }: HeaderProps) {
 // ── Componente Principal ─────────────────────────────────────────────────
 
 export default function GotasDeCuidado() {
-  const [pagina, setPagina] = useState<Pagina>("resumo");
+  const [pagina, setPagina] = useState<Pagina>(() => {
+    try {
+      const saved = sessionStorage.getItem("current_page");
+      if (saved === "resumo" || saved === "pacientes" || saved === "acompanhamentos" || saved === "configuracoes" || saved === "favoritos") return saved;
+    } catch { /* ignore */ }
+    return "resumo";
+  });
   const [user, setUser] = useState<AuthUser | null>(() => {
     try {
       const stored = localStorage.getItem("pb_user");
@@ -303,6 +309,7 @@ export default function GotasDeCuidado() {
     scrollPositions.current.set(pagina, window.scrollY);
     setSelectedPacienteId(null);
     setPagina(p);
+    try { sessionStorage.setItem("current_page", p); } catch { /* ignore */ }
     const saved = scrollPositions.current.get(p) ?? 0;
     isRestoringScroll.current = true;
     requestAnimationFrame(() => window.scrollTo(0, saved));
@@ -312,6 +319,7 @@ export default function GotasDeCuidado() {
     scrollPositions.current.set(pagina, window.scrollY);
     setSelectedPacienteId(pacienteId);
     setPagina("acompanhamentos");
+    try { sessionStorage.setItem("current_page", "acompanhamentos"); } catch { /* ignore */ }
     const saved = scrollPositions.current.get("acompanhamentos") ?? 0;
     isRestoringScroll.current = true;
     requestAnimationFrame(() => window.scrollTo(0, saved));
@@ -329,6 +337,7 @@ export default function GotasDeCuidado() {
     } catch { /* ignore */ }
     setUser(null);
     setPagina("resumo");
+    try { sessionStorage.setItem("current_page", "resumo"); } catch { /* ignore */ }
   }
 
   // 1. Email action (reset password) — ANTES do auth check
